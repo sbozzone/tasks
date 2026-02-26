@@ -1,4 +1,4 @@
-var CACHE = 'bozzone-tasks-v2';
+var CACHE = 'bozzone-tasks-v1';
 var SHELL = ['./', './index.html', './manifest.json', './icon.svg'];
 
 /* Install — cache app shell */

@@ -14,8 +14,6 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
-  <!-- SortableJS — touch-friendly drag & drop -->
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,7 +37,7 @@
       background: var(--bg);
       color: var(--text);
       padding: 12px;
-      padding-bottom: calc(80px + var(--safe-bottom));
+      padding-bottom: calc(16px + var(--safe-bottom));
       min-height: 100vh;
       min-height: 100dvh;
       -webkit-tap-highlight-color: transparent;
@@ -59,6 +57,7 @@
       z-index: 100;
       padding-top: env(safe-area-inset-top, 4px);
     }
+
     header h1 {
       font-size: 1.1rem;
       color: var(--accent);
@@ -66,12 +65,14 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
     .hdr-right {
       display: flex;
       align-items: center;
       gap: 8px;
       flex-shrink: 0;
     }
+
     .sync-dot {
       width: 9px; height: 9px;
       border-radius: 50%;
@@ -81,11 +82,13 @@
     .sync-dot.on  { background: #4CAF50; }
     .sync-dot.wait { background: #FFC107; }
     .sync-dot.off  { background: #F44336; }
+
     .key-label {
       font-size: .7rem;
       color: var(--text-sec);
       cursor: pointer;
     }
+
     .gear {
       background: none; border: none;
       font-size: 1.15rem; cursor: pointer;
@@ -169,6 +172,7 @@
       flex-shrink: 0;
     }
     .card-bd { padding: 10px 14px; }
+
     .priority .card-hd {
       background: var(--accent-light);
       border-bottom-color: #f8d5c2;
@@ -195,32 +199,20 @@
       margin-bottom: 4px;
     }
 
-    /* ── Task list (sortable container) ──────────── */
-    .task-list { min-height: 8px; }
-
-    .task-empty {
-      padding: 12px 0;
-      text-align: center;
-      font-size: .8rem;
-      color: var(--text-muted);
-      font-style: italic;
-    }
-
     /* ── Tasks ───────────────────────────────────── */
     .task {
       display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 0;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
       border-bottom: 1px solid #f0efea;
       font-size: .86rem;
       line-height: 1.42;
-      background: var(--card-bg);
     }
     .task:last-child { border-bottom: none; }
 
     .task input[type="checkbox"] {
-      margin: 0;
+      margin-top: 2px;
       accent-color: var(--accent);
       width: 18px; height: 18px;
       flex-shrink: 0;
@@ -232,122 +224,10 @@
       flex: 1;
       user-select: none;
       -webkit-user-select: none;
-      min-width: 0;
-      word-break: break-word;
     }
     .task.done label {
       text-decoration: line-through;
       color: var(--text-muted);
-    }
-
-    /* Drag handle */
-    .drag-handle {
-      cursor: grab;
-      color: #c5c5c5;
-      font-size: .95rem;
-      padding: 6px 4px;
-      touch-action: none;
-      user-select: none;
-      -webkit-user-select: none;
-      flex-shrink: 0;
-      line-height: 1;
-    }
-    .drag-handle:active { cursor: grabbing; color: var(--accent); }
-
-    /* Delete button */
-    .del-btn {
-      background: none;
-      border: none;
-      color: #ccc;
-      font-size: 1.1rem;
-      cursor: pointer;
-      padding: 4px 6px;
-      border-radius: 4px;
-      flex-shrink: 0;
-      line-height: 1;
-      transition: color .15s;
-    }
-    .del-btn:hover, .del-btn:active { color: #e74c3c; }
-    @media (hover: hover) {
-      .del-btn { opacity: 0; transition: opacity .15s, color .15s; }
-      .task:hover .del-btn { opacity: 1; }
-    }
-
-    /* SortableJS states */
-    .task-ghost {
-      opacity: .35;
-      background: var(--accent-light);
-      border-radius: 6px;
-    }
-    .task-chosen {
-      background: #fff;
-      box-shadow: 0 4px 16px rgba(0,0,0,.12);
-      border-radius: 6px;
-    }
-
-    /* ── Add-task row ────────────────────────────── */
-    .add-row {
-      display: flex;
-      gap: 6px;
-      padding-top: 8px;
-      margin-top: 4px;
-      border-top: 1px dashed var(--border);
-    }
-    .add-input {
-      flex: 1;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-size: .82rem;
-      font-family: inherit;
-      outline: none;
-      min-width: 0;
-    }
-    .add-input:focus { border-color: var(--accent); }
-    .add-input::placeholder { color: #c0c0c0; }
-    .add-btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      width: 36px;
-      font-size: 1.25rem;
-      cursor: pointer;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .add-btn:active { opacity: .85; }
-
-    /* ── Toast (undo) ────────────────────────────── */
-    .toast {
-      position: fixed;
-      bottom: calc(20px + var(--safe-bottom));
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: #333;
-      color: #fff;
-      padding: 11px 18px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      font-size: .86rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,.3);
-      transition: transform .3s ease;
-      z-index: 500;
-      white-space: nowrap;
-    }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-    .toast-undo {
-      background: none;
-      border: none;
-      color: var(--accent);
-      font-weight: 700;
-      font-size: .86rem;
-      cursor: pointer;
-      padding: 0;
     }
 
     /* ── Overlay (sync-key setup) ────────────────── */
@@ -407,7 +287,7 @@
     }
     .ov-box button:active { opacity: .9; }
 
-    /* ── Config banner ───────────────────────────── */
+    /* ── Config-needed banner ────────────────────── */
     .cfg-banner {
       background: #FFF3CD;
       border: 1px solid #FFEEBA;
@@ -454,12 +334,6 @@
 
 <div class="grid" id="board"></div>
 
-<!-- Undo toast -->
-<div class="toast" id="toast">
-  <span id="toastMsg"></span>
-  <button class="toast-undo" id="toastUndo">UNDO</button>
-</div>
-
 <!-- Sync-key overlay -->
 <div class="ov" id="ov" style="display:none">
   <div class="ov-box">
@@ -493,10 +367,9 @@ var configured = firebaseConfig.apiKey !== 'YOUR_API_KEY';
    ================================================================ */
 
 /* ================================================================
-   DEFAULT SECTIONS — used for first-time setup only.
-   After first load, all data lives in Firebase.
+   TASK DEFINITIONS
    ================================================================ */
-var SEED = [
+var SECTIONS = [
   {
     title: "YourStory \u2014 Pre-Publication",
     icon: "\ud83c\udfaf",
@@ -525,7 +398,6 @@ var SEED = [
   {
     title: "Social Marketing Foundation",
     icon: "\ud83d\udcf1",
-    priority: false,
     tasks: [
       "Identify target audience demographics",
       "Plan content calendar around article launch",
@@ -535,7 +407,6 @@ var SEED = [
   {
     title: "MSS \u2014 Miter Saw Station",
     icon: "\ud83d\udee0\ufe0f",
-    priority: false,
     tasks: [
       "Make saw platform with MDF and speed braces",
       "Install floating brackets",
@@ -546,7 +417,6 @@ var SEED = [
   {
     title: "Z$ Shopping List",
     icon: "\ud83d\uded2",
-    priority: false,
     tasks: [
       "Grey paint",
       "1/8 inch hardboard"
@@ -555,7 +425,6 @@ var SEED = [
   {
     title: "Retooling for Retirement",
     icon: "\ud83d\udcfa",
-    priority: false,
     tasks: [
       "Upper Cabs video",
       "Plan video content calendar",
@@ -566,7 +435,6 @@ var SEED = [
   {
     title: "Product Ideas and Designs",
     icon: "\ud83c\udfd7\ufe0f",
-    priority: false,
     tasks: [
       "Furniture Designs",
       "Retro Game controller",
@@ -577,7 +445,6 @@ var SEED = [
   {
     title: "Financial and Admin",
     icon: "\ud83d\udcb0",
-    priority: false,
     tasks: [
       "Taxes \u2014 $5,106 estimated (need approx $2,426 more)",
       "Set up analog Kanban board to manage projects",
@@ -589,63 +456,22 @@ var SEED = [
 /* ================================================================
    STATE
    ================================================================ */
-var appData    = { sections: [] };
-var syncKey    = localStorage.getItem('bozzone-sync-key');
-var dbRef      = null;
-var fbReady    = false;
-var isDragging = false;
+var states   = {};
+var syncKey  = localStorage.getItem('bozzone-sync-key');
+var dbRef    = null;
+var fbReady  = false;
+var configured = firebaseConfig.apiKey !== 'YOUR_API_KEY';
 
 /* ================================================================
    HELPERS
    ================================================================ */
-function uid() {
-  return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+function tid(title, i) {
+  return (title + '-' + i).toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 60);
 }
 
 function dot(cls) {
-  document.getElementById('dot').className = 'sync-dot ' + cls;
-}
-
-function findSec(id) {
-  var secs = appData.sections || [];
-  for (var i = 0; i < secs.length; i++) {
-    if (secs[i].id === id) return secs[i];
-  }
-  return null;
-}
-
-/* Firebase can turn arrays into objects — normalize on read */
-function ensureArrays(data) {
-  if (!data || !data.sections) return { sections: [] };
-  if (!Array.isArray(data.sections)) {
-    data.sections = Object.values(data.sections);
-  }
-  data.sections.forEach(function(sec) {
-    if (!sec.tasks) sec.tasks = [];
-    if (!Array.isArray(sec.tasks)) sec.tasks = Object.values(sec.tasks);
-  });
-  return data;
-}
-
-/* ================================================================
-   DATA MODEL — build initial data from SEED + old checkbox states
-   ================================================================ */
-function buildInitialData(oldStates) {
-  oldStates = oldStates || {};
-  return {
-    sections: SEED.map(function(sec, si) {
-      return {
-        id: 'sec-' + si,
-        title: sec.title,
-        icon: sec.icon,
-        priority: !!sec.priority,
-        tasks: sec.tasks.map(function(text, ti) {
-          var oldId = (sec.title + '-' + ti).toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 60);
-          return { id: uid(), text: text, done: !!oldStates[oldId] };
-        })
-      };
-    })
-  };
+  var el = document.getElementById('dot');
+  el.className = 'sync-dot ' + cls;
 }
 
 /* ================================================================
@@ -655,12 +481,12 @@ function initFB() {
   if (!configured) {
     dot('off');
     document.getElementById('cfgNote').innerHTML =
-      '<div class="cfg-banner"><h2>Firebase Not Configured</h2>' +
+      '<div class="cfg-banner">' +
+      '<h2>Firebase Not Configured</h2>' +
       '<p>The app works offline with local storage. To enable cross-device sync, ' +
       'add your Firebase config to <code>index.html</code> and redeploy. ' +
-      'See <strong>SETUP.md</strong> for instructions.</p></div>';
+      'See <strong>SETUP.md</strong> for step-by-step instructions.</p></div>';
     loadLS();
-    if (!appData.sections.length) appData = buildInitialData();
     render();
     return;
   }
@@ -671,7 +497,6 @@ function initFB() {
   } catch (e) {
     dot('off');
     loadLS();
-    if (!appData.sections.length) appData = buildInitialData();
     render();
     return;
   }
@@ -683,26 +508,16 @@ function startSync() {
   if (!fbReady || !syncKey) return;
   dot('wait');
 
-  dbRef = firebase.database().ref('dashboards/' + syncKey + '/v2');
+  dbRef = firebase.database().ref('dashboards/' + syncKey + '/tasks');
 
-  var firstLoad = true;
   dbRef.on('value', function(snap) {
-    if (isDragging) return;            /* don't clobber mid-drag */
-    if (snap.exists()) {
-      appData = ensureArrays(snap.val());
-      dot('on');
-      render();
-    } else if (firstLoad) {
-      /* First time — migrate old checkbox states into new format */
-      var oldRef = firebase.database().ref('dashboards/' + syncKey + '/tasks');
-      oldRef.once('value', function(oldSnap) {
-        appData = buildInitialData(oldSnap.val() || {});
-        save();
-      });
-    }
-    firstLoad = false;
+    states = snap.val() || {};
+    dot('on');
+    render();
   }, function() {
     dot('off');
+    loadLS();
+    render();
   });
 
   firebase.database().ref('.info/connected').on('value', function(s) {
@@ -712,282 +527,95 @@ function startSync() {
   document.getElementById('keyLbl').textContent = syncKey;
 }
 
-function save() {
-  saveLS();
+function check(id, val) {
+  states[id] = val;
   if (fbReady && dbRef) {
-    dbRef.set(appData);          /* Firebase listener will re-render */
-  } else {
-    render();                    /* No Firebase — render locally */
+    var u = {}; u[id] = val;
+    dbRef.update(u);
   }
+  saveLS();
+  render();
 }
 
 /* ================================================================
-   LOCAL STORAGE (backup / offline fallback)
+   LOCAL-STORAGE FALLBACK
    ================================================================ */
 function loadLS() {
-  try {
-    var s = localStorage.getItem('bozzone-app-v2');
-    if (s) { appData = ensureArrays(JSON.parse(s)); return; }
-    /* Try migrating from old format */
-    var old = localStorage.getItem('bozzone-states');
-    if (old) appData = buildInitialData(JSON.parse(old));
-  } catch (e) {}
+  try { var s = localStorage.getItem('bozzone-states'); if (s) states = JSON.parse(s); } catch(e) {}
 }
-
 function saveLS() {
-  try { localStorage.setItem('bozzone-app-v2', JSON.stringify(appData)); } catch (e) {}
-}
-
-/* ================================================================
-   CRUD OPERATIONS
-   ================================================================ */
-function addTask(secId, text) {
-  var sec = findSec(secId);
-  if (!sec) return;
-  sec.tasks.push({ id: uid(), text: text.trim(), done: false });
-  save();
-}
-
-function deleteTask(secId, taskId) {
-  var sec = findSec(secId);
-  if (!sec) return;
-  var idx = -1;
-  for (var i = 0; i < sec.tasks.length; i++) {
-    if (sec.tasks[i].id === taskId) { idx = i; break; }
-  }
-  if (idx === -1) return;
-  var removed = sec.tasks.splice(idx, 1)[0];
-  var savedSecId = secId;
-  var savedIdx   = idx;
-  save();
-  showToast('Task deleted', function() {
-    var s = findSec(savedSecId);
-    if (s) {
-      s.tasks.splice(savedIdx, 0, removed);
-      save();
-    }
-  });
-}
-
-function toggleTask(secId, taskId) {
-  var sec = findSec(secId);
-  if (!sec) return;
-  for (var i = 0; i < sec.tasks.length; i++) {
-    if (sec.tasks[i].id === taskId) {
-      sec.tasks[i].done = !sec.tasks[i].done;
-      break;
-    }
-  }
-  save();
-}
-
-function handleMove(fromSecId, toSecId, taskId, newIndex) {
-  var fromSec = findSec(fromSecId);
-  var toSec   = findSec(toSecId);
-  if (!fromSec || !toSec) return;
-
-  var taskIdx = -1;
-  for (var i = 0; i < fromSec.tasks.length; i++) {
-    if (fromSec.tasks[i].id === taskId) { taskIdx = i; break; }
-  }
-  if (taskIdx === -1) return;
-
-  var task = fromSec.tasks.splice(taskIdx, 1)[0];
-  toSec.tasks.splice(newIndex, 0, task);
-  save();
+  try { localStorage.setItem('bozzone-states', JSON.stringify(states)); } catch(e) {}
 }
 
 /* ================================================================
    RENDER
    ================================================================ */
 function render() {
-  if (isDragging) return;
-
   var board = document.getElementById('board');
   board.innerHTML = '';
 
   var totalAll = 0, doneAll = 0;
 
-  (appData.sections || []).forEach(function(sec) {
-    var tasks = sec.tasks || [];
-    var done  = 0;
-    tasks.forEach(function(t) { if (t.done) done++; });
-    totalAll += tasks.length;
+  SECTIONS.forEach(function(sec) {
+    var done = 0, total = sec.tasks.length;
+    sec.tasks.forEach(function(_, i) { if (states[tid(sec.title, i)]) done++; });
+    totalAll += total;
     doneAll  += done;
-    var pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+    var pct = total ? Math.round(done / total * 100) : 0;
 
-    /* ── Card ── */
     var card = document.createElement('div');
     card.className = 'card' + (sec.priority ? ' priority' : '');
 
-    /* Header */
+    /* header */
     var hd = document.createElement('div');
     hd.className = 'card-hd';
-    hd.innerHTML =
-      '<span>' + (sec.icon || '') + ' ' + sec.title + '</span>' +
-      '<span class="badge">' + done + '/' + tasks.length + '</span>';
+    hd.innerHTML = '<span>' + sec.icon + ' ' + sec.title + '</span>' +
+                   '<span class="badge">' + done + '/' + total + '</span>';
     card.appendChild(hd);
 
-    /* Body */
+    /* body */
     var bd = document.createElement('div');
     bd.className = 'card-bd';
 
-    /* Progress */
     var pw = document.createElement('div'); pw.className = 'prog-wrap';
     var pb = document.createElement('div'); pb.className = 'prog'; pb.style.width = pct + '%';
     pw.appendChild(pb); bd.appendChild(pw);
+
     var pl = document.createElement('div'); pl.className = 'prog-lbl';
     pl.textContent = pct + '% complete';
     bd.appendChild(pl);
 
-    /* Task list (SortableJS container) */
-    var tl = document.createElement('div');
-    tl.className = 'task-list';
-    tl.dataset.sectionId = sec.id;
+    sec.tasks.forEach(function(txt, i) {
+      var id = tid(sec.title, i);
+      var on = !!states[id];
 
-    if (!tasks.length) {
-      var em = document.createElement('div');
-      em.className = 'task-empty';
-      em.textContent = 'No tasks \u2014 add one below';
-      tl.appendChild(em);
-    }
-
-    tasks.forEach(function(task) {
       var row = document.createElement('div');
-      row.className = 'task' + (task.done ? ' done' : '');
-      row.dataset.taskId    = task.id;
-      row.dataset.sectionId = sec.id;
+      row.className = 'task' + (on ? ' done' : '');
 
-      /* Drag handle */
-      var grip = document.createElement('span');
-      grip.className = 'drag-handle';
-      grip.innerHTML = '&#9776;';          /* ☰ */
-      row.appendChild(grip);
-
-      /* Checkbox */
       var cb = document.createElement('input');
       cb.type = 'checkbox';
-      cb.checked = task.done;
-      (function(sid, tid) {
-        cb.addEventListener('change', function() { toggleTask(sid, tid); });
-      })(sec.id, task.id);
-      row.appendChild(cb);
+      cb.id = 'c-' + id;
+      cb.checked = on;
+      cb.addEventListener('change', function() { check(id, cb.checked); });
 
-      /* Label */
       var lb = document.createElement('label');
-      lb.textContent = task.text;
+      lb.htmlFor = 'c-' + id;
+      lb.textContent = txt;
+
+      row.appendChild(cb);
       row.appendChild(lb);
-
-      /* Delete button */
-      var del = document.createElement('button');
-      del.className = 'del-btn';
-      del.innerHTML = '&times;';
-      del.title = 'Delete task';
-      (function(sid, tid) {
-        del.addEventListener('click', function(e) {
-          e.stopPropagation();
-          deleteTask(sid, tid);
-        });
-      })(sec.id, task.id);
-      row.appendChild(del);
-
-      tl.appendChild(row);
+      bd.appendChild(row);
     });
-
-    bd.appendChild(tl);
-
-    /* Add-task row */
-    var ar = document.createElement('div');
-    ar.className = 'add-row';
-    var ai = document.createElement('input');
-    ai.type = 'text';
-    ai.className = 'add-input';
-    ai.placeholder = 'Add a task\u2026';
-    var ab = document.createElement('button');
-    ab.className = 'add-btn';
-    ab.textContent = '+';
-    (function(sid, inp) {
-      ab.addEventListener('click', function() {
-        var v = inp.value.trim();
-        if (v) { addTask(sid, v); inp.value = ''; }
-      });
-      inp.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-          var v = inp.value.trim();
-          if (v) { addTask(sid, v); inp.value = ''; }
-        }
-      });
-    })(sec.id, ai);
-    ar.appendChild(ai);
-    ar.appendChild(ab);
-    bd.appendChild(ar);
 
     card.appendChild(bd);
     board.appendChild(card);
   });
 
-  /* Overall progress */
+  /* overall */
   var op = totalAll ? Math.round(doneAll / totalAll * 100) : 0;
   document.getElementById('oPct').textContent = doneAll + '/' + totalAll + ' (' + op + '%)';
   document.getElementById('oBar').style.width  = op + '%';
-
-  /* Attach SortableJS to each task list */
-  initSortables();
 }
-
-/* ================================================================
-   SORTABLEJS — touch-friendly drag & drop
-   ================================================================ */
-function initSortables() {
-  if (typeof Sortable === 'undefined') return;
-
-  document.querySelectorAll('.task-list').forEach(function(el) {
-    Sortable.create(el, {
-      group: 'tasks',              /* allow cross-list dragging */
-      handle: '.drag-handle',
-      animation: 180,
-      ghostClass: 'task-ghost',
-      chosenClass: 'task-chosen',
-      fallbackOnBody: true,
-      swapThreshold: 0.65,
-      onStart: function() { isDragging = true; },
-      onEnd: function(evt) {
-        isDragging = false;
-        var taskId    = evt.item.dataset.taskId;
-        var fromSecId = evt.from.dataset.sectionId;
-        var toSecId   = evt.to.dataset.sectionId;
-        handleMove(fromSecId, toSecId, taskId, evt.newIndex);
-      }
-    });
-  });
-}
-
-/* ================================================================
-   TOAST / UNDO
-   ================================================================ */
-var toastTimer  = null;
-var toastUndoFn = null;
-
-function showToast(msg, undoFn) {
-  var t = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
-  toastUndoFn = undoFn || null;
-  document.getElementById('toastUndo').style.display = undoFn ? '' : 'none';
-  t.classList.add('show');
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(hideToast, 5000);
-}
-
-function hideToast() {
-  document.getElementById('toast').classList.remove('show');
-  toastUndoFn = null;
-  if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
-}
-
-document.getElementById('toastUndo').addEventListener('click', function() {
-  if (toastUndoFn) toastUndoFn();
-  hideToast();
-});
 
 /* ================================================================
    SYNC-KEY UI
@@ -1025,13 +653,10 @@ document.getElementById('keyLbl').addEventListener('click', showOv);
 if (!syncKey) showOv();
 
 loadLS();
-if (!appData.sections || !appData.sections.length) {
-  appData = buildInitialData();
-}
 render();
 initFB();
 
-/* Service worker */
+/* service worker */
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(function() {});
 }

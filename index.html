@@ -1619,6 +1619,15 @@ function render() {
   });
   board.appendChild(importCard);
 
+  /* ── Download CSV Card ── */
+  var dlCard = document.createElement('div');
+  dlCard.className = 'add-col-card';
+  dlCard.innerHTML =
+    '<div class="add-col-icon" style="font-size:1.6rem">\ud83d\udcc4</div>' +
+    '<div class="add-col-label">Download CSV</div>';
+  dlCard.addEventListener('click', exportCSV);
+  board.appendChild(dlCard);
+
   /* Overall progress */
   var op = totalAll ? Math.round(doneAll / totalAll * 100) : 0;
   var filterTag = activeFilter ? findTag(activeFilter) : null;
@@ -1894,6 +1903,38 @@ function executeImport(previewItems, existingTitles) {
     'Imported ' + totalAdded + ' task' + (totalAdded !== 1 ? 's' : '') +
     (sectionsCreated ? ' (+' + sectionsCreated + ' new section' + (sectionsCreated !== 1 ? 's' : '') + ')' : '')
   );
+}
+
+/* ================================================================
+   CSV EXPORT
+   ================================================================ */
+function exportCSV() {
+  var rows = ['section,task,done,tags'];
+  (appData.sections || []).forEach(function(sec) {
+    (sec.tasks || []).forEach(function(task) {
+      var tagNames = (task.tags || []).map(function(tid) {
+        var tag = findTag(tid);
+        return tag ? tag.name : '';
+      }).filter(Boolean).join('|');
+      rows.push(
+        '"' + sec.title.replace(/"/g, '""') + '",' +
+        '"' + task.text.replace(/"/g, '""') + '",' +
+        (task.done ? 'true' : 'false') + ',' +
+        '"' + tagNames + '"'
+      );
+    });
+  });
+  var csv = rows.join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'bozzone-tasks-' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Downloaded ' + (rows.length - 1) + ' task' + (rows.length - 1 !== 1 ? 's' : ''));
 }
 
 /* ================================================================

@@ -676,6 +676,58 @@
       margin-top: 8px; font-family: inherit;
     }
 
+    /* ── CSV Import Modal ────────────────────────── */
+    .csv-ov {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .csv-ov.show { display: flex; }
+    .csv-box {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 18px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,.2);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .csv-box h2 { color: var(--accent); margin-bottom: 6px; font-size: 1.05rem; }
+    .csv-box p { font-size: .82rem; color: var(--text-sec); margin-bottom: 12px; line-height: 1.5; }
+    .csv-sec-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 10px; border-radius: 6px; margin-bottom: 4px;
+      font-size: .84rem;
+    }
+    .csv-sec-item.new-sec  { background: #f0fff4; }
+    .csv-sec-item.exist-sec { background: #f5f4ef; }
+    .csv-sec-badge {
+      font-size: .68rem; padding: 2px 8px; border-radius: 10px;
+      font-weight: 600; white-space: nowrap; flex-shrink: 0; margin-left: 8px;
+    }
+    .csv-sec-badge.new   { background: #4CAF50; color: #fff; }
+    .csv-sec-badge.exist { background: var(--accent); color: #fff; }
+    .csv-hint {
+      font-size: .76rem; color: var(--text-muted);
+      background: #f8f8f8; border-radius: 6px;
+      padding: 8px 10px; margin-bottom: 12px; line-height: 1.5;
+    }
+    .csv-hint code { font-size: .74rem; background: #eee; padding: 1px 4px; border-radius: 3px; }
+    .csv-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .csv-actions button {
+      flex: 1; padding: 10px; border-radius: 6px;
+      font-size: .86rem; font-family: inherit;
+      cursor: pointer; font-weight: 600;
+    }
+    .csv-btn-confirm { background: var(--accent); color: #fff; border: none; }
+    .csv-btn-confirm:active { opacity: .85; }
+    .csv-btn-cancel  { background: none; border: 1.5px solid var(--border); color: var(--text-sec); }
+
     /* ── Overlay (sync-key setup) ────────────────── */
     .ov {
       position: fixed; inset: 0;
@@ -780,6 +832,14 @@
 <!-- Tag management overlay -->
 <div class="tm-ov" id="tmOv">
   <div class="tm-box" id="tmBox"></div>
+</div>
+
+<!-- Hidden CSV file input -->
+<input type="file" id="csvFileInput" accept=".csv" style="display:none">
+
+<!-- CSV Import preview overlay -->
+<div class="csv-ov" id="csvOv">
+  <div class="csv-box" id="csvBox"></div>
 </div>
 
 <!-- Sync-key overlay -->
@@ -1547,6 +1607,18 @@ function render() {
   addCard.addEventListener('click', function() { expandAddCol(addCard); });
   board.appendChild(addCard);
 
+  /* ── Import CSV Card ── */
+  var importCard = document.createElement('div');
+  importCard.className = 'add-col-card';
+  importCard.innerHTML =
+    '<div class="add-col-icon" style="font-size:1.6rem">\ud83d\udce5</div>' +
+    '<div class="add-col-label">Import CSV</div>';
+  importCard.addEventListener('click', function() {
+    document.getElementById('csvFileInput').value = '';
+    document.getElementById('csvFileInput').click();
+  });
+  board.appendChild(importCard);
+
   /* Overall progress */
   var op = totalAll ? Math.round(doneAll / totalAll * 100) : 0;
   var filterTag = activeFilter ? findTag(activeFilter) : null;
@@ -1676,6 +1748,152 @@ document.getElementById('tpOv').addEventListener('click', function(e) {
 
 function escHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ================================================================
+   CSV IMPORT
+   ================================================================ */
+function parseCSV(text) {
+  var rows = [];
+  var lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  lines.forEach(function(line) {
+    if (!line.trim()) return;
+    var cols = [];
+    var cur = '';
+    var inQ = false;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (c === '"') {
+        if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
+        else inQ = !inQ;
+      } else if (c === ',' && !inQ) {
+        cols.push(cur.trim());
+        cur = '';
+      } else {
+        cur += c;
+      }
+    }
+    cols.push(cur.trim());
+    rows.push(cols);
+  });
+  return rows;
+}
+
+function hideImportModal() {
+  document.getElementById('csvOv').classList.remove('show');
+}
+
+function showImportPreview(rows) {
+  if (rows.length < 2) {
+    showToast('CSV must have a header row and at least one data row');
+    return;
+  }
+
+  /* Skip header row, group tasks by section */
+  var sectionMap = {};  /* lowercase title -> { displayTitle, tasks[] } */
+  var skipped = 0;
+  var totalTasks = 0;
+
+  rows.slice(1).forEach(function(row) {
+    if (row.length < 2 || !row[0] || !row[1]) { skipped++; return; }
+    if (totalTasks >= 200) { skipped++; return; }
+    var key = row[0].toLowerCase();
+    if (!sectionMap[key]) sectionMap[key] = { displayTitle: row[0], tasks: [] };
+    sectionMap[key].tasks.push(row[1]);
+    totalTasks++;
+  });
+
+  if (totalTasks === 0) {
+    showToast('No valid rows found — check CSV format (section, task)');
+    return;
+  }
+
+  /* Determine new vs existing sections */
+  var existingTitles = {};
+  (appData.sections || []).forEach(function(sec) {
+    existingTitles[sec.title.toLowerCase()] = sec;
+  });
+
+  var previewItems = Object.keys(sectionMap).map(function(key) {
+    return {
+      title: sectionMap[key].displayTitle,
+      tasks: sectionMap[key].tasks,
+      isNew: !existingTitles[key]
+    };
+  });
+
+  var newCount = previewItems.filter(function(i) { return i.isNew; }).length;
+
+  /* Build modal */
+  var box = document.getElementById('csvBox');
+  var html = '<h2>\ud83d\udce5 Import Preview</h2>';
+  html += '<p><strong>' + totalTasks + '</strong> task' + (totalTasks !== 1 ? 's' : '') +
+          ' across <strong>' + previewItems.length + '</strong> section' +
+          (previewItems.length !== 1 ? 's' : '') +
+          (newCount ? ' &mdash; <strong>' + newCount + '</strong> new section' + (newCount !== 1 ? 's' : '') + ' will be created' : '') +
+          '.</p>';
+
+  html += '<div class="csv-hint">Expected format: <code>section, task</code> (first row is header)</div>';
+
+  previewItems.forEach(function(item) {
+    html +=
+      '<div class="csv-sec-item ' + (item.isNew ? 'new-sec' : 'exist-sec') + '">' +
+        '<span>' + escHtml(item.title) +
+          ' <span style="color:var(--text-muted);font-size:.76rem">(' + item.tasks.length + ')</span>' +
+        '</span>' +
+        '<span class="csv-sec-badge ' + (item.isNew ? 'new' : 'exist') + '">' +
+          (item.isNew ? 'New' : 'Existing') +
+        '</span>' +
+      '</div>';
+  });
+
+  if (skipped > 0) {
+    html += '<div style="font-size:.76rem;color:var(--text-muted);margin-top:8px">' +
+            skipped + ' row(s) skipped (blank section/task or over 200-row limit)</div>';
+  }
+
+  html +=
+    '<div class="csv-actions">' +
+      '<button class="csv-btn-cancel" id="csvCancelBtn">Cancel</button>' +
+      '<button class="csv-btn-confirm" id="csvConfirmBtn">Import All</button>' +
+    '</div>';
+
+  box.innerHTML = html;
+
+  document.getElementById('csvCancelBtn').addEventListener('click', hideImportModal);
+  document.getElementById('csvConfirmBtn').addEventListener('click', function() {
+    executeImport(previewItems, existingTitles);
+    hideImportModal();
+  });
+
+  document.getElementById('csvOv').classList.add('show');
+}
+
+function executeImport(previewItems, existingTitles) {
+  var totalAdded = 0;
+  var sectionsCreated = 0;
+
+  previewItems.forEach(function(item) {
+    var key = item.title.toLowerCase();
+    var sec = existingTitles[key];
+    if (!sec) {
+      sec = { id: uid(), title: item.title, icon: '\ud83d\udccb', priority: false, tasks: [] };
+      appData.sections.push(sec);
+      sectionsCreated++;
+    }
+    item.tasks.forEach(function(text) {
+      if (text.trim()) {
+        sec.tasks.push({ id: uid(), text: text.trim(), done: false, tags: [] });
+        totalAdded++;
+      }
+    });
+  });
+
+  save();
+  showToast(
+    'Imported ' + totalAdded + ' task' + (totalAdded !== 1 ? 's' : '') +
+    (sectionsCreated ? ' (+' + sectionsCreated + ' new section' + (sectionsCreated !== 1 ? 's' : '') + ')' : '')
+  );
 }
 
 /* ================================================================
@@ -1865,6 +2083,27 @@ initFB();
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(function() {});
 }
+
+/* CSV file input handler */
+document.getElementById('csvFileInput').addEventListener('change', function() {
+  var file = this.files[0];
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith('.csv')) {
+    showToast('Please select a .csv file');
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var rows = parseCSV(e.target.result);
+    showImportPreview(rows);
+  };
+  reader.readAsText(file);
+});
+
+/* Close CSV modal on overlay click */
+document.getElementById('csvOv').addEventListener('click', function(e) {
+  if (e.target === this) hideImportModal();
+});
 </script>
 </body>
 </html>

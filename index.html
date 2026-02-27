@@ -107,7 +107,7 @@
 
     /* ── Overall Progress ───────────────────────── */
     .overall {
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       padding: 10px 14px;
       background: var(--card-bg);
       border-radius: 10px;
@@ -133,6 +133,64 @@
       transition: width .35s ease;
     }
 
+    /* ── Filter Bar ─────────────────────────────── */
+    .filter-bar {
+      display: flex;
+      gap: 7px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 2px 0;
+      scrollbar-width: none;
+      align-items: center;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      flex-shrink: 0;
+      padding: 5px 13px;
+      border-radius: 18px;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+      font-size: .76rem;
+      font-family: inherit;
+      cursor: pointer;
+      color: var(--text-sec);
+      transition: all .2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .filter-btn:active { transform: scale(.96); }
+    .filter-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .filter-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .filter-count {
+      font-size: .68rem;
+      opacity: .75;
+    }
+    .filter-manage-btn {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1.5px dashed var(--border);
+      background: none;
+      font-size: .9rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .filter-manage-btn:active { background: var(--accent-light); }
+
     /* ── Grid ────────────────────────────────────── */
     .grid {
       display: grid;
@@ -156,8 +214,8 @@
       font-size: .88rem;
       border-bottom: 1px solid var(--border);
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 8px;
     }
     .card-hd .badge {
       background: var(--accent);
@@ -174,42 +232,139 @@
       border-bottom-color: #f8d5c2;
     }
 
+    /* ── Section title (editable) ────────────────── */
+    .sec-title {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 1px 4px;
+      margin: -1px -4px;
+      transition: background .15s;
+    }
+    .sec-title:hover { background: rgba(0,0,0,.04); }
+    .sec-title-input {
+      font-size: .88rem;
+      font-weight: 600;
+      font-family: inherit;
+      border: 1.5px solid var(--accent);
+      border-radius: 4px;
+      padding: 2px 6px;
+      outline: none;
+      flex: 1;
+      min-width: 0;
+      background: #fff;
+    }
+
+    /* ── Section header actions ──────────────────── */
+    .sec-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .sec-del {
+      background: none; border: none;
+      color: #ccc; font-size: .95rem;
+      cursor: pointer; padding: 2px 4px;
+      border-radius: 4px; line-height: 1;
+      transition: color .15s;
+    }
+    .sec-del:hover, .sec-del:active { color: #e74c3c; }
+
+    /* ── Add Column Card ────────────────────────── */
+    .add-col-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+      border: 2px dashed var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      padding: 20px;
+    }
+    .add-col-card:hover, .add-col-card:active {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    .add-col-card.expanded {
+      cursor: default;
+      border-color: var(--accent);
+      align-items: stretch;
+    }
+    .add-col-card.expanded:hover { background: var(--card-bg); }
+    .add-col-icon { font-size: 1.8rem; color: var(--text-muted); margin-bottom: 4px; }
+    .add-col-label { font-size: .82rem; color: var(--text-sec); }
+    .add-col-form { width: 100%; }
+    .add-col-form input {
+      width: 100%; padding: 10px;
+      border: 1.5px solid #ddd; border-radius: 6px;
+      font-size: .86rem; font-family: inherit;
+      margin-bottom: 8px; outline: none;
+    }
+    .add-col-form input:focus { border-color: var(--accent); }
+    .add-col-form label {
+      font-size: .75rem; color: var(--text-sec);
+      display: block; margin-bottom: 4px;
+    }
+    .emoji-row {
+      display: flex; flex-wrap: wrap;
+      gap: 5px; margin-bottom: 10px;
+    }
+    .emoji-pick {
+      width: 32px; height: 32px;
+      border: 1.5px solid var(--border); border-radius: 6px;
+      background: var(--card-bg); font-size: 1rem;
+      cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .emoji-pick.sel {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    .add-col-btns { display: flex; gap: 8px; }
+    .add-col-btns button {
+      flex: 1; padding: 10px; border-radius: 6px;
+      font-size: .84rem; font-family: inherit;
+      cursor: pointer; font-weight: 600;
+    }
+    .btn-create { background: var(--accent); color: #fff; border: none; }
+    .btn-create:active { opacity: .85; }
+    .btn-cancel { background: none; border: 1.5px solid var(--border); color: var(--text-sec); }
+
     /* ── Progress per card ───────────────────────── */
     .prog-wrap {
-      background: #eee;
-      border-radius: 4px;
-      height: 4px;
-      margin: 6px 0 3px;
-      overflow: hidden;
+      background: #eee; border-radius: 4px;
+      height: 4px; margin: 6px 0 3px; overflow: hidden;
     }
     .prog {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 4px;
-      transition: width .35s ease;
+      height: 100%; background: var(--accent);
+      border-radius: 4px; transition: width .35s ease;
     }
     .prog-lbl {
-      font-size: .7rem;
-      color: var(--text-muted);
-      text-align: right;
-      margin-bottom: 4px;
+      font-size: .7rem; color: var(--text-muted);
+      text-align: right; margin-bottom: 4px;
     }
 
     /* ── Task list (sortable container) ──────────── */
     .task-list { min-height: 8px; }
-
     .task-empty {
-      padding: 12px 0;
-      text-align: center;
-      font-size: .8rem;
-      color: var(--text-muted);
+      padding: 12px 0; text-align: center;
+      font-size: .8rem; color: var(--text-muted);
       font-style: italic;
     }
 
     /* ── Tasks ───────────────────────────────────── */
     .task {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 6px;
       padding: 8px 0;
       border-bottom: 1px solid #f0efea;
@@ -220,57 +375,92 @@
     .task:last-child { border-bottom: none; }
 
     .task input[type="checkbox"] {
-      margin: 0;
+      margin: 2px 0 0 0;
       accent-color: var(--accent);
       width: 18px; height: 18px;
       flex-shrink: 0;
       cursor: pointer;
     }
-    .task label {
+    .task-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .task-content label {
       cursor: pointer;
       color: #333;
-      flex: 1;
       user-select: none;
       -webkit-user-select: none;
-      min-width: 0;
       word-break: break-word;
+      display: block;
     }
-    .task.done label {
+    .task.done .task-content label {
       text-decoration: line-through;
       color: var(--text-muted);
     }
+
+    /* ── Tag badges on tasks ────────────────────── */
+    .tag-badges {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      margin-top: 3px;
+    }
+    .tag-badge {
+      font-size: .58rem;
+      padding: 1px 7px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+      white-space: nowrap;
+      line-height: 1.6;
+      letter-spacing: .02em;
+    }
+
+    /* ── Task action buttons ─────────────────────── */
+    .task-actions {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .tag-btn {
+      background: none; border: none;
+      font-size: .72rem; cursor: pointer;
+      padding: 3px 4px; color: #ccc;
+      flex-shrink: 0; line-height: 1;
+      transition: color .15s;
+    }
+    .tag-btn:hover, .tag-btn:active { color: var(--accent); }
 
     /* Drag handle */
     .drag-handle {
       cursor: grab;
       color: #c5c5c5;
       font-size: .95rem;
-      padding: 6px 4px;
+      padding: 4px 4px 4px 0;
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
       flex-shrink: 0;
       line-height: 1;
+      margin-top: 1px;
     }
     .drag-handle:active { cursor: grabbing; color: var(--accent); }
 
     /* Delete button */
     .del-btn {
-      background: none;
-      border: none;
-      color: #ccc;
-      font-size: 1.1rem;
-      cursor: pointer;
-      padding: 4px 6px;
-      border-radius: 4px;
-      flex-shrink: 0;
-      line-height: 1;
-      transition: color .15s;
+      background: none; border: none;
+      color: #ccc; font-size: 1.1rem;
+      cursor: pointer; padding: 3px 5px;
+      border-radius: 4px; flex-shrink: 0;
+      line-height: 1; transition: color .15s;
     }
     .del-btn:hover, .del-btn:active { color: #e74c3c; }
+
     @media (hover: hover) {
-      .del-btn { opacity: 0; transition: opacity .15s, color .15s; }
-      .task:hover .del-btn { opacity: 1; }
+      .del-btn, .tag-btn { opacity: 0; transition: opacity .15s, color .15s; }
+      .task:hover .del-btn, .task:hover .tag-btn { opacity: 1; }
     }
 
     /* SortableJS states */
@@ -341,13 +531,149 @@
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
     .toast-undo {
-      background: none;
-      border: none;
+      background: none; border: none;
+      color: var(--accent); font-weight: 700;
+      font-size: .86rem; cursor: pointer; padding: 0;
+    }
+
+    /* ── Tag Picker Modal ────────────────────────── */
+    .tp-ov {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.35);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 900;
+      padding: 20px;
+    }
+    .tp-ov.show { display: flex; }
+    @media (min-width: 600px) {
+      .tp-ov { align-items: center; }
+    }
+    .tp-box {
+      background: #fff;
+      border-radius: 14px 14px 0 0;
+      padding: 18px;
+      max-width: 340px;
+      width: 100%;
+      box-shadow: 0 -4px 24px rgba(0,0,0,.12);
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    @media (min-width: 600px) {
+      .tp-box { border-radius: 14px; }
+    }
+    .tp-title {
+      font-size: .92rem; font-weight: 600;
+      margin-bottom: 10px; color: var(--text);
+    }
+    .tp-item {
+      display: flex; align-items: center;
+      gap: 10px; padding: 10px 6px;
+      border-radius: 6px; cursor: pointer;
+      transition: background .12s;
+    }
+    .tp-item:hover { background: #f5f5f5; }
+    .tp-item:active { background: #eee; }
+    .tp-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%; flex-shrink: 0;
+    }
+    .tp-name { flex: 1; font-size: .86rem; }
+    .tp-check { font-size: 1rem; color: var(--accent); }
+    .tp-empty {
+      font-size: .82rem; color: var(--text-muted);
+      text-align: center; padding: 14px 0;
+      font-style: italic;
+    }
+
+    /* ── Tag Management Modal ────────────────────── */
+    .tm-ov {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .tm-ov.show { display: flex; }
+    .tm-box {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 18px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,.2);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .tm-box h2 {
       color: var(--accent);
-      font-weight: 700;
-      font-size: .86rem;
+      margin-bottom: 14px;
+      font-size: 1.05rem;
+    }
+    .tm-list { margin-bottom: 14px; }
+    .tm-item {
+      display: flex; align-items: center;
+      gap: 8px; padding: 8px 4px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .tm-color {
+      width: 18px; height: 18px;
+      border-radius: 50%; flex-shrink: 0;
+    }
+    .tm-name { flex: 1; font-size: .86rem; }
+    .tm-del {
+      background: none; border: none;
+      color: #ccc; font-size: 1.05rem;
+      cursor: pointer; padding: 2px 6px;
+    }
+    .tm-del:hover { color: #e74c3c; }
+    .tm-divider {
+      height: 1px; background: var(--border);
+      margin: 10px 0;
+    }
+    .tm-subtitle {
+      font-size: .82rem; font-weight: 600;
+      color: var(--text-sec); margin-bottom: 8px;
+    }
+    .tm-add-row {
+      display: flex; gap: 6px; margin-bottom: 8px;
+    }
+    .tm-add-input {
+      flex: 1; padding: 8px 10px;
+      border: 1.5px solid #ddd; border-radius: 6px;
+      font-size: .84rem; font-family: inherit; outline: none;
+    }
+    .tm-add-input:focus { border-color: var(--accent); }
+    .tm-colors {
+      display: flex; gap: 6px;
+      flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .tm-color-opt {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 2.5px solid transparent;
       cursor: pointer;
-      padding: 0;
+      transition: border-color .15s, transform .15s;
+    }
+    .tm-color-opt:hover { transform: scale(1.12); }
+    .tm-color-opt.sel { border-color: var(--text); }
+    .tm-add-btn {
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 6px;
+      padding: 8px 16px; font-size: .84rem;
+      cursor: pointer; font-weight: 600;
+      width: 100%;
+    }
+    .tm-add-btn:active { opacity: .85; }
+    .tm-close {
+      width: 100%; padding: 10px;
+      background: none; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: .88rem;
+      cursor: pointer; color: var(--text-sec);
+      margin-top: 8px; font-family: inherit;
     }
 
     /* ── Overlay (sync-key setup) ────────────────── */
@@ -374,36 +700,22 @@
       font-size: 1.15rem;
     }
     .ov-box p {
-      font-size: .88rem;
-      color: #555;
-      margin-bottom: 14px;
-      line-height: 1.5;
+      font-size: .88rem; color: #555;
+      margin-bottom: 14px; line-height: 1.5;
     }
     .ov-box input {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      font-size: 1rem;
-      text-align: center;
-      font-family: monospace;
-      letter-spacing: 2px;
+      width: 100%; padding: 12px;
+      border: 2px solid #ddd; border-radius: 8px;
+      font-size: 1rem; text-align: center;
+      font-family: monospace; letter-spacing: 2px;
       margin-bottom: 12px;
     }
-    .ov-box input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
+    .ov-box input:focus { outline: none; border-color: var(--accent); }
     .ov-box button {
-      width: 100%;
-      padding: 12px;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
+      width: 100%; padding: 12px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
     }
     .ov-box button:active { opacity: .9; }
 
@@ -418,10 +730,8 @@
     .cfg-banner h2 { color: #856404; font-size: 1rem; margin-bottom: 6px; }
     .cfg-banner p  { color: #856404; font-size: .85rem; line-height: 1.5; }
     .cfg-banner code {
-      background: #f8f0d8;
-      padding: 1px 5px;
-      border-radius: 3px;
-      font-size: .82rem;
+      background: #f8f0d8; padding: 1px 5px;
+      border-radius: 3px; font-size: .82rem;
     }
   </style>
 </head>
@@ -444,7 +754,7 @@
 
 <div class="overall">
   <div class="overall-top">
-    <span>Overall Progress</span>
+    <span id="oLabel">Overall Progress</span>
     <span id="oPct">0%</span>
   </div>
   <div class="bar-wrap">
@@ -452,12 +762,24 @@
   </div>
 </div>
 
+<div class="filter-bar" id="filterBar"></div>
+
 <div class="grid" id="board"></div>
 
 <!-- Undo toast -->
 <div class="toast" id="toast">
   <span id="toastMsg"></span>
   <button class="toast-undo" id="toastUndo">UNDO</button>
+</div>
+
+<!-- Tag picker overlay -->
+<div class="tp-ov" id="tpOv">
+  <div class="tp-box" id="tpBox"></div>
+</div>
+
+<!-- Tag management overlay -->
+<div class="tm-ov" id="tmOv">
+  <div class="tm-box" id="tmBox"></div>
 </div>
 
 <!-- Sync-key overlay -->
@@ -485,12 +807,20 @@ var firebaseConfig = {
   appId: "1:213165358695:web:f166a7cc6772f8a54a1ec2"
 };
 
-// This line checks if you have replaced the placeholder key
 var configured = firebaseConfig.apiKey !== 'YOUR_API_KEY';
 
 /* ================================================================
-   END FIREBASE CONFIG
+   CONSTANTS
    ================================================================ */
+var TAG_COLORS = ['#4A90D9','#5CC1A9','#D97757','#9B59B6','#E74C3C','#F39C12','#1ABC9C','#34495E'];
+
+var DEFAULT_TAGS = [
+  { id: 'tag-work',     name: 'Work',     color: '#4A90D9' },
+  { id: 'tag-shop',     name: 'Shop',     color: '#5CC1A9' },
+  { id: 'tag-business', name: 'Business', color: '#D97757' }
+];
+
+var EMOJIS = ['\ud83d\udccb','\ud83c\udfaf','\ud83d\udcf1','\ud83d\uded2','\ud83d\udcfa','\ud83c\udfd7\ufe0f','\ud83d\udcb0','\ud83d\udd27','\u2b50','\ud83c\udfe0','\ud83d\ude97','\ud83d\udca1','\ud83c\udfa8','\ud83d\udcdd','\ud83d\udee0\ufe0f','\ud83d\udce6'];
 
 /* ================================================================
    DEFAULT SECTIONS — used for first-time setup only.
@@ -589,11 +919,14 @@ var SEED = [
 /* ================================================================
    STATE
    ================================================================ */
-var appData    = { sections: [] };
-var syncKey    = localStorage.getItem('bozzone-sync-key');
-var dbRef      = null;
-var fbReady    = false;
-var isDragging = false;
+var appData      = { sections: [], tags: [] };
+var syncKey      = localStorage.getItem('bozzone-sync-key');
+var dbRef        = null;
+var fbReady      = false;
+var isDragging   = false;
+var activeFilter = null;       /* null = All, or tag id */
+var tpTarget     = null;       /* { secId, taskId } for tag picker */
+var newTagColor  = TAG_COLORS[0];
 
 /* ================================================================
    HELPERS
@@ -614,15 +947,29 @@ function findSec(id) {
   return null;
 }
 
+function findTag(id) {
+  var tags = appData.tags || [];
+  for (var i = 0; i < tags.length; i++) {
+    if (tags[i].id === id) return tags[i];
+  }
+  return null;
+}
+
 /* Firebase can turn arrays into objects — normalize on read */
 function ensureArrays(data) {
-  if (!data || !data.sections) return { sections: [] };
-  if (!Array.isArray(data.sections)) {
-    data.sections = Object.values(data.sections);
-  }
+  if (!data) return { sections: [], tags: DEFAULT_TAGS.slice() };
+  if (!data.sections) data.sections = [];
+  if (!Array.isArray(data.sections)) data.sections = Object.values(data.sections);
+  /* Seed default tags if tags never set */
+  if (!data.tags) data.tags = DEFAULT_TAGS.map(function(t) { return {id:t.id, name:t.name, color:t.color}; });
+  if (!Array.isArray(data.tags)) data.tags = Object.values(data.tags);
   data.sections.forEach(function(sec) {
     if (!sec.tasks) sec.tasks = [];
     if (!Array.isArray(sec.tasks)) sec.tasks = Object.values(sec.tasks);
+    sec.tasks.forEach(function(task) {
+      if (!task.tags) task.tags = [];
+      if (!Array.isArray(task.tags)) task.tags = Object.values(task.tags);
+    });
   });
   return data;
 }
@@ -633,6 +980,7 @@ function ensureArrays(data) {
 function buildInitialData(oldStates) {
   oldStates = oldStates || {};
   return {
+    tags: DEFAULT_TAGS.map(function(t) { return {id:t.id, name:t.name, color:t.color}; }),
     sections: SEED.map(function(sec, si) {
       return {
         id: 'sec-' + si,
@@ -641,7 +989,7 @@ function buildInitialData(oldStates) {
         priority: !!sec.priority,
         tasks: sec.tasks.map(function(text, ti) {
           var oldId = (sec.title + '-' + ti).toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 60);
-          return { id: uid(), text: text, done: !!oldStates[oldId] };
+          return { id: uid(), text: text, done: !!oldStates[oldId], tags: [] };
         })
       };
     })
@@ -687,13 +1035,12 @@ function startSync() {
 
   var firstLoad = true;
   dbRef.on('value', function(snap) {
-    if (isDragging) return;            /* don't clobber mid-drag */
+    if (isDragging) return;
     if (snap.exists()) {
       appData = ensureArrays(snap.val());
       dot('on');
       render();
     } else if (firstLoad) {
-      /* First time — migrate old checkbox states into new format */
       var oldRef = firebase.database().ref('dashboards/' + syncKey + '/tasks');
       oldRef.once('value', function(oldSnap) {
         appData = buildInitialData(oldSnap.val() || {});
@@ -715,9 +1062,9 @@ function startSync() {
 function save() {
   saveLS();
   if (fbReady && dbRef) {
-    dbRef.set(appData);          /* Firebase listener will re-render */
+    dbRef.set(appData);
   } else {
-    render();                    /* No Firebase — render locally */
+    render();
   }
 }
 
@@ -728,7 +1075,6 @@ function loadLS() {
   try {
     var s = localStorage.getItem('bozzone-app-v2');
     if (s) { appData = ensureArrays(JSON.parse(s)); return; }
-    /* Try migrating from old format */
     var old = localStorage.getItem('bozzone-states');
     if (old) appData = buildInitialData(JSON.parse(old));
   } catch (e) {}
@@ -739,12 +1085,12 @@ function saveLS() {
 }
 
 /* ================================================================
-   CRUD OPERATIONS
+   TASK CRUD
    ================================================================ */
 function addTask(secId, text) {
   var sec = findSec(secId);
   if (!sec) return;
-  sec.tasks.push({ id: uid(), text: text.trim(), done: false });
+  sec.tasks.push({ id: uid(), text: text.trim(), done: false, tags: [] });
   save();
 }
 
@@ -757,15 +1103,11 @@ function deleteTask(secId, taskId) {
   }
   if (idx === -1) return;
   var removed = sec.tasks.splice(idx, 1)[0];
-  var savedSecId = secId;
-  var savedIdx   = idx;
+  var savedSecId = secId, savedIdx = idx;
   save();
   showToast('Task deleted', function() {
     var s = findSec(savedSecId);
-    if (s) {
-      s.tasks.splice(savedIdx, 0, removed);
-      save();
-    }
+    if (s) { s.tasks.splice(savedIdx, 0, removed); save(); }
   });
 }
 
@@ -785,32 +1127,202 @@ function handleMove(fromSecId, toSecId, taskId, newIndex) {
   var fromSec = findSec(fromSecId);
   var toSec   = findSec(toSecId);
   if (!fromSec || !toSec) return;
-
   var taskIdx = -1;
   for (var i = 0; i < fromSec.tasks.length; i++) {
     if (fromSec.tasks[i].id === taskId) { taskIdx = i; break; }
   }
   if (taskIdx === -1) return;
-
   var task = fromSec.tasks.splice(taskIdx, 1)[0];
   toSec.tasks.splice(newIndex, 0, task);
   save();
 }
 
 /* ================================================================
-   RENDER
+   SECTION CRUD
+   ================================================================ */
+function addSection(title, icon) {
+  appData.sections.push({
+    id: uid(),
+    title: title.trim(),
+    icon: icon || '\ud83d\udccb',
+    priority: false,
+    tasks: []
+  });
+  save();
+}
+
+function deleteSection(secId) {
+  var secs = appData.sections || [];
+  var idx = -1;
+  for (var i = 0; i < secs.length; i++) {
+    if (secs[i].id === secId) { idx = i; break; }
+  }
+  if (idx === -1) return;
+  var removed = secs.splice(idx, 1)[0];
+  var savedIdx = idx;
+  save();
+  var msg = 'Column deleted' + (removed.tasks.length ? ' (' + removed.tasks.length + ' tasks)' : '');
+  showToast(msg, function() {
+    appData.sections.splice(savedIdx, 0, removed);
+    save();
+  });
+}
+
+function renameSection(secId, newTitle) {
+  var sec = findSec(secId);
+  if (!sec || !newTitle.trim()) return;
+  sec.title = newTitle.trim();
+  save();
+}
+
+/* ================================================================
+   TAG CRUD
+   ================================================================ */
+function addTag(name, color) {
+  if (!appData.tags) appData.tags = [];
+  appData.tags.push({ id: uid(), name: name.trim(), color: color });
+  save();
+}
+
+function deleteTag(tagId) {
+  var tags = appData.tags || [];
+  var idx = -1;
+  for (var i = 0; i < tags.length; i++) {
+    if (tags[i].id === tagId) { idx = i; break; }
+  }
+  if (idx === -1) return;
+  tags.splice(idx, 1);
+  /* Remove tag from all tasks */
+  (appData.sections || []).forEach(function(sec) {
+    (sec.tasks || []).forEach(function(task) {
+      if (task.tags) {
+        var ti = task.tags.indexOf(tagId);
+        if (ti !== -1) task.tags.splice(ti, 1);
+      }
+    });
+  });
+  if (activeFilter === tagId) activeFilter = null;
+  save();
+}
+
+function toggleTaskTag(secId, taskId, tagId) {
+  var sec = findSec(secId);
+  if (!sec) return;
+  for (var i = 0; i < sec.tasks.length; i++) {
+    if (sec.tasks[i].id === taskId) {
+      var t = sec.tasks[i];
+      if (!t.tags) t.tags = [];
+      var ti = t.tags.indexOf(tagId);
+      if (ti === -1) t.tags.push(tagId);
+      else t.tags.splice(ti, 1);
+      break;
+    }
+  }
+  save();
+}
+
+/* ================================================================
+   FILTER LOGIC
+   ================================================================ */
+function setFilter(tagId) {
+  activeFilter = tagId;
+  render();
+}
+
+function getFilteredSections() {
+  var secs = appData.sections || [];
+  if (!activeFilter) return secs;
+  return secs.map(function(sec) {
+    return {
+      id: sec.id,
+      title: sec.title,
+      icon: sec.icon,
+      priority: sec.priority,
+      tasks: (sec.tasks || []).filter(function(t) {
+        return t.tags && t.tags.indexOf(activeFilter) !== -1;
+      })
+    };
+  }).filter(function(sec) {
+    return sec.tasks.length > 0;
+  });
+}
+
+function getTagCounts() {
+  var counts = {};
+  var total = 0;
+  (appData.sections || []).forEach(function(sec) {
+    (sec.tasks || []).forEach(function(task) {
+      total++;
+      (task.tags || []).forEach(function(tid) {
+        counts[tid] = (counts[tid] || 0) + 1;
+      });
+    });
+  });
+  counts._total = total;
+  return counts;
+}
+
+/* ================================================================
+   RENDER — FILTER BAR
+   ================================================================ */
+function renderFilterBar() {
+  var bar = document.getElementById('filterBar');
+  bar.innerHTML = '';
+  var tags = appData.tags || [];
+  var counts = getTagCounts();
+
+  /* "All" button */
+  var allBtn = document.createElement('button');
+  allBtn.className = 'filter-btn' + (!activeFilter ? ' active' : '');
+  allBtn.innerHTML = 'All <span class="filter-count">' + (counts._total || 0) + '</span>';
+  allBtn.addEventListener('click', function() { setFilter(null); });
+  bar.appendChild(allBtn);
+
+  /* Tag buttons */
+  tags.forEach(function(tag) {
+    var btn = document.createElement('button');
+    var isActive = activeFilter === tag.id;
+    btn.className = 'filter-btn' + (isActive ? ' active' : '');
+    if (isActive) {
+      btn.style.background = tag.color;
+      btn.style.borderColor = tag.color;
+    }
+    btn.innerHTML =
+      '<span class="filter-dot" style="background:' + tag.color + '"></span>' +
+      tag.name +
+      ' <span class="filter-count">' + (counts[tag.id] || 0) + '</span>';
+    (function(tid) {
+      btn.addEventListener('click', function() { setFilter(tid); });
+    })(tag.id);
+    bar.appendChild(btn);
+  });
+
+  /* Manage tags button */
+  var mgmt = document.createElement('button');
+  mgmt.className = 'filter-manage-btn';
+  mgmt.innerHTML = '&#9881;';
+  mgmt.title = 'Manage tags';
+  mgmt.addEventListener('click', function() { showTagMgmt(); });
+  bar.appendChild(mgmt);
+}
+
+/* ================================================================
+   RENDER — MAIN BOARD
    ================================================================ */
 function render() {
   if (isDragging) return;
 
+  renderFilterBar();
+
   var board = document.getElementById('board');
   board.innerHTML = '';
 
+  var filteredSecs = getFilteredSections();
   var totalAll = 0, doneAll = 0;
 
-  (appData.sections || []).forEach(function(sec) {
+  filteredSecs.forEach(function(sec) {
     var tasks = sec.tasks || [];
-    var done  = 0;
+    var done = 0;
     tasks.forEach(function(t) { if (t.done) done++; });
     totalAll += tasks.length;
     doneAll  += done;
@@ -820,15 +1332,75 @@ function render() {
     var card = document.createElement('div');
     card.className = 'card' + (sec.priority ? ' priority' : '');
 
-    /* Header */
+    /* ── Header ── */
     var hd = document.createElement('div');
     hd.className = 'card-hd';
-    hd.innerHTML =
-      '<span>' + (sec.icon || '') + ' ' + sec.title + '</span>' +
-      '<span class="badge">' + done + '/' + tasks.length + '</span>';
+
+    /* Editable title */
+    var titleSpan = document.createElement('span');
+    titleSpan.className = 'sec-title';
+    titleSpan.textContent = (sec.icon || '') + ' ' + sec.title;
+    (function(secId, currentTitle, icon) {
+      titleSpan.addEventListener('click', function() {
+        /* Replace span with input */
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'sec-title-input';
+        input.value = currentTitle;
+        titleSpan.style.display = 'none';
+        hd.insertBefore(input, titleSpan.nextSibling);
+        input.focus();
+        input.select();
+
+        function commitEdit() {
+          var val = input.value.trim();
+          if (val && val !== currentTitle) {
+            renameSection(secId, val);
+          } else {
+            /* Cancelled or no change — restore */
+            input.remove();
+            titleSpan.style.display = '';
+          }
+        }
+
+        input.addEventListener('blur', commitEdit);
+        input.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+          if (e.key === 'Escape') {
+            input.removeEventListener('blur', commitEdit);
+            input.remove();
+            titleSpan.style.display = '';
+          }
+        });
+      });
+    })(sec.id, sec.title, sec.icon);
+    hd.appendChild(titleSpan);
+
+    /* Actions: badge + delete */
+    var actions = document.createElement('span');
+    actions.className = 'sec-actions';
+
+    var badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = done + '/' + tasks.length;
+    actions.appendChild(badge);
+
+    var delBtn = document.createElement('button');
+    delBtn.className = 'sec-del';
+    delBtn.innerHTML = '&times;';
+    delBtn.title = 'Delete column';
+    (function(sid) {
+      delBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        deleteSection(sid);
+      });
+    })(sec.id);
+    actions.appendChild(delBtn);
+
+    hd.appendChild(actions);
     card.appendChild(hd);
 
-    /* Body */
+    /* ── Body ── */
     var bd = document.createElement('div');
     bd.className = 'card-bd';
 
@@ -840,7 +1412,7 @@ function render() {
     pl.textContent = pct + '% complete';
     bd.appendChild(pl);
 
-    /* Task list (SortableJS container) */
+    /* Task list */
     var tl = document.createElement('div');
     tl.className = 'task-list';
     tl.dataset.sectionId = sec.id;
@@ -848,7 +1420,7 @@ function render() {
     if (!tasks.length) {
       var em = document.createElement('div');
       em.className = 'task-empty';
-      em.textContent = 'No tasks \u2014 add one below';
+      em.textContent = activeFilter ? 'No matching tasks' : 'No tasks \u2014 add one below';
       tl.appendChild(em);
     }
 
@@ -861,7 +1433,7 @@ function render() {
       /* Drag handle */
       var grip = document.createElement('span');
       grip.className = 'drag-handle';
-      grip.innerHTML = '&#9776;';          /* ☰ */
+      grip.innerHTML = '&#9776;';
       row.appendChild(grip);
 
       /* Checkbox */
@@ -873,10 +1445,50 @@ function render() {
       })(sec.id, task.id);
       row.appendChild(cb);
 
-      /* Label */
+      /* Content wrapper (label + tag badges) */
+      var content = document.createElement('div');
+      content.className = 'task-content';
+
       var lb = document.createElement('label');
       lb.textContent = task.text;
-      row.appendChild(lb);
+      content.appendChild(lb);
+
+      /* Tag badges */
+      var taskTags = task.tags || [];
+      if (taskTags.length) {
+        var badges = document.createElement('div');
+        badges.className = 'tag-badges';
+        taskTags.forEach(function(tid) {
+          var tag = findTag(tid);
+          if (tag) {
+            var b = document.createElement('span');
+            b.className = 'tag-badge';
+            b.style.background = tag.color;
+            b.textContent = tag.name;
+            badges.appendChild(b);
+          }
+        });
+        content.appendChild(badges);
+      }
+
+      row.appendChild(content);
+
+      /* Action buttons */
+      var actionsDiv = document.createElement('div');
+      actionsDiv.className = 'task-actions';
+
+      /* Tag toggle button */
+      var tagBtn = document.createElement('button');
+      tagBtn.className = 'tag-btn';
+      tagBtn.innerHTML = '\ud83c\udff7\ufe0f';
+      tagBtn.title = 'Tags';
+      (function(sid, tid) {
+        tagBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          showTagPicker(sid, tid);
+        });
+      })(sec.id, task.id);
+      actionsDiv.appendChild(tagBtn);
 
       /* Delete button */
       var del = document.createElement('button');
@@ -889,8 +1501,9 @@ function render() {
           deleteTask(sid, tid);
         });
       })(sec.id, task.id);
-      row.appendChild(del);
+      actionsDiv.appendChild(del);
 
+      row.appendChild(actionsDiv);
       tl.appendChild(row);
     });
 
@@ -907,15 +1520,13 @@ function render() {
     ab.className = 'add-btn';
     ab.textContent = '+';
     (function(sid, inp) {
-      ab.addEventListener('click', function() {
+      function doAdd() {
         var v = inp.value.trim();
         if (v) { addTask(sid, v); inp.value = ''; }
-      });
+      }
+      ab.addEventListener('click', doAdd);
       inp.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-          var v = inp.value.trim();
-          if (v) { addTask(sid, v); inp.value = ''; }
-        }
+        if (e.key === 'Enter') doAdd();
       });
     })(sec.id, ai);
     ar.appendChild(ai);
@@ -926,14 +1537,233 @@ function render() {
     board.appendChild(card);
   });
 
+  /* ── Add Column Card ── */
+  var addCard = document.createElement('div');
+  addCard.className = 'add-col-card';
+  addCard.id = 'addColCard';
+  addCard.innerHTML =
+    '<div class="add-col-icon">+</div>' +
+    '<div class="add-col-label">Add Column</div>';
+  addCard.addEventListener('click', function() { expandAddCol(addCard); });
+  board.appendChild(addCard);
+
   /* Overall progress */
   var op = totalAll ? Math.round(doneAll / totalAll * 100) : 0;
+  var filterTag = activeFilter ? findTag(activeFilter) : null;
+  document.getElementById('oLabel').textContent =
+    filterTag ? (filterTag.name + ' Progress') : 'Overall Progress';
   document.getElementById('oPct').textContent = doneAll + '/' + totalAll + ' (' + op + '%)';
   document.getElementById('oBar').style.width  = op + '%';
 
-  /* Attach SortableJS to each task list */
   initSortables();
 }
+
+/* ================================================================
+   ADD COLUMN — expand card into form
+   ================================================================ */
+var selectedEmoji = '\ud83d\udccb';
+
+function expandAddCol(card) {
+  if (card.classList.contains('expanded')) return;
+  card.classList.add('expanded');
+  card.removeEventListener('click', arguments.callee);
+  selectedEmoji = '\ud83d\udccb';
+
+  card.innerHTML =
+    '<div class="add-col-form">' +
+      '<input type="text" id="newColName" placeholder="Column name\u2026" autofocus>' +
+      '<label>Icon</label>' +
+      '<div class="emoji-row" id="emojiRow"></div>' +
+      '<div class="add-col-btns">' +
+        '<button class="btn-cancel" id="colCancelBtn">Cancel</button>' +
+        '<button class="btn-create" id="colCreateBtn">Create</button>' +
+      '</div>' +
+    '</div>';
+
+  var row = document.getElementById('emojiRow');
+  EMOJIS.forEach(function(em) {
+    var btn = document.createElement('button');
+    btn.className = 'emoji-pick' + (em === selectedEmoji ? ' sel' : '');
+    btn.textContent = em;
+    btn.type = 'button';
+    btn.addEventListener('click', function() {
+      row.querySelectorAll('.emoji-pick').forEach(function(b) { b.classList.remove('sel'); });
+      btn.classList.add('sel');
+      selectedEmoji = em;
+    });
+    row.appendChild(btn);
+  });
+
+  var nameInput = document.getElementById('newColName');
+  nameInput.focus();
+
+  document.getElementById('colCreateBtn').addEventListener('click', function() {
+    var name = nameInput.value.trim();
+    if (name) { addSection(name, selectedEmoji); }
+  });
+  document.getElementById('colCancelBtn').addEventListener('click', function() {
+    render();
+  });
+  nameInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      var name = nameInput.value.trim();
+      if (name) addSection(name, selectedEmoji);
+    }
+    if (e.key === 'Escape') render();
+  });
+}
+
+/* ================================================================
+   TAG PICKER
+   ================================================================ */
+function showTagPicker(secId, taskId) {
+  tpTarget = { secId: secId, taskId: taskId };
+  renderTagPicker();
+  document.getElementById('tpOv').classList.add('show');
+}
+
+function hideTagPicker() {
+  document.getElementById('tpOv').classList.remove('show');
+  tpTarget = null;
+}
+
+function renderTagPicker() {
+  if (!tpTarget) return;
+  var sec = findSec(tpTarget.secId);
+  if (!sec) return;
+  var task = null;
+  for (var i = 0; i < sec.tasks.length; i++) {
+    if (sec.tasks[i].id === tpTarget.taskId) { task = sec.tasks[i]; break; }
+  }
+  if (!task) return;
+
+  var box = document.getElementById('tpBox');
+  var tags = appData.tags || [];
+  var taskTags = task.tags || [];
+  var html = '<div class="tp-title">Tags for: ' + escHtml(task.text.slice(0, 40)) + (task.text.length > 40 ? '\u2026' : '') + '</div>';
+
+  if (!tags.length) {
+    html += '<div class="tp-empty">No tags yet. Create tags from the filter bar.</div>';
+  } else {
+    tags.forEach(function(tag) {
+      var checked = taskTags.indexOf(tag.id) !== -1;
+      html +=
+        '<div class="tp-item" data-tag-id="' + tag.id + '">' +
+          '<span class="tp-dot" style="background:' + tag.color + '"></span>' +
+          '<span class="tp-name">' + escHtml(tag.name) + '</span>' +
+          (checked ? '<span class="tp-check">\u2713</span>' : '') +
+        '</div>';
+    });
+  }
+
+  box.innerHTML = html;
+
+  /* Attach click handlers */
+  box.querySelectorAll('.tp-item').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var tid = el.dataset.tagId;
+      toggleTaskTag(tpTarget.secId, tpTarget.taskId, tid);
+      /* Re-render picker to update checkmarks (save triggers full render, picker stays open) */
+      setTimeout(function() { renderTagPicker(); }, 50);
+    });
+  });
+}
+
+/* Close tag picker on overlay click */
+document.getElementById('tpOv').addEventListener('click', function(e) {
+  if (e.target === this) hideTagPicker();
+});
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ================================================================
+   TAG MANAGEMENT MODAL
+   ================================================================ */
+function showTagMgmt() {
+  renderTagMgmt();
+  document.getElementById('tmOv').classList.add('show');
+}
+
+function hideTagMgmt() {
+  document.getElementById('tmOv').classList.remove('show');
+}
+
+function renderTagMgmt() {
+  var box = document.getElementById('tmBox');
+  var tags = appData.tags || [];
+
+  var html = '<h2>Manage Tags</h2>';
+  html += '<div class="tm-list">';
+  if (!tags.length) {
+    html += '<div style="padding:10px 0;color:var(--text-muted);font-size:.84rem;font-style:italic">No tags yet</div>';
+  }
+  tags.forEach(function(tag) {
+    html +=
+      '<div class="tm-item">' +
+        '<span class="tm-color" style="background:' + tag.color + '"></span>' +
+        '<span class="tm-name">' + escHtml(tag.name) + '</span>' +
+        '<button class="tm-del" data-tag-id="' + tag.id + '" title="Delete tag">&times;</button>' +
+      '</div>';
+  });
+  html += '</div>';
+
+  html += '<div class="tm-divider"></div>';
+  html += '<div class="tm-subtitle">Add new tag</div>';
+  html += '<div class="tm-add-row"><input class="tm-add-input" id="tmNewName" placeholder="Tag name\u2026"></div>';
+  html += '<div class="tm-colors" id="tmColors"></div>';
+  html += '<button class="tm-add-btn" id="tmAddBtn">Add Tag</button>';
+  html += '<button class="tm-close" id="tmCloseBtn">Done</button>';
+
+  box.innerHTML = html;
+
+  /* Color swatches */
+  var colorRow = document.getElementById('tmColors');
+  newTagColor = TAG_COLORS[0];
+  TAG_COLORS.forEach(function(c) {
+    var sw = document.createElement('span');
+    sw.className = 'tm-color-opt' + (c === newTagColor ? ' sel' : '');
+    sw.style.background = c;
+    sw.addEventListener('click', function() {
+      colorRow.querySelectorAll('.tm-color-opt').forEach(function(s) { s.classList.remove('sel'); });
+      sw.classList.add('sel');
+      newTagColor = c;
+    });
+    colorRow.appendChild(sw);
+  });
+
+  /* Delete tag handlers */
+  box.querySelectorAll('.tm-del').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      deleteTag(btn.dataset.tagId);
+      renderTagMgmt();
+    });
+  });
+
+  /* Add tag */
+  document.getElementById('tmAddBtn').addEventListener('click', function() {
+    var name = document.getElementById('tmNewName').value.trim();
+    if (name) {
+      addTag(name, newTagColor);
+      renderTagMgmt();
+    }
+  });
+  document.getElementById('tmNewName').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      var name = this.value.trim();
+      if (name) { addTag(name, newTagColor); renderTagMgmt(); }
+    }
+  });
+
+  /* Close */
+  document.getElementById('tmCloseBtn').addEventListener('click', hideTagMgmt);
+}
+
+/* Close tag mgmt on overlay click */
+document.getElementById('tmOv').addEventListener('click', function(e) {
+  if (e.target === this) hideTagMgmt();
+});
 
 /* ================================================================
    SORTABLEJS — touch-friendly drag & drop
@@ -943,7 +1773,7 @@ function initSortables() {
 
   document.querySelectorAll('.task-list').forEach(function(el) {
     Sortable.create(el, {
-      group: 'tasks',              /* allow cross-list dragging */
+      group: 'tasks',
       handle: '.drag-handle',
       animation: 180,
       ghostClass: 'task-ghost',

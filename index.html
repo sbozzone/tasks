@@ -1369,6 +1369,17 @@
       font-size: .82rem; background: var(--card-bg); color: var(--text); width: 110px;
     }
 
+    /* My Day Column */
+    .my-day-col { border-left: 3px solid #F5A623 !important; }
+    .my-day-col .card-hd { background: linear-gradient(135deg, #fff9f0, var(--card-header-bg)); }
+    [data-theme="dark"] .my-day-col .card-hd { background: linear-gradient(135deg, rgba(245,166,35,.08), var(--card-header-bg)); }
+    .my-day-source { font-size: .68rem; color: var(--text-muted); margin-top: 2px; display: block; }
+    .my-day-empty { text-align: center; padding: 24px 10px; color: var(--text-muted); font-size: .82rem; line-height: 1.8; }
+    /* My Day toggle button on each task */
+    .my-day-btn { background: none; border: none; cursor: pointer; font-size: .78rem; padding: 2px 4px; border-radius: 3px; opacity: .35; transition: all .15s; line-height: 1; }
+    .my-day-btn:hover { opacity: 1; background: var(--hover); }
+    .my-day-btn.in-my-day { opacity: 1; }
+
   </style>
 </head>
 <body>
@@ -2309,6 +2320,129 @@ function render() {
   var board = document.getElementById('board');
   board.innerHTML = '';
 
+  /* ── My Day virtual column ── */
+  (function() {
+    var mdTasks = [];
+    (appData.sections || []).forEach(function(sec) {
+      (sec.tasks || []).forEach(function(task) {
+        if (!task.myDay) return;
+        if (hideCompleted && (task.status === 'done' || task.done)) return;
+        mdTasks.push({ task: task, secTitle: sec.title, secId: sec.id });
+      });
+    });
+
+    var mdCard = document.createElement('div');
+    mdCard.className = 'card my-day-col';
+    mdCard.id = 'myDayCard';
+
+    /* Header */
+    var hd = document.createElement('div');
+    hd.className = 'card-hd';
+    var hdLeft = document.createElement('div');
+    hdLeft.style.cssText = 'display:flex;align-items:center;gap:6px;min-width:0;flex:1;';
+    var hdIcon = document.createElement('span');
+    hdIcon.textContent = '☀️';
+    hdIcon.style.cssText = 'font-size:1rem;flex-shrink:0;';
+    var hdTitle = document.createElement('span');
+    hdTitle.className = 'sec-title';
+    hdTitle.textContent = 'My Day';
+    var hdBadge = document.createElement('span');
+    hdBadge.className = 'badge';
+    hdBadge.textContent = '0/' + mdTasks.length;
+    hdLeft.appendChild(hdIcon);
+    hdLeft.appendChild(hdTitle);
+    hdLeft.appendChild(hdBadge);
+    hd.appendChild(hdLeft);
+    mdCard.appendChild(hd);
+
+    /* Body */
+    var bd = document.createElement('div');
+    bd.className = 'card-bd';
+
+    if (mdTasks.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'my-day-empty';
+      empty.innerHTML = '☀️<br>No tasks for today<br><small>Click ☀️ on any task to add it here</small>';
+      bd.appendChild(empty);
+    } else {
+      var tl = document.createElement('div');
+      tl.className = 'task-list';
+      mdTasks.forEach(function(item) {
+        var task = item.task;
+        var secId = item.secId;
+        var status = task.status || (task.done ? 'done' : 'todo');
+
+        var row = document.createElement('div');
+        row.className = 'task status-' + status;
+        row.dataset.taskId = task.id;
+        row.dataset.sectionId = secId;
+
+        /* Status button */
+        var statusBtn = document.createElement('button');
+        statusBtn.className = 'status-btn';
+        statusBtn.dataset.status = status;
+        statusBtn.title = 'Click to cycle status';
+        statusBtn.innerHTML = status === 'done' ? '&#10003;' : status === 'inprogress' ? '&#9680;' : '';
+        (function(sid, tid) {
+          statusBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            cycleStatus(sid, tid);
+          });
+        })(secId, task.id);
+        row.appendChild(statusBtn);
+
+        /* Content */
+        var content = document.createElement('div');
+        content.className = 'task-content';
+
+        var lb = document.createElement('label');
+        lb.textContent = task.text;
+        content.appendChild(lb);
+
+        /* Due chip */
+        if (task.dueDate) {
+          var today2 = new Date(); today2.setHours(0,0,0,0);
+          var due2 = new Date(task.dueDate + 'T00:00:00');
+          var dChip = document.createElement('span');
+          dChip.className = 'due-chip' + (due2 < today2 && status !== 'done' ? ' overdue' : due2.getTime() === today2.getTime() ? ' today' : '');
+          dChip.textContent = '\uD83D\uDCC5 ' + task.dueDate.slice(5).replace('-', '/');
+          content.appendChild(dChip);
+        }
+
+        /* Source section label */
+        var src = document.createElement('span');
+        src.className = 'my-day-source';
+        src.textContent = '\u21b3 ' + item.secTitle;
+        content.appendChild(src);
+
+        row.appendChild(content);
+
+        /* Remove from My Day button */
+        var removeBtn = document.createElement('button');
+        removeBtn.className = 'my-day-btn in-my-day tag-btn';
+        removeBtn.title = 'Remove from My Day';
+        removeBtn.textContent = '☀️';
+        (function(sid, tid) {
+          removeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var s2 = findSec(sid);
+            if (s2) {
+              var t2 = (s2.tasks || []).filter(function(t) { return t.id === tid; })[0];
+              if (t2) { t2.myDay = false; save(); }
+            }
+          });
+        })(secId, task.id);
+        row.appendChild(removeBtn);
+
+        tl.appendChild(row);
+      });
+      bd.appendChild(tl);
+    }
+
+    mdCard.appendChild(bd);
+    board.appendChild(mdCard);
+  })();
+
   var filteredSecs = getFilteredSections();
   var totalAll = 0, doneAll = 0;
 
@@ -2334,6 +2468,9 @@ function render() {
         }
         if (sortMode === 'created') {
           return (a.id || '').localeCompare(b.id || '');
+        }
+        if (sortMode === 'myday') {
+          return (b.myDay ? 1 : 0) - (a.myDay ? 1 : 0);
         }
         return 0;
       });
@@ -2444,7 +2581,7 @@ function render() {
     var sortBtnEl = document.createElement('button');
     sortBtnEl.className = 'sec-sort-btn' + (currentSort !== 'manual' ? ' sorted' : '');
     sortBtnEl.title = 'Sort tasks in this column';
-    var sortIcons = { manual: '⇅', priority: '⬆', due: '📅', alpha: 'Az', created: '🕐' };
+    var sortIcons = { manual: '⇅', priority: '⬆', due: '📅', alpha: 'Az', created: '🕐', myday: '☀️' };
     sortBtnEl.textContent = sortIcons[currentSort] || '⇅';
     (function(sid, sBtn) {
       sBtn.addEventListener('click', function(e) {
@@ -2457,7 +2594,8 @@ function render() {
           { val: 'priority', label: '⬆ Priority' },
           { val: 'due',      label: '📅 Due Date' },
           { val: 'alpha',    label: 'Az Title A→Z' },
-          { val: 'created',  label: '🕐 Date Added' }
+          { val: 'created',  label: '🕐 Date Added' },
+          { val: 'myday',    label: '☀️ My Day First' }
         ].forEach(function(o) {
           var b = document.createElement('button');
           b.textContent = o.label;
@@ -2780,6 +2918,23 @@ function render() {
       /* Action buttons */
       var actionsDiv = document.createElement('div');
       actionsDiv.className = 'task-actions';
+
+      /* My Day toggle button */
+      var myDayBtn = document.createElement('button');
+      myDayBtn.className = 'my-day-btn' + (task.myDay ? ' in-my-day' : '');
+      myDayBtn.title = task.myDay ? 'Remove from My Day' : 'Add to My Day';
+      myDayBtn.textContent = '☀️';
+      (function(sid, tid) {
+        myDayBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var s2 = findSec(sid);
+          if (s2) {
+            var t2 = (s2.tasks || []).filter(function(t) { return t.id === tid; })[0];
+            if (t2) { t2.myDay = !t2.myDay; save(); }
+          }
+        });
+      })(sec.id, task.id);
+      actionsDiv.appendChild(myDayBtn);
 
       /* Save as template button */
       var tplBtn = document.createElement('button');

@@ -728,6 +728,241 @@
     .csv-btn-confirm:active { opacity: .85; }
     .csv-btn-cancel  { background: none; border: 1.5px solid var(--border); color: var(--text-sec); }
 
+    /* ── Search Bar ──────────────────────────────── */
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+    }
+    .search-wrap:focus-within { border-color: var(--accent); }
+    .search-icon { font-size: 1rem; color: var(--text-muted); flex-shrink: 0; }
+    #searchInput {
+      flex: 1; border: none; outline: none;
+      font-size: .88rem; font-family: inherit;
+      background: transparent; color: var(--text);
+      min-width: 0;
+    }
+    #searchInput::placeholder { color: var(--text-muted); }
+    .search-clear {
+      background: none; border: none;
+      color: var(--text-muted); font-size: 1rem;
+      cursor: pointer; padding: 0 2px;
+      display: none;
+    }
+    .search-clear.show { display: block; }
+
+    /* ── Status Button (replaces checkbox) ───────── */
+    .status-btn {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid #ccc;
+      background: none;
+      cursor: pointer;
+      font-size: .75rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: border-color .15s, background .15s, color .15s;
+      padding: 0;
+      line-height: 1;
+      color: transparent;
+    }
+    .status-btn[data-status="todo"]       { border-color: #bbb; color: transparent; background: #fff; }
+    .status-btn[data-status="inprogress"] { border-color: var(--accent); color: var(--accent); background: #fff3ec; font-size: .7rem; }
+    .status-btn[data-status="done"]       { border-color: #27AE60; color: #fff; background: #27AE60; }
+    .status-btn:hover { opacity: .8; }
+
+    /* Task done-state via status */
+    .task.status-done > .task-content > label { text-decoration: line-through; color: var(--text-muted); }
+    .task.status-done { opacity: .72; }
+
+    /* ── Priority border ─────────────────────────── */
+    .task[data-priority="high"]   { border-left: 3px solid #e74c3c; padding-left: 7px; }
+    .task[data-priority="medium"] { border-left: 3px solid #F39C12; padding-left: 7px; }
+    .task[data-priority="low"]    { border-left: 3px solid #27AE60; padding-left: 7px; }
+
+    /* ── Due Date Chip ───────────────────────────── */
+    .due-chip {
+      display: inline-block;
+      font-size: .7rem;
+      color: var(--text-sec);
+      background: #f0f0ec;
+      border-radius: 10px;
+      padding: 1px 7px;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+    .due-chip.today   { background: #FFF3CD; color: #856404; font-weight: 600; }
+    .due-chip.overdue { background: #fde8e8; color: #c0392b; font-weight: 600; }
+
+    /* ── Subtask display ─────────────────────────── */
+    .subtask-summary {
+      font-size: .72rem; color: var(--accent);
+      cursor: pointer; margin-top: 3px;
+      display: inline-block;
+      user-select: none;
+    }
+    .subtask-summary:hover { text-decoration: underline; }
+    .subtask-list {
+      margin-top: 6px;
+      border-top: 1px dashed var(--border);
+      padding-top: 6px;
+      display: none;
+    }
+    .subtask-list.open { display: block; }
+    .subtask-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 3px 0;
+      font-size: .8rem;
+    }
+    .subtask-item input[type="checkbox"] {
+      width: 14px; height: 14px;
+      cursor: pointer; flex-shrink: 0;
+      accent-color: var(--accent);
+    }
+    .subtask-item label {
+      flex: 1; cursor: pointer;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .subtask-item.done label { text-decoration: line-through; color: var(--text-muted); }
+    .subtask-del {
+      background: none; border: none;
+      color: #ccc; font-size: .9rem;
+      cursor: pointer; padding: 0 3px;
+      line-height: 1;
+    }
+    .subtask-del:hover { color: #e74c3c; }
+    .subtask-add-row {
+      display: flex; gap: 5px; margin-top: 5px;
+    }
+    .subtask-add-input {
+      flex: 1; border: 1px solid #ddd;
+      border-radius: 5px; padding: 4px 8px;
+      font-size: .78rem; font-family: inherit;
+      outline: none; min-width: 0;
+    }
+    .subtask-add-input:focus { border-color: var(--accent); }
+    .subtask-add-btn {
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 5px;
+      padding: 4px 9px; font-size: .82rem;
+      cursor: pointer;
+    }
+
+    /* ── New Task Row (replaces add-row) ─────────── */
+    .add-task-row {
+      display: flex;
+      align-items: center;
+      padding-top: 8px;
+      margin-top: 4px;
+      border-top: 1px dashed var(--border);
+    }
+    .add-task-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none;
+      color: var(--accent); font-size: .84rem;
+      cursor: pointer; padding: 4px 2px;
+      font-family: inherit; font-weight: 600;
+    }
+    .add-task-btn:hover { opacity: .8; }
+
+    /* ── New Task Modal ───────────────────────────── */
+    .nt-ov {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1100;
+      padding: 20px;
+    }
+    .nt-ov.show { display: flex; }
+    .nt-box {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 18px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,.22);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .nt-box h2 {
+      color: var(--accent); font-size: 1.05rem;
+      margin-bottom: 14px;
+    }
+    .nt-field {
+      margin-bottom: 12px;
+    }
+    .nt-field label {
+      display: block; font-size: .78rem;
+      font-weight: 600; color: var(--text-sec);
+      margin-bottom: 4px; text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .nt-field input[type="text"],
+    .nt-field input[type="date"],
+    .nt-field textarea,
+    .nt-field select {
+      width: 100%; padding: 9px 11px;
+      border: 1.5px solid #ddd; border-radius: 7px;
+      font-size: .88rem; font-family: inherit;
+      outline: none; background: #fff;
+      color: var(--text);
+    }
+    .nt-field input:focus,
+    .nt-field textarea:focus,
+    .nt-field select:focus { border-color: var(--accent); }
+    .nt-field textarea { min-height: 64px; resize: vertical; }
+    .nt-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 12px;
+    }
+    .nt-subtask-list { margin-bottom: 8px; }
+    .nt-subtask-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 0; font-size: .84rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .nt-subtask-item span { flex: 1; }
+    .nt-subtask-del {
+      background: none; border: none;
+      color: #ccc; font-size: .9rem;
+      cursor: pointer; padding: 0 4px;
+    }
+    .nt-subtask-del:hover { color: #e74c3c; }
+    .nt-subtask-add {
+      display: flex; gap: 6px; margin-top: 6px;
+    }
+    .nt-subtask-add input {
+      flex: 1; padding: 7px 10px;
+      border: 1.5px solid #ddd; border-radius: 6px;
+      font-size: .82rem; font-family: inherit; outline: none;
+    }
+    .nt-subtask-add input:focus { border-color: var(--accent); }
+    .nt-subtask-add button {
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 6px;
+      padding: 7px 12px; font-size: .82rem;
+      cursor: pointer; font-weight: 600;
+    }
+    .nt-actions {
+      display: flex; gap: 8px; margin-top: 16px;
+    }
+    .nt-actions button {
+      flex: 1; padding: 11px; border-radius: 7px;
+      font-size: .88rem; font-family: inherit;
+      cursor: pointer; font-weight: 600;
+    }
+    .nt-create { background: var(--accent); color: #fff; border: none; }
+    .nt-create:active { opacity: .85; }
+    .nt-cancel  { background: none; border: 1.5px solid var(--border); color: var(--text-sec); }
+
     /* ── Overlay (sync-key setup) ────────────────── */
     .ov {
       position: fixed; inset: 0;
@@ -798,6 +1033,13 @@
   </div>
 </header>
 
+<!-- Search bar -->
+<div class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input type="text" id="searchInput" placeholder="Search tasks…" autocomplete="off">
+  <button class="search-clear" id="searchClear" title="Clear search">&times;</button>
+</div>
+
 <div class="focus">
   <strong>FOCUS:</strong> YourStoryHomeDesign Social Marketing Plan &mdash; Community Connect News article (March)
 </div>
@@ -840,6 +1082,62 @@
 <!-- CSV Import preview overlay -->
 <div class="csv-ov" id="csvOv">
   <div class="csv-box" id="csvBox"></div>
+</div>
+
+<!-- New Task Modal -->
+<div class="nt-ov" id="ntOv">
+  <div class="nt-box">
+    <h2>➕ Create New Task</h2>
+    <div class="nt-field">
+      <label>Title *</label>
+      <input type="text" id="ntTitle" placeholder="What needs to be done?" autocomplete="off">
+    </div>
+    <div class="nt-field">
+      <label>Description</label>
+      <textarea id="ntDesc" placeholder="Optional details…"></textarea>
+    </div>
+    <div class="nt-row">
+      <div class="nt-field">
+        <label>Status</label>
+        <select id="ntStatus">
+          <option value="todo">To Do</option>
+          <option value="inprogress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
+      <div class="nt-field">
+        <label>Priority</label>
+        <select id="ntPriority">
+          <option value="">— None —</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+    </div>
+    <div class="nt-row">
+      <div class="nt-field">
+        <label>Due Date</label>
+        <input type="date" id="ntDueDate">
+      </div>
+      <div class="nt-field">
+        <label>Section</label>
+        <select id="ntSection"></select>
+      </div>
+    </div>
+    <div class="nt-field">
+      <label>Sub-tasks</label>
+      <div class="nt-subtask-list" id="ntSubtaskList"></div>
+      <div class="nt-subtask-add">
+        <input type="text" id="ntSubInput" placeholder="Add a sub-task…">
+        <button id="ntSubAdd">Add</button>
+      </div>
+    </div>
+    <div class="nt-actions">
+      <button class="nt-cancel" id="ntCancel">Cancel</button>
+      <button class="nt-create" id="ntCreate">Create Task</button>
+    </div>
+  </div>
 </div>
 
 <!-- Sync-key overlay -->
@@ -985,6 +1283,7 @@ var dbRef        = null;
 var fbReady      = false;
 var isDragging   = false;
 var activeFilter = null;       /* null = All, or tag id */
+var activeSearch = '';         /* search query string */
 var tpTarget     = null;       /* { secId, taskId } for tag picker */
 var newTagColor  = TAG_COLORS[0];
 
@@ -1029,6 +1328,13 @@ function ensureArrays(data) {
     sec.tasks.forEach(function(task) {
       if (!task.tags) task.tags = [];
       if (!Array.isArray(task.tags)) task.tags = Object.values(task.tags);
+      /* ── New field migrations ── */
+      if (!task.status)                   task.status   = task.done ? 'done' : 'todo';
+      if (!task.subtasks)                 task.subtasks = [];
+      if (!Array.isArray(task.subtasks))  task.subtasks = [];
+      if (task.priority === undefined)    task.priority = null;
+      if (task.dueDate  === undefined)    task.dueDate  = null;
+      if (task.desc     === undefined)    task.desc     = '';
     });
   });
   return data;
@@ -1183,6 +1489,137 @@ function toggleTask(secId, taskId) {
   save();
 }
 
+/* ================================================================
+   CYCLE STATUS (replaces toggleTask for the status button)
+   ================================================================ */
+function cycleStatus(secId, taskId) {
+  var sec = findSec(secId);
+  if (!sec) return;
+  for (var i = 0; i < sec.tasks.length; i++) {
+    if (sec.tasks[i].id === taskId) {
+      var cur = sec.tasks[i].status || 'todo';
+      var next = cur === 'todo' ? 'inprogress' : cur === 'inprogress' ? 'done' : 'todo';
+      sec.tasks[i].status = next;
+      sec.tasks[i].done   = (next === 'done');
+      break;
+    }
+  }
+  save();
+}
+
+/* ================================================================
+   CREATE TASK (full data model)
+   ================================================================ */
+function createTask(secId, data) {
+  var sec = findSec(secId);
+  if (!sec) return;
+  var status = data.status || 'todo';
+  var task = {
+    id:       uid(),
+    text:     (data.text || '').trim(),
+    desc:     (data.desc || '').trim(),
+    status:   status,
+    done:     status === 'done',
+    priority: data.priority || null,
+    dueDate:  data.dueDate  || null,
+    subtasks: (data.subtasks || []).map(function(s) {
+      return { id: uid(), text: s.text, done: false };
+    }),
+    tags: []
+  };
+  if (!task.text) return;
+  sec.tasks.push(task);
+  save();
+  showToast('Task created');
+}
+
+/* ================================================================
+   SUBTASK CRUD
+   ================================================================ */
+function toggleSubtask(secId, taskId, subId) {
+  var sec = findSec(secId);
+  if (!sec) return;
+  var task = sec.tasks.filter(function(t) { return t.id === taskId; })[0];
+  if (!task) return;
+  var sub = (task.subtasks || []).filter(function(s) { return s.id === subId; })[0];
+  if (sub) { sub.done = !sub.done; save(); }
+}
+
+function addSubtask(secId, taskId, text) {
+  var sec = findSec(secId);
+  if (!sec) return;
+  var task = sec.tasks.filter(function(t) { return t.id === taskId; })[0];
+  if (!task) return;
+  if (!task.subtasks) task.subtasks = [];
+  task.subtasks.push({ id: uid(), text: text.trim(), done: false });
+  save();
+}
+
+function deleteSubtask(secId, taskId, subId) {
+  var sec = findSec(secId);
+  if (!sec) return;
+  var task = sec.tasks.filter(function(t) { return t.id === taskId; })[0];
+  if (!task || !task.subtasks) return;
+  task.subtasks = task.subtasks.filter(function(s) { return s.id !== subId; });
+  save();
+}
+
+/* ================================================================
+   NEW TASK MODAL
+   ================================================================ */
+var ntPendingSubtasks = [];  /* subtasks built up in modal before save */
+
+function showNewTaskModal(secId) {
+  ntPendingSubtasks = [];
+  /* Populate section select */
+  var sel = document.getElementById('ntSection');
+  sel.innerHTML = '';
+  (appData.sections || []).forEach(function(s) {
+    var opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.title;
+    if (s.id === secId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  /* Reset fields */
+  document.getElementById('ntTitle').value   = '';
+  document.getElementById('ntDesc').value    = '';
+  document.getElementById('ntStatus').value  = 'todo';
+  document.getElementById('ntPriority').value = '';
+  document.getElementById('ntDueDate').value  = '';
+  document.getElementById('ntSubInput').value = '';
+  renderNtSubtasks();
+  document.getElementById('ntOv').classList.add('show');
+  document.getElementById('ntTitle').focus();
+}
+
+function hideNewTaskModal() {
+  document.getElementById('ntOv').classList.remove('show');
+}
+
+function renderNtSubtasks() {
+  var list = document.getElementById('ntSubtaskList');
+  list.innerHTML = '';
+  ntPendingSubtasks.forEach(function(s, idx) {
+    var item = document.createElement('div');
+    item.className = 'nt-subtask-item';
+    var sp = document.createElement('span');
+    sp.textContent = s.text;
+    var del = document.createElement('button');
+    del.className = 'nt-subtask-del';
+    del.innerHTML = '&times;';
+    (function(i) {
+      del.addEventListener('click', function() {
+        ntPendingSubtasks.splice(i, 1);
+        renderNtSubtasks();
+      });
+    })(idx);
+    item.appendChild(sp);
+    item.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
 function handleMove(fromSecId, toSecId, taskId, newIndex) {
   var fromSec = findSec(fromSecId);
   var toSec   = findSec(toSecId);
@@ -1289,18 +1726,37 @@ function setFilter(tagId) {
   render();
 }
 
+function setSearch(text) {
+  activeSearch = (text || '').trim().toLowerCase();
+  render();
+}
+
 function getFilteredSections() {
   var secs = appData.sections || [];
-  if (!activeFilter) return secs;
+  var needsFilter = activeFilter || activeSearch;
+  if (!needsFilter) return secs;
   return secs.map(function(sec) {
+    var tasks = (sec.tasks || []).filter(function(t) {
+      /* Tag filter */
+      if (activeFilter && !(t.tags && t.tags.indexOf(activeFilter) !== -1)) return false;
+      /* Search filter */
+      if (activeSearch) {
+        var q = activeSearch;
+        var inTitle = (t.text || '').toLowerCase().indexOf(q) !== -1;
+        var inDesc  = (t.desc || '').toLowerCase().indexOf(q) !== -1;
+        var inSubs  = (t.subtasks || []).some(function(s) {
+          return (s.text || '').toLowerCase().indexOf(q) !== -1;
+        });
+        if (!inTitle && !inDesc && !inSubs) return false;
+      }
+      return true;
+    });
     return {
       id: sec.id,
       title: sec.title,
       icon: sec.icon,
       priority: sec.priority,
-      tasks: (sec.tasks || []).filter(function(t) {
-        return t.tags && t.tags.indexOf(activeFilter) !== -1;
-      })
+      tasks: tasks
     };
   }).filter(function(sec) {
     return sec.tasks.length > 0;
@@ -1485,10 +1941,13 @@ function render() {
     }
 
     tasks.forEach(function(task) {
+      var status = task.status || (task.done ? 'done' : 'todo');
+
       var row = document.createElement('div');
-      row.className = 'task' + (task.done ? ' done' : '');
+      row.className = 'task status-' + status;
       row.dataset.taskId    = task.id;
       row.dataset.sectionId = sec.id;
+      if (task.priority) row.dataset.priority = task.priority;
 
       /* Drag handle */
       var grip = document.createElement('span');
@@ -1496,22 +1955,41 @@ function render() {
       grip.innerHTML = '&#9776;';
       row.appendChild(grip);
 
-      /* Checkbox */
-      var cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.checked = task.done;
+      /* Status button (3-state, replaces checkbox) */
+      var statusBtn = document.createElement('button');
+      statusBtn.className = 'status-btn';
+      statusBtn.dataset.status = status;
+      statusBtn.title = 'Click to cycle status';
+      statusBtn.innerHTML = status === 'done' ? '&#10003;' : status === 'inprogress' ? '&#9680;' : '';
       (function(sid, tid) {
-        cb.addEventListener('change', function() { toggleTask(sid, tid); });
+        statusBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          cycleStatus(sid, tid);
+        });
       })(sec.id, task.id);
-      row.appendChild(cb);
+      row.appendChild(statusBtn);
 
-      /* Content wrapper (label + tag badges) */
+      /* Content wrapper */
       var content = document.createElement('div');
       content.className = 'task-content';
 
       var lb = document.createElement('label');
       lb.textContent = task.text;
       content.appendChild(lb);
+
+      /* Due date chip */
+      if (task.dueDate) {
+        var today = new Date(); today.setHours(0,0,0,0);
+        var due   = new Date(task.dueDate + 'T00:00:00');
+        var chip  = document.createElement('span');
+        chip.className = 'due-chip';
+        var diff = due - today;
+        if (diff < 0)      chip.className += ' overdue';
+        else if (diff === 0) chip.className += ' today';
+        var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        chip.textContent = '\ud83d\udcc5 ' + mo[due.getMonth()] + ' ' + due.getDate();
+        content.appendChild(chip);
+      }
 
       /* Tag badges */
       var taskTags = task.tags || [];
@@ -1529,6 +2007,80 @@ function render() {
           }
         });
         content.appendChild(badges);
+      }
+
+      /* Subtask summary + list */
+      var subs = task.subtasks || [];
+      if (subs.length > 0) {
+        var doneSubs = subs.filter(function(s) { return s.done; }).length;
+        var summary  = document.createElement('span');
+        summary.className = 'subtask-summary';
+        summary.textContent = '\u25b8 ' + doneSubs + '/' + subs.length + ' subtasks';
+
+        var subList = document.createElement('div');
+        subList.className = 'subtask-list';
+
+        subs.forEach(function(sub) {
+          var si = document.createElement('div');
+          si.className = 'subtask-item' + (sub.done ? ' done' : '');
+
+          var scb = document.createElement('input');
+          scb.type = 'checkbox';
+          scb.checked = sub.done;
+          (function(sid, tid, subid) {
+            scb.addEventListener('change', function() { toggleSubtask(sid, tid, subid); });
+          })(sec.id, task.id, sub.id);
+
+          var slb = document.createElement('label');
+          slb.textContent = sub.text;
+
+          var sdel = document.createElement('button');
+          sdel.className = 'subtask-del';
+          sdel.innerHTML = '&times;';
+          (function(sid, tid, subid) {
+            sdel.addEventListener('click', function(e) {
+              e.stopPropagation();
+              deleteSubtask(sid, tid, subid);
+            });
+          })(sec.id, task.id, sub.id);
+
+          si.appendChild(scb);
+          si.appendChild(slb);
+          si.appendChild(sdel);
+          subList.appendChild(si);
+        });
+
+        /* Inline add-subtask row inside the expanded list */
+        var subAddRow = document.createElement('div');
+        subAddRow.className = 'subtask-add-row';
+        var subInp = document.createElement('input');
+        subInp.type = 'text';
+        subInp.className = 'subtask-add-input';
+        subInp.placeholder = 'Add sub-task\u2026';
+        var subAddBtn = document.createElement('button');
+        subAddBtn.className = 'subtask-add-btn';
+        subAddBtn.textContent = '+';
+        (function(sid, tid, inp) {
+          function doAddSub() {
+            var v = inp.value.trim();
+            if (v) { addSubtask(sid, tid, v); inp.value = ''; }
+          }
+          subAddBtn.addEventListener('click', doAddSub);
+          inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') doAddSub(); });
+        })(sec.id, task.id, subInp);
+        subAddRow.appendChild(subInp);
+        subAddRow.appendChild(subAddBtn);
+        subList.appendChild(subAddRow);
+
+        /* Toggle expand on summary click */
+        summary.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var open = subList.classList.toggle('open');
+          summary.textContent = (open ? '\u25be ' : '\u25b8 ') + doneSubs + '/' + subs.length + ' subtasks';
+        });
+
+        content.appendChild(summary);
+        content.appendChild(subList);
       }
 
       row.appendChild(content);
@@ -1569,28 +2121,16 @@ function render() {
 
     bd.appendChild(tl);
 
-    /* Add-task row */
+    /* ── + New Task button (replaces old add-row) ── */
     var ar = document.createElement('div');
-    ar.className = 'add-row';
-    var ai = document.createElement('input');
-    ai.type = 'text';
-    ai.className = 'add-input';
-    ai.placeholder = 'Add a task\u2026';
-    var ab = document.createElement('button');
-    ab.className = 'add-btn';
-    ab.textContent = '+';
-    (function(sid, inp) {
-      function doAdd() {
-        var v = inp.value.trim();
-        if (v) { addTask(sid, v); inp.value = ''; }
-      }
-      ab.addEventListener('click', doAdd);
-      inp.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') doAdd();
-      });
-    })(sec.id, ai);
-    ar.appendChild(ai);
-    ar.appendChild(ab);
+    ar.className = 'add-task-row';
+    var ntBtn = document.createElement('button');
+    ntBtn.className = 'add-task-btn';
+    ntBtn.innerHTML = '+ New Task';
+    (function(sid) {
+      ntBtn.addEventListener('click', function() { showNewTaskModal(sid); });
+    })(sec.id);
+    ar.appendChild(ntBtn);
     bd.appendChild(ar);
 
     card.appendChild(bd);
@@ -2144,6 +2684,65 @@ document.getElementById('csvFileInput').addEventListener('change', function() {
 /* Close CSV modal on overlay click */
 document.getElementById('csvOv').addEventListener('click', function(e) {
   if (e.target === this) hideImportModal();
+});
+
+/* ── Search bar ── */
+(function() {
+  var inp   = document.getElementById('searchInput');
+  var clear = document.getElementById('searchClear');
+  inp.addEventListener('input', function() {
+    setSearch(inp.value);
+    clear.classList.toggle('show', inp.value.length > 0);
+  });
+  clear.addEventListener('click', function() {
+    inp.value = '';
+    clear.classList.remove('show');
+    setSearch('');
+  });
+})();
+
+/* ── New Task Modal ── */
+document.getElementById('ntOv').addEventListener('click', function(e) {
+  if (e.target === this) hideNewTaskModal();
+});
+document.getElementById('ntCancel').addEventListener('click', hideNewTaskModal);
+document.getElementById('ntCreate').addEventListener('click', function() {
+  var title = document.getElementById('ntTitle').value.trim();
+  if (!title) { document.getElementById('ntTitle').focus(); return; }
+  var secId = document.getElementById('ntSection').value;
+  createTask(secId, {
+    text:     title,
+    desc:     document.getElementById('ntDesc').value,
+    status:   document.getElementById('ntStatus').value,
+    priority: document.getElementById('ntPriority').value || null,
+    dueDate:  document.getElementById('ntDueDate').value  || null,
+    subtasks: ntPendingSubtasks.slice()
+  });
+  hideNewTaskModal();
+});
+
+/* Sub-task add button in modal */
+document.getElementById('ntSubAdd').addEventListener('click', function() {
+  var inp = document.getElementById('ntSubInput');
+  var v   = inp.value.trim();
+  if (v) {
+    ntPendingSubtasks.push({ text: v, done: false });
+    renderNtSubtasks();
+    inp.value = '';
+    inp.focus();
+  }
+});
+document.getElementById('ntSubInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('ntSubAdd').click();
+  }
+});
+document.getElementById('ntTitle').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('ntCreate').click();
+  }
 });
 </script>
 </body>

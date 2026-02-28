@@ -1020,6 +1020,355 @@
       background: #f8f0d8; padding: 1px 5px;
       border-radius: 3px; font-size: .82rem;
     }
+
+    /* ══════════════════════════════════════════════
+       DARK MODE
+       ══════════════════════════════════════════════ */
+    [data-theme="dark"] {
+      --bg: #1a1918;
+      --card-bg: #242320;
+      --card-header-bg: #2e2c28;
+      --border: #3d3c38;
+      --text: #f0efe9;
+      --text-sec: #a09f9a;
+      --text-muted: #6a6a66;
+      --accent-light: #3d2010;
+      --accent-dark: #ffb899;
+    }
+    [data-theme="dark"] .bar-wrap  { background: #3a3835; }
+    [data-theme="dark"] .prog-wrap { background: #3a3835; }
+    [data-theme="dark"] .filter-btn { background: var(--card-bg); color: var(--text-sec); }
+    [data-theme="dark"] .search-wrap { background: var(--card-bg); border-color: var(--border); }
+    [data-theme="dark"] .task { background: var(--card-bg); }
+    [data-theme="dark"] .add-col-card { background: var(--card-bg); border-color: var(--border); }
+    [data-theme="dark"] .add-col-form input { background: #111110; color: var(--text); border-color: var(--border); }
+    [data-theme="dark"] .ov-box,
+    [data-theme="dark"] .nt-box,
+    [data-theme="dark"] .tm-box,
+    [data-theme="dark"] .tp-box,
+    [data-theme="dark"] .csv-box  { background: var(--card-bg); color: var(--text); }
+    [data-theme="dark"] .nt-field input,
+    [data-theme="dark"] .nt-field textarea,
+    [data-theme="dark"] .nt-field select { background: #111110; color: var(--text); border-color: var(--border); }
+    [data-theme="dark"] .tm-add-input { background: #111110; color: var(--text); border-color: var(--border); }
+    [data-theme="dark"] .tp-item:hover { background: #333; }
+    [data-theme="dark"] .cfg-banner { background: #3d3000; border-color: #554400; }
+    [data-theme="dark"] .cfg-banner h2,
+    [data-theme="dark"] .cfg-banner p { color: #ffd080; }
+    [data-theme="dark"] .ov-box input { background: #111110; color: var(--text); border-color: var(--border); }
+    [data-theme="dark"] .task-empty { color: var(--text-muted); }
+    [data-theme="dark"] .tm-item { border-color: var(--border); }
+    [data-theme="dark"] .nt-subtask-add input { background: #111110; color: var(--text); border-color: var(--border); }
+
+    .dark-toggle {
+      background: none; border: none;
+      font-size: 1.05rem; cursor: pointer;
+      padding: 4px; opacity: .5;
+      transition: opacity .15s;
+      line-height: 1;
+    }
+    .dark-toggle:hover { opacity: 1; }
+
+    /* ══════════════════════════════════════════════
+       UNDO / REDO BUTTONS
+       ══════════════════════════════════════════════ */
+    .ur-btn {
+      background: none; border: none;
+      font-size: .95rem; cursor: pointer;
+      padding: 4px 5px; opacity: .38;
+      border-radius: 5px; line-height: 1;
+      transition: opacity .15s, background .15s;
+    }
+    .ur-btn:not([disabled]):hover { opacity: 1; background: rgba(0,0,0,.06); }
+    .ur-btn[disabled] { opacity: .15; cursor: default; }
+    [data-theme="dark"] .ur-btn:not([disabled]):hover { background: rgba(255,255,255,.09); }
+
+    /* ══════════════════════════════════════════════
+       SMART VIEW BAR (Overdue / High Pri / In-Progress / My Week)
+       ══════════════════════════════════════════════ */
+    .view-bar {
+      display: flex; gap: 6px;
+      margin-bottom: 8px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; padding: 2px 0;
+    }
+    .view-bar::-webkit-scrollbar { display: none; }
+    .view-chip {
+      flex-shrink: 0;
+      padding: 4px 11px; border-radius: 14px;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+      font-size: .72rem; font-family: inherit;
+      cursor: pointer; color: var(--text-sec);
+      transition: all .2s; white-space: nowrap;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .view-chip:active { transform: scale(.95); }
+    .view-chip.active                { color:#fff; border-color:#555; background:#555; }
+    .view-chip.active.vc-overdue     { background:#c0392b; border-color:#c0392b; }
+    .view-chip.active.vc-high        { background:#e74c3c; border-color:#e74c3c; }
+    .view-chip.active.vc-progress    { background:#D97757; border-color:#D97757; }
+    .view-chip.active.vc-week        { background:#27AE60; border-color:#27AE60; }
+
+    /* ══════════════════════════════════════════════
+       OVERDUE URGENCY PULSE
+       ══════════════════════════════════════════════ */
+    @keyframes overdue-pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(192,57,43,.5); }
+      70%  { box-shadow: 0 0 0 5px rgba(192,57,43,0); }
+      100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
+    }
+    .task.overdue-urgent {
+      border-left: 3px solid #c0392b !important;
+      padding-left: 7px;
+      animation: overdue-pulse 2.8s ease-out infinite;
+      border-radius: 4px;
+    }
+
+    /* ══════════════════════════════════════════════
+       TASK NOTES
+       ══════════════════════════════════════════════ */
+    .task-notes {
+      font-size: .75rem; color: var(--text-sec);
+      margin-top: 5px; line-height: 1.5;
+      white-space: pre-wrap; word-break: break-word;
+      border-left: 2px solid var(--border);
+      padding-left: 7px; display: none;
+    }
+    .task-notes.visible { display: block; }
+    .notes-toggle {
+      font-size: .68rem; color: var(--text-muted);
+      cursor: pointer; margin-top: 3px;
+      display: inline-block; user-select: none;
+      -webkit-user-select: none;
+    }
+    .notes-toggle:hover { color: var(--accent); text-decoration: underline; }
+    [data-theme="dark"] .task-notes { border-left-color: var(--border); }
+
+    /* ══════════════════════════════════════════════
+       BULK SELECTION
+       ══════════════════════════════════════════════ */
+    .task-select-cb {
+      display: none; margin: 3px 0 0 0;
+      width: 16px; height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer; flex-shrink: 0;
+    }
+    body.bulk-mode .task-select-cb  { display: block; }
+    body.bulk-mode .drag-handle     { display: none; }
+    body.bulk-mode .task            { cursor: default; }
+    .task.bulk-selected             { background: var(--accent-light) !important; border-radius: 5px; }
+    [data-theme="dark"] .task.bulk-selected { background: #3d2010 !important; }
+
+    .bulk-bar {
+      position: fixed;
+      bottom: calc(18px + var(--safe-bottom)); left: 50%;
+      transform: translateX(-50%) translateY(110px);
+      background: #1f1f1e; color: #fff;
+      border-radius: 14px; padding: 10px 14px;
+      display: flex; align-items: center; gap: 9px;
+      box-shadow: 0 6px 28px rgba(0,0,0,.45);
+      transition: transform .3s ease; z-index: 600;
+      font-size: .81rem; white-space: nowrap;
+    }
+    .bulk-bar.show { transform: translateX(-50%) translateY(0); }
+    [data-theme="dark"] .bulk-bar { background: #2e2c28; }
+    .bulk-count { font-weight: 700; color: var(--accent); }
+    .bulk-sep   { width: 1px; height: 20px; background: #444; flex-shrink: 0; }
+    .bulk-action-btn {
+      background: none; border: none; color: #ccc;
+      font-size: .79rem; cursor: pointer;
+      padding: 4px 8px; border-radius: 6px;
+      font-family: inherit; transition: background .15s, color .15s;
+    }
+    .bulk-action-btn:hover        { background: rgba(255,255,255,.12); color: #fff; }
+    .bulk-action-btn.danger:hover { background: rgba(231,76,60,.2); color: #ff8070; }
+    .bulk-move-sel {
+      background: #2a2a28; border: 1px solid #555;
+      color: #ddd; border-radius: 6px; padding: 4px 8px;
+      font-size: .76rem; font-family: inherit;
+      cursor: pointer; outline: none; max-width: 120px;
+    }
+    .bulk-cancel-btn {
+      background: none; border: none; color: #666;
+      font-size: 1.1rem; cursor: pointer; padding: 0 3px; line-height: 1;
+    }
+    .bulk-cancel-btn:hover { color: #aaa; }
+
+    /* ══════════════════════════════════════════════
+       TASK TEMPLATES MODAL
+       ══════════════════════════════════════════════ */
+    .tpl-ov {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      display: none; align-items: center;
+      justify-content: center; z-index: 1100; padding: 20px;
+    }
+    .tpl-ov.show { display: flex; }
+    .tpl-box {
+      background: #fff; border-radius: 14px;
+      padding: 22px 18px; max-width: 420px; width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,.22);
+      max-height: 88vh; overflow-y: auto;
+    }
+    [data-theme="dark"] .tpl-box { background: var(--card-bg); color: var(--text); }
+    .tpl-box h2 { color: var(--accent); font-size: 1.05rem; margin-bottom: 14px; }
+    .tpl-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 10px 10px; border-radius: 8px;
+      border: 1.5px solid var(--border); margin-bottom: 8px;
+      transition: border-color .15s, background .15s;
+    }
+    .tpl-item:hover { border-color: var(--accent); background: var(--accent-light); }
+    .tpl-item-body { flex: 1; cursor: pointer; }
+    .tpl-item-title { font-size: .88rem; font-weight: 600; margin-bottom: 2px; }
+    .tpl-item-meta  { font-size: .72rem; color: var(--text-muted); }
+    .tpl-item-del {
+      background: none; border: none; color: #ccc;
+      font-size: 1rem; cursor: pointer; padding: 0 4px; flex-shrink: 0;
+    }
+    .tpl-item-del:hover { color: #e74c3c; }
+    .tpl-empty { font-size: .84rem; color: var(--text-muted); font-style: italic;
+                 padding: 14px 0; text-align: center; }
+    .tpl-section-lbl {
+      font-size: .76rem; font-weight: 600; color: var(--text-sec);
+      text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px;
+    }
+    .tpl-divider { height: 1px; background: var(--border); margin: 14px 0; }
+    .tpl-save-row { display: flex; gap: 6px; margin-bottom: 8px; }
+    .tpl-save-input {
+      flex: 1; padding: 9px 11px; border: 1.5px solid #ddd;
+      border-radius: 7px; font-size: .86rem; font-family: inherit;
+      outline: none; background: #fff; color: var(--text);
+    }
+    [data-theme="dark"] .tpl-save-input { background: #111110; border-color: var(--border); color: var(--text); }
+    .tpl-save-input:focus { border-color: var(--accent); }
+    .tpl-save-btn {
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 7px; padding: 9px 15px; font-size: .86rem;
+      cursor: pointer; font-weight: 600; font-family: inherit;
+    }
+    .tpl-save-btn:active { opacity: .85; }
+    .tpl-pick-hint { font-size: .78rem; color: var(--text-sec); margin-bottom: 6px; }
+    .tpl-close {
+      width: 100%; padding: 10px; background: none;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: .88rem; cursor: pointer; color: var(--text-sec);
+      margin-top: 8px; font-family: inherit;
+    }
+
+    /* ══════════════════════════════════════════════
+       KEYBOARD SHORTCUTS HINT PANEL
+       ══════════════════════════════════════════════ */
+    .kbd-btn {
+      background: none; border: none; font-size: .9rem;
+      cursor: pointer; padding: 4px; opacity: .38;
+      transition: opacity .15s; line-height: 1;
+    }
+    .kbd-btn:hover { opacity: 1; }
+    .kbd-panel {
+      position: fixed; bottom: calc(60px + var(--safe-bottom)); right: 14px;
+      background: rgba(25,24,22,.92); color: #e8e7e2;
+      border-radius: 12px; padding: 12px 15px;
+      font-size: .75rem; z-index: 700;
+      display: none; line-height: 1.8;
+      min-width: 195px; backdrop-filter: blur(6px);
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    .kbd-panel.show { display: block; }
+    .kbd-panel-title { font-weight: 700; color: var(--accent); margin-bottom: 6px; font-size: .78rem; }
+    .kbd-panel kbd {
+      background: rgba(255,255,255,.15); border-radius: 4px;
+      padding: 1px 6px; font-family: monospace; font-size: .7rem;
+      margin-right: 5px; display: inline-block; min-width: 22px; text-align: center;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       ENHANCE v2 — editable FOCUS, collapse, sort, inline edit
+       ═══════════════════════════════════════════════════ */
+
+    /* Editable FOCUS header */
+    .focus { cursor: pointer; transition: background .15s; }
+    .focus:hover { background: rgba(0,0,0,.04); }
+    [data-theme="dark"] .focus:hover { background: rgba(255,255,255,.06); }
+    .focus-input {
+      width: 100%; border: none; background: transparent; font-size: inherit;
+      color: inherit; font-family: inherit; padding: 0 2px;
+      outline: 1px solid var(--accent); border-radius: 2px;
+    }
+
+    /* Show/hide completed button */
+    .hide-done-btn {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      padding: 3px 9px; font-size: .74rem; cursor: pointer;
+      color: var(--text-muted); white-space: nowrap; transition: all .15s;
+    }
+    .hide-done-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .hide-done-btn:hover:not(.active) { background: var(--hover); }
+
+    /* Collapse column */
+    .sec-collapse-btn {
+      background: none; border: none; cursor: pointer; padding: 1px 4px;
+      font-size: .75rem; color: var(--text-muted); line-height: 1; flex-shrink: 0;
+      transition: transform .2s; border-radius: 3px;
+    }
+    .sec-collapse-btn:hover { background: var(--hover); }
+    .sec-collapsed .card-bd { display: none; }
+    .sec-collapsed .sec-collapse-btn { transform: rotate(-90deg) !important; }
+
+    /* Section icon button */
+    .sec-icon-btn {
+      background: none; border: none; cursor: pointer; font-size: 1rem;
+      padding: 1px 3px; border-radius: 3px; line-height: 1; flex-shrink: 0;
+      transition: background .15s;
+    }
+    .sec-icon-btn:hover { background: var(--hover); }
+    .sec-icon-input {
+      width: 2.8em; text-align: center; border: 1px solid var(--border);
+      border-radius: 4px; font-size: 1rem; padding: 1px 2px;
+      background: var(--card-bg); color: var(--text);
+    }
+
+    /* Sort dropdown */
+    .sec-sort-btn {
+      background: none; border: none; cursor: pointer; padding: 2px 5px;
+      font-size: .68rem; color: var(--text-muted); border-radius: 4px;
+      transition: background .15s; line-height: 1;
+    }
+    .sec-sort-btn:hover, .sec-sort-btn.sorted { background: var(--hover); color: var(--accent); }
+    .sort-menu {
+      position: absolute; right: 0; top: 100%; background: var(--card-bg);
+      border: 1px solid var(--border); border-radius: 6px; z-index: 300;
+      box-shadow: 0 4px 14px rgba(0,0,0,.15); min-width: 150px; overflow: hidden;
+    }
+    .sort-menu button {
+      display: block; width: 100%; text-align: left; padding: 8px 13px;
+      background: none; border: none; cursor: pointer; font-size: .82rem;
+      color: var(--text); white-space: nowrap;
+    }
+    .sort-menu button:hover { background: var(--hover); }
+    .sort-menu button.active { color: var(--accent); font-weight: 600; }
+
+    /* Inline task name edit */
+    .task-edit-input {
+      width: 100%; border: none; background: transparent; font-size: .88rem;
+      color: var(--text); font-family: inherit; padding: 0;
+      outline: 1px solid var(--accent); border-radius: 2px;
+    }
+
+    /* Inline subtask edit */
+    .subtask-edit-input {
+      flex: 1; border: none; background: transparent; font-size: .82rem;
+      color: var(--text); font-family: inherit; padding: 0;
+      outline: 1px solid var(--accent); border-radius: 2px;
+    }
+
+    /* Tag inline edit */
+    .tm-edit-name {
+      border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px;
+      font-size: .82rem; background: var(--card-bg); color: var(--text); width: 110px;
+    }
+
   </style>
 </head>
 <body>
@@ -1027,8 +1376,12 @@
 <header>
   <h1>Bozzone Tasks</h1>
   <div class="hdr-right">
+    <button class="ur-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>&#8617;</button>
+    <button class="ur-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled>&#8618;</button>
     <div class="sync-dot" id="dot" title="Sync status"></div>
     <span class="key-label" id="keyLbl" title="Click to change sync key"></span>
+    <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
+    <button class="kbd-btn"  id="kbdBtn"  title="Keyboard shortcuts">⌨️</button>
     <button class="gear" id="gearBtn" title="Settings">&#9881;</button>
   </div>
 </header>
@@ -1040,8 +1393,8 @@
   <button class="search-clear" id="searchClear" title="Clear search">&times;</button>
 </div>
 
-<div class="focus">
-  <strong>FOCUS:</strong> YourStoryHomeDesign Social Marketing Plan &mdash; Community Connect News article (March)
+<div class="focus" id="focusDiv">
+  <strong>FOCUS:</strong> <span id="focusText">YourStoryHomeDesign Social Marketing Plan &mdash; Community Connect News article (March)</span>
 </div>
 
 <div id="cfgNote"></div>
@@ -1056,9 +1409,41 @@
   </div>
 </div>
 
-<div class="filter-bar" id="filterBar"></div>
+<div class="view-bar" id="viewBar"></div>
+<div style="display:flex;align-items:center;gap:6px;padding:0 4px 6px;">
+  <div class="filter-bar" id="filterBar" style="flex:1;margin-bottom:0;padding-bottom:0;border-bottom:none;"></div>
+  <button class="hide-done-btn" id="hideDoneBtn" title="Toggle visibility of completed tasks">✓ Hide Done</button>
+</div>
 
 <div class="grid" id="board"></div>
+
+<!-- Bulk action floating bar -->
+<div class="bulk-bar" id="bulkBar">
+  <span class="bulk-count" id="bulkCount">0 selected</span>
+  <span class="bulk-sep"></span>
+  <select class="bulk-move-sel" id="bulkMoveSel" title="Move to section"></select>
+  <button class="bulk-action-btn" id="bulkMoveBtn">Move</button>
+  <span class="bulk-sep"></span>
+  <button class="bulk-action-btn" id="bulkHighBtn" title="Set High priority">🔴 High</button>
+  <button class="bulk-action-btn" id="bulkMedBtn"  title="Set Medium priority">🟡 Med</button>
+  <button class="bulk-action-btn" id="bulkDoneBtn" title="Mark done">✓ Done</button>
+  <span class="bulk-sep"></span>
+  <button class="bulk-action-btn danger" id="bulkDelBtn">🗑 Delete</button>
+  <button class="bulk-cancel-btn" id="bulkCancelBtn" title="Exit bulk mode">&times;</button>
+</div>
+
+<!-- Keyboard shortcuts panel -->
+<div class="kbd-panel" id="kbdPanel">
+  <div class="kbd-panel-title">⌨️ Shortcuts</div>
+  <div><kbd>N</kbd> New task</div>
+  <div><kbd>/</kbd> Search</div>
+  <div><kbd>D</kbd> Dark mode</div>
+  <div><kbd>T</kbd> Templates</div>
+  <div><kbd>B</kbd> Bulk select</div>
+  <div><kbd>Ctrl</kbd><kbd>Z</kbd> Undo</div>
+  <div><kbd>Ctrl</kbd><kbd>Y</kbd> Redo</div>
+  <div><kbd>Esc</kbd> Close / cancel</div>
+</div>
 
 <!-- Undo toast -->
 <div class="toast" id="toast">
@@ -1126,6 +1511,10 @@
       </div>
     </div>
     <div class="nt-field">
+      <label>Notes</label>
+      <textarea id="ntNotes" placeholder="Additional context, links, references…" style="min-height:54px"></textarea>
+    </div>
+    <div class="nt-field">
       <label>Sub-tasks</label>
       <div class="nt-subtask-list" id="ntSubtaskList"></div>
       <div class="nt-subtask-add">
@@ -1138,6 +1527,11 @@
       <button class="nt-create" id="ntCreate">Create Task</button>
     </div>
   </div>
+</div>
+
+<!-- Task Templates Modal -->
+<div class="tpl-ov" id="tplOv">
+  <div class="tpl-box" id="tplBox"></div>
 </div>
 
 <!-- Sync-key overlay -->
@@ -1284,8 +1678,14 @@ var fbReady      = false;
 var isDragging   = false;
 var activeFilter = null;       /* null = All, or tag id */
 var activeSearch = '';         /* search query string */
+var activeView   = null;       /* null | 'overdue' | 'high' | 'inprogress' | 'week' */
 var tpTarget     = null;       /* { secId, taskId } for tag picker */
 var newTagColor  = TAG_COLORS[0];
+var bulkSelected  = {};        /* taskId → true */
+var bulkMode      = false;
+var hideCompleted = false;     /* toggle: show/hide done tasks */
+var collapsedSecs = {};        /* secId → bool: collapsed column */
+var sectionSort   = {};        /* secId → 'manual'|'priority'|'due'|'alpha'|'created' */
 
 /* ================================================================
    HELPERS
@@ -1335,6 +1735,7 @@ function ensureArrays(data) {
       if (task.priority === undefined)    task.priority = null;
       if (task.dueDate  === undefined)    task.dueDate  = null;
       if (task.desc     === undefined)    task.desc     = '';
+      if (task.notes    === undefined)    task.notes    = '';
     });
   });
   return data;
@@ -1518,6 +1919,7 @@ function createTask(secId, data) {
     id:       uid(),
     text:     (data.text || '').trim(),
     desc:     (data.desc || '').trim(),
+    notes:    (data.notes || '').trim(),
     status:   status,
     done:     status === 'done',
     priority: data.priority || null,
@@ -1582,9 +1984,10 @@ function showNewTaskModal(secId) {
     sel.appendChild(opt);
   });
   /* Reset fields */
-  document.getElementById('ntTitle').value   = '';
-  document.getElementById('ntDesc').value    = '';
-  document.getElementById('ntStatus').value  = 'todo';
+  document.getElementById('ntTitle').value    = '';
+  document.getElementById('ntDesc').value     = '';
+  document.getElementById('ntNotes').value    = '';
+  document.getElementById('ntStatus').value   = 'todo';
   document.getElementById('ntPriority').value = '';
   document.getElementById('ntDueDate').value  = '';
   document.getElementById('ntSubInput').value = '';
@@ -1733,21 +2136,45 @@ function setSearch(text) {
 
 function getFilteredSections() {
   var secs = appData.sections || [];
-  var needsFilter = activeFilter || activeSearch;
+  var needsFilter = activeFilter || activeSearch || activeView || hideCompleted;
   if (!needsFilter) return secs;
+
+  /* Pre-compute date ranges for view filters */
+  var today = new Date(); today.setHours(0,0,0,0);
+  var weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate() + 7);
+
   return secs.map(function(sec) {
     var tasks = (sec.tasks || []).filter(function(t) {
+      /* Hide completed */
+      if (hideCompleted && (t.status === 'done' || t.done)) return false;
       /* Tag filter */
       if (activeFilter && !(t.tags && t.tags.indexOf(activeFilter) !== -1)) return false;
+      /* Smart view filter */
+      if (activeView) {
+        if (activeView === 'overdue') {
+          if (t.status === 'done' || !t.dueDate) return false;
+          var d = new Date(t.dueDate + 'T00:00:00');
+          if (d >= today) return false;
+        } else if (activeView === 'high') {
+          if (t.priority !== 'high') return false;
+        } else if (activeView === 'inprogress') {
+          if (t.status !== 'inprogress') return false;
+        } else if (activeView === 'week') {
+          if (t.status === 'done' || !t.dueDate) return false;
+          var dw = new Date(t.dueDate + 'T00:00:00');
+          if (dw < today || dw > weekEnd) return false;
+        }
+      }
       /* Search filter */
       if (activeSearch) {
         var q = activeSearch;
         var inTitle = (t.text || '').toLowerCase().indexOf(q) !== -1;
         var inDesc  = (t.desc || '').toLowerCase().indexOf(q) !== -1;
+        var inNotes = (t.notes|| '').toLowerCase().indexOf(q) !== -1;
         var inSubs  = (t.subtasks || []).some(function(s) {
           return (s.text || '').toLowerCase().indexOf(q) !== -1;
         });
-        if (!inTitle && !inDesc && !inSubs) return false;
+        if (!inTitle && !inDesc && !inNotes && !inSubs) return false;
       }
       return true;
     });
@@ -1776,6 +2203,54 @@ function getTagCounts() {
   });
   counts._total = total;
   return counts;
+}
+
+/* ================================================================
+   RENDER — SMART VIEW BAR
+   ================================================================ */
+function renderViewBar() {
+  var bar = document.getElementById('viewBar');
+  if (!bar) return;
+  bar.innerHTML = '';
+
+  var views = [
+    { id: 'overdue',    label: '🔴 Overdue',    cls: 'vc-overdue'  },
+    { id: 'high',       label: '⬆ High Pri',    cls: 'vc-high'     },
+    { id: 'inprogress', label: '⏳ In Progress', cls: 'vc-progress' },
+    { id: 'week',       label: '📅 My Week',     cls: 'vc-week'     }
+  ];
+
+  /* Count tasks per view for badge */
+  var today = new Date(); today.setHours(0,0,0,0);
+  var weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate() + 7);
+  var vc = { overdue:0, high:0, inprogress:0, week:0 };
+  (appData.sections || []).forEach(function(sec) {
+    (sec.tasks || []).forEach(function(t) {
+      if (t.status !== 'done') {
+        if (t.dueDate) {
+          var d = new Date(t.dueDate + 'T00:00:00');
+          if (d < today)  vc.overdue++;
+          if (d >= today && d <= weekEnd) vc.week++;
+        }
+        if (t.priority === 'high')      vc.high++;
+        if (t.status === 'inprogress')  vc.inprogress++;
+      }
+    });
+  });
+
+  views.forEach(function(v) {
+    if (vc[v.id] === 0 && activeView !== v.id) return; /* hide empty views unless active */
+    var chip = document.createElement('button');
+    chip.className = 'view-chip ' + v.cls + (activeView === v.id ? ' active' : '');
+    chip.innerHTML = v.label + ' <span style="opacity:.7;font-size:.68rem">(' + vc[v.id] + ')</span>';
+    (function(vid) {
+      chip.addEventListener('click', function() {
+        activeView = (activeView === vid) ? null : vid;
+        render();
+      });
+    })(v.id);
+    bar.appendChild(chip);
+  });
 }
 
 /* ================================================================
@@ -1828,6 +2303,7 @@ function renderFilterBar() {
 function render() {
   if (isDragging) return;
 
+  renderViewBar();
   renderFilterBar();
 
   var board = document.getElementById('board');
@@ -1838,6 +2314,31 @@ function render() {
 
   filteredSecs.forEach(function(sec) {
     var tasks = sec.tasks || [];
+
+    /* ── Per-column sort ── */
+    var sortMode = sectionSort[sec.id] || 'manual';
+    if (sortMode !== 'manual') {
+      var priOrder = { high: 0, medium: 1, low: 2 };
+      tasks = tasks.slice().sort(function(a, b) {
+        if (sortMode === 'priority') {
+          return (priOrder[a.priority] !== undefined ? priOrder[a.priority] : 3) -
+                 (priOrder[b.priority] !== undefined ? priOrder[b.priority] : 3);
+        }
+        if (sortMode === 'due') {
+          var da = a.dueDate ? new Date(a.dueDate + 'T00:00:00').getTime() : Infinity;
+          var db = b.dueDate ? new Date(b.dueDate + 'T00:00:00').getTime() : Infinity;
+          return da - db;
+        }
+        if (sortMode === 'alpha') {
+          return (a.text || '').toLowerCase().localeCompare((b.text || '').toLowerCase());
+        }
+        if (sortMode === 'created') {
+          return (a.id || '').localeCompare(b.id || '');
+        }
+        return 0;
+      });
+    }
+
     var done = 0;
     tasks.forEach(function(t) { if (t.done) done++; });
     totalAll += tasks.length;
@@ -1852,49 +2353,133 @@ function render() {
     var hd = document.createElement('div');
     hd.className = 'card-hd';
 
+    /* Collapse button */
+    var collapseBtn = document.createElement('button');
+    collapseBtn.className = 'sec-collapse-btn';
+    collapseBtn.innerHTML = '&#9660;';
+    collapseBtn.title = 'Collapse/expand column';
+    if (collapsedSecs[sec.id]) collapseBtn.style.transform = 'rotate(-90deg)';
+    (function(sid, cardEl) {
+      collapseBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        collapsedSecs[sid] = !collapsedSecs[sid];
+        cardEl.classList.toggle('sec-collapsed', !!collapsedSecs[sid]);
+        collapseBtn.style.transform = collapsedSecs[sid] ? 'rotate(-90deg)' : '';
+      });
+    })(sec.id, card);
+    hd.appendChild(collapseBtn);
+
+    /* Icon button (editable) */
+    var iconBtn = document.createElement('button');
+    iconBtn.className = 'sec-icon-btn';
+    iconBtn.textContent = sec.icon || '📋';
+    iconBtn.title = 'Click to change icon/emoji';
+    (function(secId, currentIcon) {
+      iconBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var iconInp = document.createElement('input');
+        iconInp.type = 'text';
+        iconInp.className = 'sec-icon-input';
+        iconInp.value = currentIcon;
+        iconInp.maxLength = 4;
+        iconBtn.style.display = 'none';
+        hd.insertBefore(iconInp, iconBtn.nextSibling);
+        iconInp.focus(); iconInp.select();
+        function commitIcon() {
+          var v = iconInp.value.trim();
+          if (v !== currentIcon) {
+            var s2 = findSec(secId);
+            if (s2) { s2.icon = v; save(); } else { iconInp.remove(); iconBtn.style.display = ''; }
+          } else { iconInp.remove(); iconBtn.style.display = ''; }
+        }
+        iconInp.addEventListener('blur', commitIcon);
+        iconInp.addEventListener('keydown', function(e2) {
+          if (e2.key === 'Enter') { e2.preventDefault(); iconInp.blur(); }
+          if (e2.key === 'Escape') {
+            iconInp.removeEventListener('blur', commitIcon);
+            iconInp.remove(); iconBtn.style.display = '';
+          }
+        });
+      });
+    })(sec.id, sec.icon || '');
+    hd.appendChild(iconBtn);
+
     /* Editable title */
     var titleSpan = document.createElement('span');
     titleSpan.className = 'sec-title';
-    titleSpan.textContent = (sec.icon || '') + ' ' + sec.title;
-    (function(secId, currentTitle, icon) {
+    titleSpan.textContent = sec.title;
+    (function(secId, currentTitle) {
       titleSpan.addEventListener('click', function() {
-        /* Replace span with input */
         var input = document.createElement('input');
         input.type = 'text';
         input.className = 'sec-title-input';
         input.value = currentTitle;
         titleSpan.style.display = 'none';
         hd.insertBefore(input, titleSpan.nextSibling);
-        input.focus();
-        input.select();
-
+        input.focus(); input.select();
         function commitEdit() {
           var val = input.value.trim();
-          if (val && val !== currentTitle) {
-            renameSection(secId, val);
-          } else {
-            /* Cancelled or no change — restore */
-            input.remove();
-            titleSpan.style.display = '';
-          }
+          if (val && val !== currentTitle) { renameSection(secId, val); }
+          else { input.remove(); titleSpan.style.display = ''; }
         }
-
         input.addEventListener('blur', commitEdit);
         input.addEventListener('keydown', function(e) {
           if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
           if (e.key === 'Escape') {
             input.removeEventListener('blur', commitEdit);
-            input.remove();
-            titleSpan.style.display = '';
+            input.remove(); titleSpan.style.display = '';
           }
         });
       });
-    })(sec.id, sec.title, sec.icon);
+    })(sec.id, sec.title);
     hd.appendChild(titleSpan);
 
-    /* Actions: badge + delete */
+    /* Actions: sort + badge + delete */
     var actions = document.createElement('span');
     actions.className = 'sec-actions';
+    actions.style.position = 'relative';
+
+    /* Sort button */
+    var currentSort = sectionSort[sec.id] || 'manual';
+    var sortBtnEl = document.createElement('button');
+    sortBtnEl.className = 'sec-sort-btn' + (currentSort !== 'manual' ? ' sorted' : '');
+    sortBtnEl.title = 'Sort tasks in this column';
+    var sortIcons = { manual: '⇅', priority: '⬆', due: '📅', alpha: 'Az', created: '🕐' };
+    sortBtnEl.textContent = sortIcons[currentSort] || '⇅';
+    (function(sid, sBtn) {
+      sBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        document.querySelectorAll('.sort-menu').forEach(function(m) { m.remove(); });
+        var menu = document.createElement('div');
+        menu.className = 'sort-menu';
+        [
+          { val: 'manual',   label: '⇅ Manual (drag)' },
+          { val: 'priority', label: '⬆ Priority' },
+          { val: 'due',      label: '📅 Due Date' },
+          { val: 'alpha',    label: 'Az Title A→Z' },
+          { val: 'created',  label: '🕐 Date Added' }
+        ].forEach(function(o) {
+          var b = document.createElement('button');
+          b.textContent = o.label;
+          if ((sectionSort[sid] || 'manual') === o.val) b.classList.add('active');
+          b.addEventListener('click', function(e2) {
+            e2.stopPropagation();
+            sectionSort[sid] = o.val;
+            menu.remove();
+            render();
+          });
+          menu.appendChild(b);
+        });
+        actions.appendChild(menu);
+        setTimeout(function() {
+          document.addEventListener('click', function closer() {
+            menu.remove();
+            document.removeEventListener('click', closer);
+          });
+        }, 0);
+      });
+    })(sec.id, sortBtnEl);
+    actions.appendChild(sortBtnEl);
 
     var badge = document.createElement('span');
     badge.className = 'badge';
@@ -1915,6 +2500,7 @@ function render() {
 
     hd.appendChild(actions);
     card.appendChild(hd);
+    if (collapsedSecs[sec.id]) card.classList.add('sec-collapsed');
 
     /* ── Body ── */
     var bd = document.createElement('div');
@@ -1943,11 +2529,33 @@ function render() {
     tasks.forEach(function(task) {
       var status = task.status || (task.done ? 'done' : 'todo');
 
+      /* Overdue urgency check */
+      var isOverdueUrgent = false;
+      if (task.dueDate && status !== 'done') {
+        var todayCheck = new Date(); todayCheck.setHours(0,0,0,0);
+        var dueCheck = new Date(task.dueDate + 'T00:00:00');
+        if (dueCheck < todayCheck) isOverdueUrgent = true;
+      }
+
       var row = document.createElement('div');
-      row.className = 'task status-' + status;
+      row.className = 'task status-' + status + (isOverdueUrgent ? ' overdue-urgent' : '');
       row.dataset.taskId    = task.id;
       row.dataset.sectionId = sec.id;
       if (task.priority) row.dataset.priority = task.priority;
+
+      /* Bulk-select checkbox */
+      var selCb = document.createElement('input');
+      selCb.type = 'checkbox';
+      selCb.className = 'task-select-cb';
+      if (bulkSelected[task.id]) { selCb.checked = true; row.classList.add('bulk-selected'); }
+      (function(tid, r, cb) {
+        cb.addEventListener('change', function() {
+          if (cb.checked) { bulkSelected[tid] = true; r.classList.add('bulk-selected'); }
+          else            { delete bulkSelected[tid]; r.classList.remove('bulk-selected'); }
+          updateBulkBar();
+        });
+      })(task.id, row, selCb);
+      row.appendChild(selCb);
 
       /* Drag handle */
       var grip = document.createElement('span');
@@ -1975,6 +2583,38 @@ function render() {
 
       var lb = document.createElement('label');
       lb.textContent = task.text;
+      lb.title = 'Double-click to edit';
+      (function(sid, tid, lbl) {
+        lbl.addEventListener('dblclick', function(e) {
+          e.stopPropagation();
+          var inp = document.createElement('input');
+          inp.type = 'text';
+          inp.className = 'task-edit-input';
+          inp.value = lbl.textContent;
+          lbl.style.display = 'none';
+          content.insertBefore(inp, lbl.nextSibling);
+          inp.focus(); inp.select();
+          function commitTask() {
+            var v = inp.value.trim();
+            if (v && v !== lbl.textContent) {
+              var s2 = findSec(sid);
+              if (s2) {
+                var t2 = (s2.tasks || []).filter(function(t) { return t.id === tid; })[0];
+                if (t2) { t2.text = v; save(); return; }
+              }
+            }
+            inp.remove(); lbl.style.display = '';
+          }
+          inp.addEventListener('blur', commitTask);
+          inp.addEventListener('keydown', function(e2) {
+            if (e2.key === 'Enter') { e2.preventDefault(); inp.blur(); }
+            if (e2.key === 'Escape') {
+              inp.removeEventListener('blur', commitTask);
+              inp.remove(); lbl.style.display = '';
+            }
+          });
+        });
+      })(sec.id, task.id, lb);
       content.appendChild(lb);
 
       /* Due date chip */
@@ -2009,6 +2649,23 @@ function render() {
         content.appendChild(badges);
       }
 
+      /* Notes */
+      if (task.notes && task.notes.trim()) {
+        var notesToggle = document.createElement('span');
+        notesToggle.className = 'notes-toggle';
+        notesToggle.textContent = '📝 Notes';
+        var notesDiv = document.createElement('div');
+        notesDiv.className = 'task-notes';
+        notesDiv.textContent = task.notes;
+        notesToggle.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var open = notesDiv.classList.toggle('visible');
+          notesToggle.textContent = open ? '📝 Notes ▴' : '📝 Notes';
+        });
+        content.appendChild(notesToggle);
+        content.appendChild(notesDiv);
+      }
+
       /* Subtask summary + list */
       var subs = task.subtasks || [];
       if (subs.length > 0) {
@@ -2033,6 +2690,41 @@ function render() {
 
           var slb = document.createElement('label');
           slb.textContent = sub.text;
+          slb.title = 'Double-click to edit';
+          (function(sid2, tid2, subid2, slabel) {
+            slabel.addEventListener('dblclick', function(e) {
+              e.stopPropagation();
+              var sinp = document.createElement('input');
+              sinp.type = 'text';
+              sinp.className = 'subtask-edit-input';
+              sinp.value = slabel.textContent;
+              slabel.style.display = 'none';
+              si.insertBefore(sinp, slabel.nextSibling);
+              sinp.focus(); sinp.select();
+              function commitSub() {
+                var v = sinp.value.trim();
+                if (v && v !== slabel.textContent) {
+                  var s2 = findSec(sid2);
+                  if (s2) {
+                    var t2 = (s2.tasks||[]).filter(function(t){return t.id===tid2;})[0];
+                    if (t2) {
+                      var sub2 = (t2.subtasks||[]).filter(function(s){return s.id===subid2;})[0];
+                      if (sub2) { sub2.text = v; save(); return; }
+                    }
+                  }
+                }
+                sinp.remove(); slabel.style.display = '';
+              }
+              sinp.addEventListener('blur', commitSub);
+              sinp.addEventListener('keydown', function(e2) {
+                if (e2.key === 'Enter') { e2.preventDefault(); sinp.blur(); }
+                if (e2.key === 'Escape') {
+                  sinp.removeEventListener('blur', commitSub);
+                  sinp.remove(); slabel.style.display = '';
+                }
+              });
+            });
+          })(sec.id, task.id, sub.id, slb);
 
           var sdel = document.createElement('button');
           sdel.className = 'subtask-del';
@@ -2088,6 +2780,19 @@ function render() {
       /* Action buttons */
       var actionsDiv = document.createElement('div');
       actionsDiv.className = 'task-actions';
+
+      /* Save as template button */
+      var tplBtn = document.createElement('button');
+      tplBtn.className = 'tag-btn';
+      tplBtn.innerHTML = '📋';
+      tplBtn.title = 'Save as template';
+      (function(t) {
+        tplBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          saveTaskAsTemplate(t);
+        });
+      })(task);
+      actionsDiv.appendChild(tplBtn);
 
       /* Tag toggle button */
       var tagBtn = document.createElement('button');
@@ -2147,6 +2852,18 @@ function render() {
   addCard.addEventListener('click', function() { expandAddCol(addCard); });
   board.appendChild(addCard);
 
+  /* ── Templates Card ── */
+  var tplCard = document.createElement('div');
+  tplCard.className = 'add-col-card';
+  tplCard.innerHTML =
+    '<div class="add-col-icon" style="font-size:1.6rem">📋</div>' +
+    '<div class="add-col-label">Templates</div>';
+  tplCard.addEventListener('click', function() {
+    var fs = (appData.sections || [])[0];
+    showTemplateModal(fs ? fs.id : null);
+  });
+  board.appendChild(tplCard);
+
   /* ── Import CSV Card ── */
   var importCard = document.createElement('div');
   importCard.className = 'add-col-card';
@@ -2158,6 +2875,18 @@ function render() {
     document.getElementById('csvFileInput').click();
   });
   board.appendChild(importCard);
+
+  /* ── Bulk Select Card ── */
+  var bulkCard = document.createElement('div');
+  bulkCard.className = 'add-col-card';
+  bulkCard.innerHTML =
+    '<div class="add-col-icon" style="font-size:1.6rem">☑️</div>' +
+    '<div class="add-col-label">' + (bulkMode ? 'Exit Bulk' : 'Bulk Select') + '</div>';
+  bulkCard.addEventListener('click', function() {
+    if (bulkMode) exitBulkMode();
+    else          enterBulkMode();
+  });
+  board.appendChild(bulkCard);
 
   /* ── Download CSV Card ── */
   var dlCard = document.createElement('div');
@@ -2449,18 +3178,28 @@ function executeImport(previewItems, existingTitles) {
    CSV EXPORT
    ================================================================ */
 function exportCSV() {
-  var rows = ['section,task,done,tags'];
+  var q = function(s) { return '"' + String(s || '').replace(/"/g, '""') + '"'; };
+  var rows = ['section,task,status,priority,due_date,tags,description,notes,subtasks'];
   (appData.sections || []).forEach(function(sec) {
     (sec.tasks || []).forEach(function(task) {
       var tagNames = (task.tags || []).map(function(tid) {
         var tag = findTag(tid);
         return tag ? tag.name : '';
       }).filter(Boolean).join('|');
+      var status = task.status || (task.done ? 'done' : 'todo');
+      var subtaskTxt = (task.subtasks || []).map(function(s) {
+        return (s.done ? '[x] ' : '[ ] ') + s.text;
+      }).join(' | ');
       rows.push(
-        '"' + sec.title.replace(/"/g, '""') + '",' +
-        '"' + task.text.replace(/"/g, '""') + '",' +
-        (task.done ? 'true' : 'false') + ',' +
-        '"' + tagNames + '"'
+        q(sec.title) + ',' +
+        q(task.text) + ',' +
+        q(status) + ',' +
+        q(task.priority || '') + ',' +
+        q(task.dueDate || '') + ',' +
+        q(tagNames) + ',' +
+        q(task.desc || '') + ',' +
+        q(task.notes || '') + ',' +
+        q(subtaskTxt)
       );
     });
   });
@@ -2500,9 +3239,9 @@ function renderTagMgmt() {
   }
   tags.forEach(function(tag) {
     html +=
-      '<div class="tm-item">' +
-        '<span class="tm-color" style="background:' + tag.color + '"></span>' +
-        '<span class="tm-name">' + escHtml(tag.name) + '</span>' +
+      '<div class="tm-item" data-tag-id="' + tag.id + '">' +
+        '<span class="tm-color" style="background:' + tag.color + ';cursor:pointer" title="Click to change color" data-action="cycle-color" data-tag-id="' + tag.id + '"></span>' +
+        '<input class="tm-edit-name" data-action="edit-name" data-tag-id="' + tag.id + '" value="' + escHtml(tag.name) + '" title="Edit tag name">' +
         '<button class="tm-del" data-tag-id="' + tag.id + '" title="Delete tag">&times;</button>' +
       '</div>';
   });
@@ -2536,6 +3275,29 @@ function renderTagMgmt() {
   box.querySelectorAll('.tm-del').forEach(function(btn) {
     btn.addEventListener('click', function() {
       deleteTag(btn.dataset.tagId);
+      renderTagMgmt();
+    });
+  });
+
+  /* Inline name edit */
+  box.querySelectorAll('.tm-edit-name').forEach(function(inp) {
+    inp.addEventListener('change', function() {
+      var v = inp.value.trim();
+      if (v) {
+        var tag = (appData.tags || []).filter(function(t) { return t.id === inp.dataset.tagId; })[0];
+        if (tag) { tag.name = v; save(); renderFilterBar(); }
+      }
+    });
+  });
+
+  /* Color cycle on swatch click */
+  box.querySelectorAll('[data-action="cycle-color"]').forEach(function(sw) {
+    sw.addEventListener('click', function() {
+      var tag = (appData.tags || []).filter(function(t) { return t.id === sw.dataset.tagId; })[0];
+      if (!tag) return;
+      var idx = TAG_COLORS.indexOf(tag.color);
+      tag.color = TAG_COLORS[(idx + 1) % TAG_COLORS.length];
+      save();
       renderTagMgmt();
     });
   });
@@ -2713,6 +3475,7 @@ document.getElementById('ntCreate').addEventListener('click', function() {
   createTask(secId, {
     text:     title,
     desc:     document.getElementById('ntDesc').value,
+    notes:    document.getElementById('ntNotes').value,
     status:   document.getElementById('ntStatus').value,
     priority: document.getElementById('ntPriority').value || null,
     dueDate:  document.getElementById('ntDueDate').value  || null,
@@ -2744,6 +3507,455 @@ document.getElementById('ntTitle').addEventListener('keydown', function(e) {
     document.getElementById('ntCreate').click();
   }
 });
+
+/* ================================================================
+   EDITABLE FOCUS HEADER
+   ================================================================ */
+(function() {
+  var FOCUS_KEY = 'bozzone-focus';
+  var focusDiv  = document.getElementById('focusDiv');
+  var focusTxt  = document.getElementById('focusText');
+
+  /* Restore saved focus text */
+  var saved = localStorage.getItem(FOCUS_KEY);
+  if (saved) focusTxt.textContent = saved;
+
+  focusDiv.addEventListener('click', function() {
+    if (focusDiv.querySelector('input')) return; /* already editing */
+    var inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'focus-input';
+    inp.value = focusTxt.textContent;
+    focusTxt.style.display = 'none';
+    focusDiv.appendChild(inp);
+    inp.focus(); inp.select();
+    function commit() {
+      var v = inp.value.trim();
+      if (v) {
+        focusTxt.textContent = v;
+        localStorage.setItem(FOCUS_KEY, v);
+      }
+      inp.remove();
+      focusTxt.style.display = '';
+    }
+    inp.addEventListener('blur', commit);
+    inp.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+      if (e.key === 'Escape') {
+        inp.removeEventListener('blur', commit);
+        inp.remove(); focusTxt.style.display = '';
+      }
+    });
+  });
+})();
+
+/* ================================================================
+   HIDE COMPLETED TOGGLE
+   ================================================================ */
+(function() {
+  var btn = document.getElementById('hideDoneBtn');
+  btn.addEventListener('click', function() {
+    hideCompleted = !hideCompleted;
+    btn.classList.toggle('active', hideCompleted);
+    btn.textContent = hideCompleted ? '✓ Show Done' : '✓ Hide Done';
+    render();
+  });
+})();
+
+/* ================================================================
+   DARK MODE
+   ================================================================ */
+(function() {
+  var isDark = localStorage.getItem('bozzone-dark') === '1';
+  function applyDark(d) {
+    document.documentElement.setAttribute('data-theme', d ? 'dark' : '');
+    document.getElementById('darkToggle').textContent = d ? '☀️' : '🌙';
+    localStorage.setItem('bozzone-dark', d ? '1' : '0');
+    isDark = d;
+  }
+  applyDark(isDark);
+  document.getElementById('darkToggle').addEventListener('click', function() {
+    applyDark(!isDark);
+  });
+  /* expose for keyboard shortcut */
+  window._toggleDark = function() { applyDark(!isDark); };
+})();
+
+/* ================================================================
+   UNDO / REDO
+   ================================================================ */
+var undoStack = [];
+var redoStack = [];
+var _origSave = save;
+
+/* Wrap save() to push state to undo stack before every change */
+save = function() {
+  var snapshot = JSON.stringify(appData);
+  /* Only push if different from last snapshot */
+  if (!undoStack.length || undoStack[undoStack.length-1] !== snapshot) {
+    undoStack.push(snapshot);
+    if (undoStack.length > 50) undoStack.shift();
+    redoStack = []; /* new action clears redo */
+  }
+  _origSave();
+  updateUndoButtons();
+};
+
+function undoAction() {
+  if (undoStack.length < 2) return;
+  redoStack.push(undoStack.pop());           /* current state → redo */
+  appData = ensureArrays(JSON.parse(undoStack[undoStack.length - 1]));
+  saveLS();
+  if (fbReady && dbRef) dbRef.set(appData);
+  else render();
+  updateUndoButtons();
+  showToast('Undone');
+}
+
+function redoAction() {
+  if (!redoStack.length) return;
+  var next = redoStack.pop();
+  undoStack.push(next);
+  appData = ensureArrays(JSON.parse(next));
+  saveLS();
+  if (fbReady && dbRef) dbRef.set(appData);
+  else render();
+  updateUndoButtons();
+  showToast('Redone');
+}
+
+function updateUndoButtons() {
+  document.getElementById('undoBtn').disabled = undoStack.length < 2;
+  document.getElementById('redoBtn').disabled = redoStack.length === 0;
+}
+
+document.getElementById('undoBtn').addEventListener('click', undoAction);
+document.getElementById('redoBtn').addEventListener('click', redoAction);
+
+/* Seed initial snapshot after first render */
+setTimeout(function() {
+  undoStack = [JSON.stringify(appData)];
+  updateUndoButtons();
+}, 800);
+
+/* ================================================================
+   BULK ACTIONS
+   ================================================================ */
+function enterBulkMode() {
+  bulkMode = true;
+  document.body.classList.add('bulk-mode');
+  render();
+  updateBulkBar();
+}
+
+function exitBulkMode() {
+  bulkMode = false;
+  bulkSelected = {};
+  document.body.classList.remove('bulk-mode');
+  document.getElementById('bulkBar').classList.remove('show');
+  render();
+}
+
+function updateBulkBar() {
+  var ids = Object.keys(bulkSelected);
+  var bar = document.getElementById('bulkBar');
+  var cnt = document.getElementById('bulkCount');
+  cnt.textContent = ids.length + ' selected';
+
+  /* Populate move-to dropdown */
+  var sel = document.getElementById('bulkMoveSel');
+  sel.innerHTML = '<option value="">Move to…</option>';
+  (appData.sections || []).forEach(function(sec) {
+    var opt = document.createElement('option');
+    opt.value = sec.id;
+    opt.textContent = (sec.icon || '') + ' ' + sec.title.slice(0,20);
+    sel.appendChild(opt);
+  });
+
+  bar.classList.toggle('show', ids.length > 0);
+}
+
+document.getElementById('bulkMoveBtn').addEventListener('click', function() {
+  var toSecId = document.getElementById('bulkMoveSel').value;
+  if (!toSecId) return;
+  var ids = Object.keys(bulkSelected);
+  if (!ids.length) return;
+  var toSec = findSec(toSecId);
+  if (!toSec) return;
+  ids.forEach(function(tid) {
+    (appData.sections || []).forEach(function(sec) {
+      var idx = -1;
+      (sec.tasks || []).forEach(function(t, i) { if (t.id === tid) idx = i; });
+      if (idx !== -1) {
+        var t = sec.tasks.splice(idx, 1)[0];
+        if (sec.id !== toSecId) toSec.tasks.push(t);
+        else sec.tasks.splice(idx, 0, t); /* same section — put back */
+      }
+    });
+  });
+  bulkSelected = {};
+  save();
+  showToast('Moved ' + ids.length + ' task' + (ids.length!==1?'s':''));
+  exitBulkMode();
+});
+
+document.getElementById('bulkHighBtn').addEventListener('click', function() {
+  var ids = Object.keys(bulkSelected);
+  ids.forEach(function(tid) {
+    (appData.sections||[]).forEach(function(sec){
+      (sec.tasks||[]).forEach(function(t){ if(t.id===tid) t.priority='high'; });
+    });
+  });
+  save(); showToast('Set High priority on ' + ids.length + ' task' + (ids.length!==1?'s':''));
+  exitBulkMode();
+});
+
+document.getElementById('bulkMedBtn').addEventListener('click', function() {
+  var ids = Object.keys(bulkSelected);
+  ids.forEach(function(tid) {
+    (appData.sections||[]).forEach(function(sec){
+      (sec.tasks||[]).forEach(function(t){ if(t.id===tid) t.priority='medium'; });
+    });
+  });
+  save(); showToast('Set Medium priority on ' + ids.length + ' task' + (ids.length!==1?'s':''));
+  exitBulkMode();
+});
+
+document.getElementById('bulkDoneBtn').addEventListener('click', function() {
+  var ids = Object.keys(bulkSelected);
+  ids.forEach(function(tid) {
+    (appData.sections||[]).forEach(function(sec){
+      (sec.tasks||[]).forEach(function(t){
+        if(t.id===tid){ t.status='done'; t.done=true; }
+      });
+    });
+  });
+  save(); showToast('Marked ' + ids.length + ' task' + (ids.length!==1?'s':'') + ' done');
+  exitBulkMode();
+});
+
+document.getElementById('bulkDelBtn').addEventListener('click', function() {
+  var ids = Object.keys(bulkSelected);
+  if (!ids.length) return;
+  /* Snapshot for undo */
+  var snap = JSON.stringify(appData);
+  ids.forEach(function(tid) {
+    (appData.sections||[]).forEach(function(sec){
+      sec.tasks = (sec.tasks||[]).filter(function(t){ return t.id !== tid; });
+    });
+  });
+  save();
+  showToast('Deleted ' + ids.length + ' task' + (ids.length!==1?'s':''), function() {
+    appData = ensureArrays(JSON.parse(snap));
+    saveLS();
+    if (fbReady && dbRef) dbRef.set(appData);
+    else render();
+  });
+  exitBulkMode();
+});
+
+document.getElementById('bulkCancelBtn').addEventListener('click', exitBulkMode);
+
+/* ================================================================
+   TASK TEMPLATES
+   ================================================================ */
+function loadTemplates() {
+  try { return JSON.parse(localStorage.getItem('bozzone-templates') || '[]'); } catch(e) { return []; }
+}
+function saveTemplates(tpls) {
+  try { localStorage.setItem('bozzone-templates', JSON.stringify(tpls)); } catch(e) {}
+}
+
+function saveTaskAsTemplate(task) {
+  var name = prompt('Template name:', task.text.slice(0, 40));
+  if (!name || !name.trim()) return;
+  var tpls = loadTemplates();
+  tpls.push({
+    id:       uid(),
+    name:     name.trim(),
+    text:     task.text,
+    desc:     task.desc  || '',
+    notes:    task.notes || '',
+    priority: task.priority || null,
+    subtasks: (task.subtasks || []).map(function(s) { return { text: s.text }; })
+  });
+  saveTemplates(tpls);
+  showToast('Template "' + name.trim() + '" saved');
+}
+
+function showTemplateModal(targetSecId) {
+  renderTemplateModal(targetSecId);
+  document.getElementById('tplOv').classList.add('show');
+}
+function hideTemplateModal() {
+  document.getElementById('tplOv').classList.remove('show');
+}
+
+function renderTemplateModal(targetSecId) {
+  var box = document.getElementById('tplBox');
+  var tpls = loadTemplates();
+  var secs = appData.sections || [];
+
+  var html = '<h2>📋 Task Templates</h2>';
+
+  /* Saved templates list */
+  if (!tpls.length) {
+    html += '<div class="tpl-empty">No templates saved yet.<br>Click 📋 on any task to save it as a template.</div>';
+  } else {
+    html += '<div class="tpl-section-lbl">Saved Templates</div>';
+    html += '<div class="tpl-list" id="tplList">';
+    tpls.forEach(function(tpl) {
+      var subCount = (tpl.subtasks || []).length;
+      html +=
+        '<div class="tpl-item" data-tpl-id="' + tpl.id + '">' +
+          '<div class="tpl-item-body">' +
+            '<div class="tpl-item-title">' + escHtml(tpl.name) + '</div>' +
+            '<div class="tpl-item-meta">' +
+              (tpl.priority ? '⬆ ' + tpl.priority + ' · ' : '') +
+              (subCount ? subCount + ' subtask' + (subCount!==1?'s':'') : 'No subtasks') +
+            '</div>' +
+          '</div>' +
+          '<button class="tpl-item-del" data-tpl-del="' + tpl.id + '" title="Delete template">&times;</button>' +
+        '</div>';
+    });
+    html += '</div>';
+    html += '<div class="tpl-divider"></div>';
+    html += '<div class="tpl-section-lbl">Use in section</div>';
+    html += '<select class="tpl-pick-sel" id="tplSecSel">';
+    secs.forEach(function(sec) {
+      html += '<option value="' + sec.id + '"' + (sec.id === targetSecId ? ' selected' : '') + '>' +
+              (sec.icon||'') + ' ' + escHtml(sec.title) + '</option>';
+    });
+    html += '</select>';
+    html += '<div class="tpl-pick-hint">Click a template above to create a task from it.</div>';
+  }
+
+  html += '<div class="tpl-divider"></div>';
+  html += '<button class="tpl-close" id="tplCloseBtn">Done</button>';
+  box.innerHTML = html;
+
+  /* Delete handlers */
+  box.querySelectorAll('[data-tpl-del]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var delId = btn.dataset.tplDel;
+      var tpls2 = loadTemplates().filter(function(t) { return t.id !== delId; });
+      saveTemplates(tpls2);
+      renderTemplateModal(targetSecId);
+      showToast('Template deleted');
+    });
+  });
+
+  /* Apply template handlers */
+  box.querySelectorAll('.tpl-item-body').forEach(function(body) {
+    body.addEventListener('click', function() {
+      var tplId = body.closest('.tpl-item').dataset.tplId;
+      var tpl   = loadTemplates().filter(function(t) { return t.id === tplId; })[0];
+      if (!tpl) return;
+      var secId = document.getElementById('tplSecSel') ?
+                  document.getElementById('tplSecSel').value : (targetSecId || (secs[0]||{}).id);
+      createTask(secId, {
+        text:     tpl.text,
+        desc:     tpl.desc,
+        notes:    tpl.notes,
+        priority: tpl.priority,
+        subtasks: (tpl.subtasks||[]).map(function(s){ return { text: s.text, done: false }; })
+      });
+      hideTemplateModal();
+      showToast('Task created from template "' + tpl.name + '"');
+    });
+  });
+
+  document.getElementById('tplCloseBtn').addEventListener('click', hideTemplateModal);
+}
+
+document.getElementById('tplOv').addEventListener('click', function(e) {
+  if (e.target === this) hideTemplateModal();
+});
+
+/* ================================================================
+   KEYBOARD SHORTCUTS
+   ================================================================ */
+(function() {
+  var kbdOpen = false;
+  var kbdBtn  = document.getElementById('kbdBtn');
+  var kbdPanel = document.getElementById('kbdPanel');
+
+  kbdBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    kbdOpen = !kbdOpen;
+    kbdPanel.classList.toggle('show', kbdOpen);
+  });
+  document.addEventListener('click', function() {
+    if (kbdOpen) { kbdOpen = false; kbdPanel.classList.remove('show'); }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    var tag  = (document.activeElement || {}).tagName || '';
+    var inInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+
+    /* Ctrl/Cmd+Z — Undo */
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      undoAction();
+      return;
+    }
+    /* Ctrl/Cmd+Y or Ctrl+Shift+Z — Redo */
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+      e.preventDefault();
+      redoAction();
+      return;
+    }
+
+    /* Escape — close any open modal */
+    if (e.key === 'Escape') {
+      if (document.getElementById('ntOv').classList.contains('show'))  { hideNewTaskModal(); return; }
+      if (document.getElementById('tplOv').classList.contains('show')) { hideTemplateModal(); return; }
+      if (document.getElementById('tpOv').classList.contains('show'))  { hideTagPicker(); return; }
+      if (document.getElementById('tmOv').classList.contains('show'))  { hideTagMgmt(); return; }
+      if (document.getElementById('csvOv').classList.contains('show')) { hideImportModal(); return; }
+      if (bulkMode) { exitBulkMode(); return; }
+      if (kbdOpen)  { kbdOpen = false; kbdPanel.classList.remove('show'); return; }
+      if (activeView) { activeView = null; render(); return; }
+      return;
+    }
+
+    if (inInput) return; /* don't intercept typing */
+
+    switch (e.key.toLowerCase()) {
+      case 'n':
+        /* New task — open modal targeting first section */
+        e.preventDefault();
+        var firstSec = (appData.sections || [])[0];
+        if (firstSec) showNewTaskModal(firstSec.id);
+        break;
+      case '/':
+        e.preventDefault();
+        document.getElementById('searchInput').focus();
+        break;
+      case 'd':
+        e.preventDefault();
+        window._toggleDark();
+        break;
+      case 't':
+        e.preventDefault();
+        var fs = (appData.sections || [])[0];
+        showTemplateModal(fs ? fs.id : null);
+        break;
+      case 'b':
+        e.preventDefault();
+        if (bulkMode) exitBulkMode();
+        else          enterBulkMode();
+        break;
+    }
+  });
+})();
+
+/* ================================================================
+   "Templates" button in the board action area
+   ================================================================ */
+/* Expose template modal trigger globally so render() can wire it */
+window._showTpl = showTemplateModal;
 </script>
 </body>
 </html>

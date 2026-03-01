@@ -1110,6 +1110,31 @@
     .view-chip.active.vc-progress    { background:#D97757; border-color:#D97757; }
     .view-chip.active.vc-week        { background:#27AE60; border-color:#27AE60; }
 
+    /* ── Group Focus Bar ──────────────────────────── */
+    .group-bar {
+      display: flex; gap: 6px;
+      margin-bottom: 8px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; padding: 2px 0;
+    }
+    .group-bar:empty { display: none; }
+    .group-bar::-webkit-scrollbar { display: none; }
+    .grp-pill {
+      flex-shrink: 0;
+      padding: 5px 14px; border-radius: 18px;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+      font-size: .8rem; font-family: inherit;
+      cursor: pointer; color: var(--text-sec);
+      font-weight: 600; white-space: nowrap;
+      transition: all .2s;
+    }
+    .grp-pill:active { transform: scale(.96); }
+    .grp-pill.active {
+      background: var(--accent); color: #fff;
+      border-color: var(--accent);
+    }
+
     /* ══════════════════════════════════════════════
        OVERDUE URGENCY PULSE
        ══════════════════════════════════════════════ */
@@ -1487,6 +1512,7 @@
   </div>
 </div>
 
+<div class="group-bar" id="groupBar"></div>
 <div class="view-bar" id="viewBar"></div>
 <div style="display:flex;align-items:center;gap:6px;padding:0 4px 6px;">
   <div class="filter-bar" id="filterBar" style="flex:1;margin-bottom:0;padding-bottom:0;border-bottom:none;"></div>
@@ -1765,6 +1791,7 @@ var hideCompleted = false;     /* toggle: show/hide done tasks */
 var collapsedSecs    = {};     /* secId → bool: collapsed column */
 var collapsedGroups  = {};     /* groupId → bool: collapsed group */
 var sectionSort      = {};     /* secId → 'manual'|'priority'|'due'|'alpha'|'created' */
+var activeGroupFilter = null;  /* null = All groups, or groupId */
 
 /* ================================================================
    HELPERS
@@ -2266,6 +2293,10 @@ function setSearch(text) {
 
 function getFilteredSections() {
   var secs = appData.sections || [];
+  /* Group focus filter */
+  if (activeGroupFilter) {
+    secs = secs.filter(function(sec) { return sec.groupId === activeGroupFilter; });
+  }
   var needsFilter = activeFilter || activeSearch || activeView || hideCompleted;
   if (!needsFilter) return secs;
 
@@ -2385,6 +2416,40 @@ function renderViewBar() {
 }
 
 /* ================================================================
+   RENDER — GROUP FOCUS BAR
+   ================================================================ */
+function renderGroupBar() {
+  var bar = document.getElementById('groupBar');
+  if (!bar) return;
+  bar.innerHTML = '';
+  var groups = appData.groups || [];
+  if (!groups.length) return;   /* hide bar when no groups exist */
+
+  /* All pill */
+  var allPill = document.createElement('button');
+  allPill.className = 'grp-pill' + (!activeGroupFilter ? ' active' : '');
+  allPill.textContent = 'All';
+  allPill.addEventListener('click', function() {
+    activeGroupFilter = null; render();
+  });
+  bar.appendChild(allPill);
+
+  /* One pill per group */
+  groups.forEach(function(g) {
+    var pill = document.createElement('button');
+    pill.className = 'grp-pill' + (activeGroupFilter === g.id ? ' active' : '');
+    pill.textContent = g.name;
+    (function(gid) {
+      pill.addEventListener('click', function() {
+        activeGroupFilter = (activeGroupFilter === gid) ? null : gid;
+        render();
+      });
+    })(g.id);
+    bar.appendChild(pill);
+  });
+}
+
+/* ================================================================
    RENDER — FILTER BAR
    ================================================================ */
 function renderFilterBar() {
@@ -2411,7 +2476,7 @@ function renderFilterBar() {
     }
     btn.innerHTML =
       '<span class="filter-dot" style="background:' + tag.color + '"></span>' +
-      tag.name +
+      escHtml(tag.name) +
       ' <span class="filter-count">' + (counts[tag.id] || 0) + '</span>';
     (function(tid) {
       btn.addEventListener('click', function() { setFilter(tid); });
@@ -2507,6 +2572,7 @@ function render() {
   if (isDragging) return;
 
   renderViewBar();
+  renderGroupBar();
   renderFilterBar();
 
   var board = document.getElementById('board');
@@ -3353,7 +3419,6 @@ var selectedEmoji = '\ud83d\udccb';
 function expandAddCol(card) {
   if (card.classList.contains('expanded')) return;
   card.classList.add('expanded');
-  card.removeEventListener('click', arguments.callee);
   selectedEmoji = '\ud83d\udccb';
 
   card.innerHTML =
@@ -3877,6 +3942,9 @@ document.getElementById('csvFileInput').addEventListener('change', function() {
   reader.onload = function(e) {
     var rows = parseCSV(e.target.result);
     showImportPreview(rows);
+  };
+  reader.onerror = function() {
+    showToast('Error reading file');
   };
   reader.readAsText(file);
 });

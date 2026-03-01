@@ -1380,6 +1380,73 @@
     .my-day-btn:hover { opacity: 1; background: var(--hover); }
     .my-day-btn.in-my-day { opacity: 1; }
 
+    /* ── Column Groups ─────────────────────────── */
+    .group-header {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 4px 4px; margin-top: 10px;
+      border-bottom: 2px solid var(--accent);
+      font-weight: 600; font-size: .85rem; color: var(--accent);
+      user-select: none;
+    }
+    .group-header:first-child { margin-top: 0; }
+    .group-collapse-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: .9rem; padding: 0 2px; color: var(--accent);
+      line-height: 1; transition: transform .2s;
+    }
+    .group-collapse-btn.collapsed { transform: rotate(-90deg); }
+    .group-name {
+      flex: 1; cursor: pointer; padding: 1px 4px; border-radius: 3px;
+    }
+    .group-name:hover { background: var(--hover); }
+    .group-name-input {
+      flex: 1; font: inherit; font-weight: 600; font-size: .85rem;
+      color: var(--accent); background: var(--bg); border: 1px solid var(--accent);
+      border-radius: 3px; padding: 1px 4px; outline: none;
+    }
+    .group-count {
+      font-size: .72rem; font-weight: 400; color: var(--text-muted); margin-left: 2px;
+    }
+    .group-del {
+      background: none; border: none; cursor: pointer;
+      font-size: .8rem; color: var(--text-muted); padding: 0 4px;
+      opacity: 0; transition: opacity .15s; line-height: 1;
+    }
+    .group-header:hover .group-del { opacity: 1; }
+    .group-del:hover { color: var(--danger, #e53935); }
+    .group-add-btn {
+      grid-column: 1 / -1;
+      width: 100%; padding: 8px; margin-top: 10px;
+      background: none; border: 2px dashed var(--border);
+      border-radius: 8px; cursor: pointer; color: var(--text-muted);
+      font-size: .82rem; transition: all .15s;
+    }
+    .group-add-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    /* Group pill on column header */
+    .sec-group-pill {
+      font-size: .65rem; padding: 1px 6px; border-radius: 10px;
+      background: var(--hover); border: 1px solid var(--border);
+      color: var(--text-muted); cursor: pointer;
+      white-space: nowrap; transition: all .15s;
+      position: relative; line-height: 1.6;
+    }
+    .sec-group-pill:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .group-assign-menu {
+      position: absolute; z-index: 300; top: calc(100% + 2px); left: 0;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,.15);
+      min-width: 140px; padding: 4px 0; font-size: .82rem;
+    }
+    .group-assign-menu button {
+      display: block; width: 100%; text-align: left;
+      padding: 5px 12px; background: none; border: none;
+      cursor: pointer; color: var(--text);
+    }
+    .group-assign-menu button:hover { background: var(--hover); }
+    .group-assign-menu button.active { font-weight: 600; color: var(--accent); }
+    .group-assign-sep { height: 1px; background: var(--border); margin: 3px 0; }
+
   </style>
 </head>
 <body>
@@ -1695,8 +1762,9 @@ var newTagColor  = TAG_COLORS[0];
 var bulkSelected  = {};        /* taskId → true */
 var bulkMode      = false;
 var hideCompleted = false;     /* toggle: show/hide done tasks */
-var collapsedSecs = {};        /* secId → bool: collapsed column */
-var sectionSort   = {};        /* secId → 'manual'|'priority'|'due'|'alpha'|'created' */
+var collapsedSecs    = {};     /* secId → bool: collapsed column */
+var collapsedGroups  = {};     /* groupId → bool: collapsed group */
+var sectionSort      = {};     /* secId → 'manual'|'priority'|'due'|'alpha'|'created' */
 
 /* ================================================================
    HELPERS
@@ -1725,6 +1793,49 @@ function findTag(id) {
   return null;
 }
 
+/* ── Group CRUD helpers ── */
+function findGroup(id) {
+  if (!id) return null;
+  var groups = appData.groups || [];
+  for (var i = 0; i < groups.length; i++) {
+    if (groups[i].id === id) return groups[i];
+  }
+  return null;
+}
+
+function addGroup(name) {
+  if (!appData.groups) appData.groups = [];
+  var g = { id: uid(), name: (name || 'New Group').trim() };
+  appData.groups.push(g);
+  save();
+  return g;
+}
+
+function deleteGroup(groupId) {
+  if (!appData.groups) return;
+  var idx = -1;
+  for (var i = 0; i < appData.groups.length; i++) {
+    if (appData.groups[i].id === groupId) { idx = i; break; }
+  }
+  if (idx === -1) return;
+  appData.groups.splice(idx, 1);
+  /* Unassign sections that belonged to this group */
+  (appData.sections || []).forEach(function(sec) {
+    if (sec.groupId === groupId) sec.groupId = null;
+  });
+  save();
+}
+
+function renameGroup(groupId, name) {
+  var g = findGroup(groupId);
+  if (g && name && name.trim()) { g.name = name.trim(); save(); }
+}
+
+function assignSectionToGroup(secId, groupId) {
+  var sec = findSec(secId);
+  if (sec) { sec.groupId = groupId || null; save(); }
+}
+
 /* Firebase can turn arrays into objects — normalize on read */
 function ensureArrays(data) {
   if (!data) return { sections: [], tags: DEFAULT_TAGS.slice() };
@@ -1733,6 +1844,12 @@ function ensureArrays(data) {
   /* Seed default tags if tags never set */
   if (!data.tags) data.tags = DEFAULT_TAGS.map(function(t) { return {id:t.id, name:t.name, color:t.color}; });
   if (!Array.isArray(data.tags)) data.tags = Object.values(data.tags);
+  /* Groups array */
+  if (!data.groups) data.groups = [];
+  if (!Array.isArray(data.groups)) data.groups = Object.values(data.groups);
+  data.sections.forEach(function(sec) {
+    if (sec.groupId === undefined) sec.groupId = null;
+  });
   data.sections.forEach(function(sec) {
     if (!sec.tasks) sec.tasks = [];
     if (!Array.isArray(sec.tasks)) sec.tasks = Object.values(sec.tasks);
@@ -1787,6 +1904,7 @@ function initFB() {
       'See <strong>SETUP.md</strong> for instructions.</p></div>';
     loadLS();
     if (!appData.sections.length) appData = buildInitialData();
+    appData = ensureArrays(appData);
     render();
     return;
   }
@@ -1798,6 +1916,7 @@ function initFB() {
     dot('off');
     loadLS();
     if (!appData.sections.length) appData = buildInitialData();
+    appData = ensureArrays(appData);
     render();
     return;
   }
@@ -2194,6 +2313,7 @@ function getFilteredSections() {
       title: sec.title,
       icon: sec.icon,
       priority: sec.priority,
+      groupId: sec.groupId,
       tasks: tasks
     };
   }).filter(function(sec) {
@@ -2306,6 +2426,78 @@ function renderFilterBar() {
   mgmt.title = 'Manage tags';
   mgmt.addEventListener('click', function() { showTagMgmt(); });
   bar.appendChild(mgmt);
+}
+
+/* ================================================================
+   GROUP HEADER — full-width row that spans the board grid
+   ================================================================ */
+function buildGroupHeader(g, count) {
+  var hdr = document.createElement('div');
+  hdr.className = 'group-header';
+  hdr.dataset.groupId = g.id;
+
+  /* Collapse toggle */
+  var colBtn = document.createElement('button');
+  colBtn.className = 'group-collapse-btn' + (collapsedGroups[g.id] ? ' collapsed' : '');
+  colBtn.textContent = '\u25be';
+  colBtn.title = collapsedGroups[g.id] ? 'Expand group' : 'Collapse group';
+  (function(gid) {
+    colBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      collapsedGroups[gid] = !collapsedGroups[gid];
+      render();
+    });
+  })(g.id);
+
+  /* Inline-editable name */
+  var nameSpan = document.createElement('span');
+  nameSpan.className = 'group-name';
+  nameSpan.textContent = g.name;
+  nameSpan.title = 'Double-click to rename';
+  (function(gid) {
+    nameSpan.addEventListener('dblclick', function() {
+      var inp = document.createElement('input');
+      inp.className = 'group-name-input';
+      inp.value = g.name;
+      hdr.replaceChild(inp, nameSpan);
+      inp.focus(); inp.select();
+      function commit() {
+        var v = inp.value.trim();
+        if (v) renameGroup(gid, v);
+        else render();
+      }
+      inp.addEventListener('blur', commit);
+      inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+        if (e.key === 'Escape') { inp.removeEventListener('blur', commit); render(); }
+      });
+    });
+  })(g.id);
+
+  /* Count badge */
+  var countSpan = document.createElement('span');
+  countSpan.className = 'group-count';
+  countSpan.textContent = '(' + count + ')';
+
+  /* Delete button */
+  var delBtn = document.createElement('button');
+  delBtn.className = 'group-del';
+  delBtn.textContent = '\u2715';
+  delBtn.title = 'Delete group (columns stay, become ungrouped)';
+  (function(gid, gname) {
+    delBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (confirm('Delete group \u201c' + gname + '\u201d? Columns will become ungrouped.')) {
+        deleteGroup(gid);
+      }
+    });
+  })(g.id, g.name);
+
+  hdr.appendChild(colBtn);
+  hdr.appendChild(nameSpan);
+  hdr.appendChild(countSpan);
+  hdr.appendChild(delBtn);
+  return hdr;
 }
 
 /* ================================================================
@@ -2446,7 +2638,9 @@ function render() {
   var filteredSecs = getFilteredSections();
   var totalAll = 0, doneAll = 0;
 
-  filteredSecs.forEach(function(sec) {
+  /* ── buildSectionCard: renders one column card, returns the DOM element ── */
+  function buildSectionCard(filtSec) {
+    var sec = filtSec;
     var tasks = sec.tasks || [];
 
     /* ── Per-column sort ── */
@@ -2637,6 +2831,60 @@ function render() {
     actions.appendChild(delBtn);
 
     hd.appendChild(actions);
+
+    /* Group pill — only shown when at least one group exists */
+    if ((appData.groups || []).length > 0) {
+      var grpPill = document.createElement('button');
+      grpPill.className = 'sec-group-pill';
+      var curGrp = sec.groupId ? findGroup(sec.groupId) : null;
+      grpPill.textContent = curGrp ? curGrp.name : 'Group\u2026';
+      (function(sid, currentGroupId) {
+        grpPill.addEventListener('click', function(e) {
+          e.stopPropagation();
+          document.querySelectorAll('.group-assign-menu').forEach(function(m) { m.remove(); });
+          var menu = document.createElement('div');
+          menu.className = 'group-assign-menu';
+          /* None */
+          var noneBtn = document.createElement('button');
+          noneBtn.textContent = '\u2014 None \u2014';
+          if (!currentGroupId) noneBtn.classList.add('active');
+          noneBtn.addEventListener('click', function(e2) { e2.stopPropagation(); assignSectionToGroup(sid, null); menu.remove(); });
+          menu.appendChild(noneBtn);
+          var sep1 = document.createElement('div'); sep1.className = 'group-assign-sep'; menu.appendChild(sep1);
+          /* Existing groups */
+          (appData.groups || []).forEach(function(g) {
+            var gb = document.createElement('button');
+            gb.textContent = g.name;
+            if (currentGroupId === g.id) gb.classList.add('active');
+            gb.addEventListener('click', function(e2) { e2.stopPropagation(); assignSectionToGroup(sid, g.id); menu.remove(); });
+            menu.appendChild(gb);
+          });
+          var sep2 = document.createElement('div'); sep2.className = 'group-assign-sep'; menu.appendChild(sep2);
+          /* New Group */
+          var newGrpBtn = document.createElement('button');
+          newGrpBtn.textContent = '+ New Group\u2026';
+          newGrpBtn.addEventListener('click', function(e2) {
+            e2.stopPropagation();
+            var gname = prompt('New group name:');
+            if (gname && gname.trim()) {
+              var g2 = addGroup(gname.trim());
+              assignSectionToGroup(sid, g2.id);
+            }
+            menu.remove();
+          });
+          menu.appendChild(newGrpBtn);
+          grpPill.appendChild(menu);
+          setTimeout(function() {
+            document.addEventListener('click', function closer() {
+              menu.remove();
+              document.removeEventListener('click', closer);
+            });
+          }, 0);
+        });
+      })(sec.id, sec.groupId);
+      hd.appendChild(grpPill);
+    }
+
     card.appendChild(hd);
     if (collapsedSecs[sec.id]) card.classList.add('sec-collapsed');
 
@@ -2994,8 +3242,42 @@ function render() {
     bd.appendChild(ar);
 
     card.appendChild(bd);
-    board.appendChild(card);
+    return card;
+  } /* end buildSectionCard */
+
+  /* ── Grouped rendering loop ── */
+  var groupedSections = {};   /* groupId → [filtSec, ...] */
+  var ungrouped = [];
+  filteredSecs.forEach(function(fs) {
+    if (fs.groupId && findGroup(fs.groupId)) {
+      if (!groupedSections[fs.groupId]) groupedSections[fs.groupId] = [];
+      groupedSections[fs.groupId].push(fs);
+    } else {
+      ungrouped.push(fs);
+    }
   });
+
+  /* Named groups first (in appData.groups order) */
+  (appData.groups || []).forEach(function(g) {
+    var members = groupedSections[g.id] || [];
+    board.appendChild(buildGroupHeader(g, members.length));
+    if (!collapsedGroups[g.id]) {
+      members.forEach(function(fs) { board.appendChild(buildSectionCard(fs)); });
+    }
+  });
+
+  /* Ungrouped sections below */
+  ungrouped.forEach(function(fs) { board.appendChild(buildSectionCard(fs)); });
+
+  /* ── Add Group button ── */
+  var addGrpBtn = document.createElement('button');
+  addGrpBtn.className = 'group-add-btn';
+  addGrpBtn.textContent = '\u002b Add Group';
+  addGrpBtn.addEventListener('click', function() {
+    var gname = prompt('Group name:');
+    if (gname && gname.trim()) { addGroup(gname.trim()); }
+  });
+  board.appendChild(addGrpBtn);
 
   /* ── Add Column Card ── */
   var addCard = document.createElement('div');
@@ -3310,7 +3592,7 @@ function executeImport(previewItems, existingTitles) {
     var key = item.title.toLowerCase();
     var sec = existingTitles[key];
     if (!sec) {
-      sec = { id: uid(), title: item.title, icon: '\ud83d\udccb', priority: false, tasks: [] };
+      sec = { id: uid(), title: item.title, icon: '\ud83d\udccb', priority: false, tasks: [], groupId: null };
       appData.sections.push(sec);
       sectionsCreated++;
     }
@@ -3574,6 +3856,7 @@ loadLS();
 if (!appData.sections || !appData.sections.length) {
   appData = buildInitialData();
 }
+appData = ensureArrays(appData);   /* ensure groups[] and groupId fields exist */
 render();
 initFB();
 

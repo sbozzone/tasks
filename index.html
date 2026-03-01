@@ -1645,6 +1645,22 @@
     <p>Enter a sync key below. Use the <strong>same key on every device</strong> to keep tasks in sync.</p>
     <input type="text" id="keyIn" placeholder="e.g. bozzone42" autocomplete="off" autocapitalize="off" spellcheck="false">
     <button id="keyGo">Start Syncing</button>
+
+    <div style="height:1px;background:var(--border);margin:16px 0"></div>
+    <h3 style="color:var(--accent);font-size:.95rem;margin-bottom:8px">GitHub Sync</h3>
+    <p style="font-size:.8rem;color:#888;margin-bottom:10px;line-height:1.5">
+      Auto-commit your tasks as <code style="font-size:.76rem;background:#f0f0ec;padding:1px 4px;border-radius:3px">tasks.json</code> to a GitHub repo.
+      Create a <strong>fine-grained PAT</strong> with <em>Contents: Read &amp; write</em> for the target repo.
+    </p>
+    <input type="password" id="ghToken" placeholder="Personal Access Token" autocomplete="off" autocapitalize="off" style="margin-bottom:8px">
+    <input type="text" id="ghRepo" placeholder="owner/repo (e.g. alice/my-tasks)" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-bottom:8px">
+    <input type="text" id="ghPath" placeholder="File path (default: tasks.json)" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-bottom:8px">
+    <input type="text" id="ghBranch" placeholder="Branch (default: main)" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-bottom:8px">
+    <label style="display:flex;align-items:center;gap:8px;font-size:.84rem;color:#555;margin-bottom:10px;cursor:pointer">
+      <input type="checkbox" id="ghAuto"> Auto-push after every save (10 s debounce)
+    </label>
+    <button id="ghSave">Save GitHub Settings</button>
+    <button id="ghPushNow" style="margin-top:6px;background:none;border:1.5px solid var(--border);color:var(--text-sec)">&#11014; Push to GitHub Now</button>
   </div>
 </div>
 
@@ -1990,6 +2006,7 @@ function save() {
   } else {
     render();
   }
+  scheduleGitHubPush();
 }
 
 /* ================================================================
@@ -3890,9 +3907,63 @@ function showOv() {
   var inp = document.getElementById('keyIn');
   inp.value = syncKey || '';
   inp.focus();
+  document.getElementById('ghToken').value  = localStorage.getItem('bozzone-gh-token')  || '';
+  document.getElementById('ghRepo').value   = localStorage.getItem('bozzone-gh-repo')   || '';
+  document.getElementById('ghPath').value   = localStorage.getItem('bozzone-gh-path')   || '';
+  document.getElementById('ghBranch').value = localStorage.getItem('bozzone-gh-branch') || '';
+  document.getElementById('ghAuto').checked = localStorage.getItem('bozzone-gh-auto') === '1';
 }
 function hideOv() {
   document.getElementById('ov').style.display = 'none';
+}
+
+/* ================================================================
+   GITHUB SYNC
+   ================================================================ */
+async function pushToGitHub() {
+  var token  = localStorage.getItem('bozzone-gh-token');
+  var repo   = localStorage.getItem('bozzone-gh-repo');
+  var path   = localStorage.getItem('bozzone-gh-path')   || 'tasks.json';
+  var branch = localStorage.getItem('bozzone-gh-branch') || 'main';
+  if (!token || !repo) return;
+
+  var content = btoa(unescape(encodeURIComponent(JSON.stringify(appData, null, 2))));
+  var apiUrl  = 'https://api.github.com/repos/' + repo + '/contents/' + path;
+  var authHdr = { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github+json' };
+
+  /* GET current file SHA (required to update an existing file) */
+  var sha = null;
+  try {
+    var getRes = await fetch(apiUrl + '?ref=' + branch, { headers: authHdr });
+    if (getRes.ok) { sha = (await getRes.json()).sha; }
+  } catch (e) { /* new file or offline — proceed without sha */ }
+
+  /* PUT updated content */
+  var body = { message: 'Update tasks ' + new Date().toISOString().slice(0, 10),
+               content: content, branch: branch };
+  if (sha) body.sha = sha;
+  try {
+    var putRes = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, authHdr),
+      body: JSON.stringify(body)
+    });
+    if (putRes.ok) {
+      showToast('Pushed to GitHub \u2714');
+    } else {
+      var err = await putRes.json();
+      showToast('GitHub error: ' + (err.message || putRes.status));
+    }
+  } catch (e) {
+    showToast('GitHub push failed (network)');
+  }
+}
+
+var ghPushTimer = null;
+function scheduleGitHubPush() {
+  if (localStorage.getItem('bozzone-gh-auto') !== '1') return;
+  clearTimeout(ghPushTimer);
+  ghPushTimer = setTimeout(pushToGitHub, 10000);
 }
 
 document.getElementById('keyGo').addEventListener('click', function() {
@@ -3911,6 +3982,17 @@ document.getElementById('keyIn').addEventListener('keydown', function(e) {
 
 document.getElementById('gearBtn').addEventListener('click', showOv);
 document.getElementById('keyLbl').addEventListener('click', showOv);
+
+document.getElementById('ghSave').addEventListener('click', function() {
+  localStorage.setItem('bozzone-gh-token',  document.getElementById('ghToken').value.trim());
+  localStorage.setItem('bozzone-gh-repo',   document.getElementById('ghRepo').value.trim());
+  localStorage.setItem('bozzone-gh-path',   document.getElementById('ghPath').value.trim() || 'tasks.json');
+  localStorage.setItem('bozzone-gh-branch', document.getElementById('ghBranch').value.trim() || 'main');
+  localStorage.setItem('bozzone-gh-auto',   document.getElementById('ghAuto').checked ? '1' : '0');
+  showToast('GitHub settings saved');
+});
+
+document.getElementById('ghPushNow').addEventListener('click', pushToGitHub);
 
 /* ================================================================
    INIT

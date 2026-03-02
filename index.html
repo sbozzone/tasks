@@ -1472,6 +1472,66 @@
     .group-assign-menu button.active { font-weight: 600; color: var(--accent); }
     .group-assign-sep { height: 1px; background: var(--border); margin: 3px 0; }
 
+    /* ── My Day lightbulb button ────────────────── */
+    .my-day-lightbulb {
+      background: none; border: none;
+      font-size: .9rem; cursor: pointer;
+      padding: 3px 6px; border-radius: 5px;
+      opacity: .45; transition: all .15s;
+      flex-shrink: 0; line-height: 1;
+    }
+    .my-day-lightbulb:hover, .my-day-lightbulb.active { opacity: 1; background: rgba(245,166,35,.15); }
+
+    /* ── My Day suggestions panel ───────────────── */
+    .my-day-suggestions {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding: 8px 0 2px;
+      margin-top: 6px;
+    }
+    .my-day-suggestions.show { display: block; }
+    .my-day-sugg-title {
+      font-size: .68rem; font-weight: 700;
+      color: var(--text-muted); margin-bottom: 5px;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .my-day-sugg-item {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 4px; border-radius: 6px;
+      cursor: pointer; font-size: .82rem;
+      transition: background .12s;
+    }
+    .my-day-sugg-item:hover { background: rgba(245,166,35,.1); }
+    .my-day-sugg-item:active { background: rgba(245,166,35,.2); }
+    .my-day-sugg-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .my-day-sugg-sec { font-size: .67rem; color: var(--text-muted); flex-shrink: 0; }
+    .my-day-sugg-plus {
+      background: none; border: none; color: #F5A623;
+      font-size: 1.1rem; cursor: pointer; padding: 1px 4px;
+      border-radius: 4px; flex-shrink: 0; line-height: 1;
+      font-weight: 700; opacity: .6; transition: opacity .15s;
+    }
+    .my-day-sugg-plus:hover { opacity: 1; }
+    .my-day-sugg-empty {
+      font-size: .78rem; color: var(--text-muted);
+      text-align: center; padding: 8px 0; font-style: italic;
+    }
+
+    /* ── My Day add-task row ────────────────────── */
+    .my-day-add-row {
+      display: flex; gap: 5px; padding-top: 8px;
+      margin-top: 4px; border-top: 1px dashed var(--border);
+      align-items: center;
+    }
+    .my-day-add-sel {
+      border: 1px solid #ddd; border-radius: 6px;
+      padding: 7px 5px; font-size: .75rem;
+      font-family: inherit; outline: none;
+      color: var(--text-sec); background: var(--card-bg);
+      max-width: 100px; flex-shrink: 0; cursor: pointer;
+    }
+    .my-day-add-sel:focus { border-color: #F5A623; }
+
   </style>
 </head>
 <body>
@@ -2628,6 +2688,16 @@ function render() {
     hdLeft.appendChild(hdTitle);
     hdLeft.appendChild(hdBadge);
     hd.appendChild(hdLeft);
+
+    /* Header right: lightbulb suggestions toggle */
+    var hdRight = document.createElement('div');
+    hdRight.style.cssText = 'display:flex;align-items:center;gap:4px;flex-shrink:0;';
+    var bulbBtn = document.createElement('button');
+    bulbBtn.className = 'my-day-lightbulb';
+    bulbBtn.title = 'Suggestions — recently added tasks';
+    bulbBtn.textContent = '💡';
+    hdRight.appendChild(bulbBtn);
+    hd.appendChild(hdRight);
     mdCard.appendChild(hd);
 
     /* Body */
@@ -2713,6 +2783,125 @@ function render() {
       });
       bd.appendChild(tl);
     }
+
+    /* ── Suggestions panel (hidden until 💡 clicked) ── */
+    var suggPanel = document.createElement('div');
+    suggPanel.className = 'my-day-suggestions';
+    var suggTitle = document.createElement('div');
+    suggTitle.className = 'my-day-sugg-title';
+    suggTitle.textContent = 'Recently added — tap to add to My Day';
+    suggPanel.appendChild(suggTitle);
+
+    function buildSuggestions() {
+      /* Remove previous suggestion rows (keep the title) */
+      while (suggPanel.children.length > 1) suggPanel.removeChild(suggPanel.lastChild);
+      /* Collect tasks NOT already in My Day, not done */
+      var candidates = [];
+      (appData.sections || []).forEach(function(sec) {
+        (sec.tasks || []).forEach(function(task) {
+          if (task.myDay) return;
+          if (task.done || task.status === 'done') return;
+          candidates.push({ task: task, secTitle: sec.title, secId: sec.id });
+        });
+      });
+      /* Sort newest first — id starts with timestamp hex */
+      candidates.sort(function(a, b) {
+        return (b.task.id || '').localeCompare(a.task.id || '');
+      });
+      candidates = candidates.slice(0, 8);
+
+      if (candidates.length === 0) {
+        var emp = document.createElement('div');
+        emp.className = 'my-day-sugg-empty';
+        emp.textContent = 'All tasks are already in My Day!';
+        suggPanel.appendChild(emp);
+        return;
+      }
+      candidates.forEach(function(item) {
+        var row = document.createElement('div');
+        row.className = 'my-day-sugg-item';
+        var txt = document.createElement('span');
+        txt.className = 'my-day-sugg-text';
+        txt.textContent = item.task.text;
+        var sec = document.createElement('span');
+        sec.className = 'my-day-sugg-sec';
+        sec.textContent = item.secTitle;
+        var addBtn = document.createElement('button');
+        addBtn.className = 'my-day-sugg-plus';
+        addBtn.title = 'Add to My Day';
+        addBtn.textContent = '+';
+        (function(sid, tid) {
+          function doAdd(e) {
+            if (e) e.stopPropagation();
+            var s2 = findSec(sid);
+            if (s2) {
+              var t2 = (s2.tasks || []).filter(function(t) { return t.id === tid; })[0];
+              if (t2) { t2.myDay = true; save(); }
+            }
+          }
+          addBtn.addEventListener('click', doAdd);
+          row.addEventListener('click', doAdd);
+        })(item.secId, item.task.id);
+        row.appendChild(txt);
+        row.appendChild(sec);
+        row.appendChild(addBtn);
+        suggPanel.appendChild(row);
+      });
+    }
+
+    bulbBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var opening = !suggPanel.classList.contains('show');
+      if (opening) buildSuggestions();
+      suggPanel.classList.toggle('show');
+      bulbBtn.classList.toggle('active');
+    });
+    bd.appendChild(suggPanel);
+
+    /* ── + Add Task row ── */
+    var mdAddRow = document.createElement('div');
+    mdAddRow.className = 'my-day-add-row';
+
+    var mdAddSel = document.createElement('select');
+    mdAddSel.className = 'my-day-add-sel';
+    mdAddSel.title = 'Section to add task into';
+    (appData.sections || []).forEach(function(s) {
+      var opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = (s.icon ? s.icon + ' ' : '') + s.title;
+      mdAddSel.appendChild(opt);
+    });
+
+    var mdAddInp = document.createElement('input');
+    mdAddInp.className = 'add-input';
+    mdAddInp.placeholder = '+ Add a task…';
+    mdAddInp.type = 'text';
+
+    var mdAddBtn = document.createElement('button');
+    mdAddBtn.className = 'add-btn';
+    mdAddBtn.innerHTML = '+';
+    mdAddBtn.title = 'Add task to My Day';
+
+    function doAddMyDayTask() {
+      var text = mdAddInp.value.trim();
+      if (!text) return;
+      var secId = mdAddSel.value;
+      var sec = findSec(secId);
+      if (!sec) return;
+      sec.tasks.push({ id: uid(), text: text, done: false, tags: [], myDay: true });
+      mdAddInp.value = '';
+      mdAddInp.focus();
+      save();
+    }
+    mdAddBtn.addEventListener('click', doAddMyDayTask);
+    mdAddInp.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doAddMyDayTask();
+    });
+
+    mdAddRow.appendChild(mdAddSel);
+    mdAddRow.appendChild(mdAddInp);
+    mdAddRow.appendChild(mdAddBtn);
+    bd.appendChild(mdAddRow);
 
     mdCard.appendChild(bd);
     board.appendChild(mdCard);

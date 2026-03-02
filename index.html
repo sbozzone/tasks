@@ -3253,7 +3253,8 @@ function render() {
     collapseBtn.className = 'sec-collapse-btn';
     collapseBtn.innerHTML = '&#9660;';
     collapseBtn.title = 'Collapse/expand column';
-    if (collapsedSecs[sec.id]) collapseBtn.style.transform = 'rotate(-90deg)';
+    var hasActiveFilter = !!(activeFilter || activeSearch || activeView);
+    if (collapsedSecs[sec.id] && !hasActiveFilter) collapseBtn.style.transform = 'rotate(-90deg)';
     (function(sid, cardEl) {
       collapseBtn.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -3450,7 +3451,7 @@ function render() {
     }
 
     card.appendChild(hd);
-    if (collapsedSecs[sec.id]) card.classList.add('sec-collapsed');
+    if (collapsedSecs[sec.id] && !hasActiveFilter) card.classList.add('sec-collapsed');
 
     /* ── Body ── */
     var bd = document.createElement('div');

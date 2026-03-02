@@ -2967,9 +2967,21 @@ function render() {
     hdLeft.appendChild(hdBadge);
     hd.appendChild(hdLeft);
 
-    /* Header right: lightbulb suggestions toggle */
+    /* Header right: collapse + lightbulb suggestions toggle */
     var hdRight = document.createElement('div');
     hdRight.style.cssText = 'display:flex;align-items:center;gap:4px;flex-shrink:0;';
+    var mdColBtn = document.createElement('button');
+    mdColBtn.className = 'sec-collapse-btn';
+    mdColBtn.innerHTML = '&#9660;';
+    mdColBtn.title = 'Collapse/expand My Day';
+    if (collapsedSecs['__myDay__']) mdColBtn.style.transform = 'rotate(-90deg)';
+    mdColBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      collapsedSecs['__myDay__'] = !collapsedSecs['__myDay__'];
+      mdCard.classList.toggle('sec-collapsed', !!collapsedSecs['__myDay__']);
+      mdColBtn.style.transform = collapsedSecs['__myDay__'] ? 'rotate(-90deg)' : '';
+    });
+    hdRight.appendChild(mdColBtn);
     var bulbBtn = document.createElement('button');
     bulbBtn.className = 'my-day-lightbulb';
     bulbBtn.title = 'Suggestions — recently added tasks';
@@ -2977,6 +2989,7 @@ function render() {
     hdRight.appendChild(bulbBtn);
     hd.appendChild(hdRight);
     mdCard.appendChild(hd);
+    if (collapsedSecs['__myDay__']) mdCard.classList.add('sec-collapsed');
 
     /* Body */
     var bd = document.createElement('div');

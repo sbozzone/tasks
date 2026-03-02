@@ -1577,6 +1577,7 @@
 <div style="display:flex;align-items:center;gap:6px;padding:0 4px 6px;">
   <div class="filter-bar" id="filterBar" style="flex:1;margin-bottom:0;padding-bottom:0;border-bottom:none;"></div>
   <button class="hide-done-btn" id="hideDoneBtn" title="Toggle visibility of completed tasks">✓ Hide Done</button>
+  <button class="hide-done-btn" id="collapseAllBtn" title="Collapse or expand all columns">⊟ Collapse All</button>
 </div>
 
 <div class="grid" id="board"></div>
@@ -2951,6 +2952,7 @@ function render() {
     /* ── Card ── */
     var card = document.createElement('div');
     card.className = 'card' + (sec.priority ? ' priority' : '');
+    card.dataset.secId = sec.id;
 
     /* ── Header ── */
     var hd = document.createElement('div');
@@ -4337,6 +4339,48 @@ document.getElementById('ntTitle').addEventListener('keydown', function(e) {
     btn.textContent = hideCompleted ? '✓ Show Done' : '✓ Hide Done';
     render();
   });
+})();
+
+/* ================================================================
+   COLLAPSE / EXPAND ALL COLUMNS
+   ================================================================ */
+(function() {
+  var btn = document.getElementById('collapseAllBtn');
+
+  function allCollapsed() {
+    var secs = appData.sections || [];
+    return secs.length > 0 && secs.every(function(s) { return collapsedSecs[s.id]; });
+  }
+
+  function updateCollapseBtn() {
+    var ac = allCollapsed();
+    btn.textContent = ac ? '⊞ Expand All' : '⊟ Collapse All';
+    btn.classList.toggle('active', ac);
+  }
+
+  btn.addEventListener('click', function() {
+    var secs = appData.sections || [];
+    var collapse = !allCollapsed();
+    secs.forEach(function(s) { collapsedSecs[s.id] = collapse; });
+    document.querySelectorAll('.card[data-sec-id]').forEach(function(card) {
+      var sid = card.dataset.secId;
+      card.classList.toggle('sec-collapsed', !!collapsedSecs[sid]);
+      var colBtn = card.querySelector('.sec-collapse-btn');
+      if (colBtn) colBtn.style.transform = collapsedSecs[sid] ? 'rotate(-90deg)' : '';
+    });
+    updateCollapseBtn();
+  });
+
+  /* Keep button state in sync when individual columns are toggled */
+  document.getElementById('board').addEventListener('click', function(e) {
+    if (e.target && e.target.classList.contains('sec-collapse-btn')) {
+      setTimeout(updateCollapseBtn, 0);
+    }
+  });
+
+  /* Keep button state in sync after any render */
+  var _origRender = render;
+  render = function() { _origRender.apply(this, arguments); updateCollapseBtn(); };
 })();
 
 /* ================================================================

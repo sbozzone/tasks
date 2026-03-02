@@ -2208,6 +2208,42 @@ function createTask(secId, data) {
 }
 
 /* ================================================================
+   UPDATE TASK (edit dialog save)
+   ================================================================ */
+function updateTask(oldSecId, taskId, newSecId, data) {
+  var oldSec = findSec(oldSecId);
+  if (!oldSec) return;
+  var taskIdx = -1;
+  for (var i = 0; i < oldSec.tasks.length; i++) {
+    if (oldSec.tasks[i].id === taskId) { taskIdx = i; break; }
+  }
+  if (taskIdx === -1) return;
+
+  var task   = oldSec.tasks[taskIdx];
+  var status = data.status || 'todo';
+  task.text     = (data.text  || '').trim();
+  task.desc     = (data.desc  || '').trim();
+  task.notes    = (data.notes || '').trim();
+  task.status   = status;
+  task.done     = (status === 'done');
+  task.priority = data.priority || null;
+  task.dueDate  = data.dueDate  || null;
+  task.subtasks = (data.subtasks || []).map(function(s) {
+    return { id: s.id || uid(), text: s.text, done: s.done || false };
+  });
+
+  /* Move to different section if the user changed it */
+  if (newSecId !== oldSecId) {
+    oldSec.tasks.splice(taskIdx, 1);
+    var newSec = findSec(newSecId);
+    if (newSec) newSec.tasks.push(task);
+  }
+
+  save();
+  showToast('Task updated');
+}
+
+/* ================================================================
    SUBTASK CRUD
    ================================================================ */
 function toggleSubtask(secId, taskId, subId) {
@@ -2242,8 +2278,14 @@ function deleteSubtask(secId, taskId, subId) {
    NEW TASK MODAL
    ================================================================ */
 var ntPendingSubtasks = [];  /* subtasks built up in modal before save */
+var ntEditMode   = false;    /* true when editing an existing task */
+var ntEditSecId  = null;     /* section id of task being edited */
+var ntEditTaskId = null;     /* id of task being edited */
 
 function showNewTaskModal(secId) {
+  ntEditMode   = false;
+  ntEditSecId  = null;
+  ntEditTaskId = null;
   ntPendingSubtasks = [];
   /* Populate section select */
   var sel = document.getElementById('ntSection');
@@ -2264,12 +2306,60 @@ function showNewTaskModal(secId) {
   document.getElementById('ntDueDate').value  = '';
   document.getElementById('ntSubInput').value = '';
   renderNtSubtasks();
+  document.querySelector('#ntOv h2').textContent  = '\u2795 Create New Task';
+  document.getElementById('ntCreate').textContent = 'Create Task';
   document.getElementById('ntOv').classList.add('show');
   document.getElementById('ntTitle').focus();
 }
 
 function hideNewTaskModal() {
+  ntEditMode   = false;
+  ntEditSecId  = null;
+  ntEditTaskId = null;
   document.getElementById('ntOv').classList.remove('show');
+}
+
+function showEditTaskModal(secId, taskId) {
+  var sec  = findSec(secId);
+  if (!sec) return;
+  var task = sec.tasks.filter(function(t) { return t.id === taskId; })[0];
+  if (!task) return;
+
+  ntEditMode   = true;
+  ntEditSecId  = secId;
+  ntEditTaskId = taskId;
+
+  /* Populate section select */
+  var sel = document.getElementById('ntSection');
+  sel.innerHTML = '';
+  (appData.sections || []).forEach(function(s) {
+    var opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.title;
+    if (s.id === secId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+
+  /* Populate fields with existing task data */
+  document.getElementById('ntTitle').value    = task.text     || '';
+  document.getElementById('ntDesc').value     = task.desc     || '';
+  document.getElementById('ntNotes').value    = task.notes    || '';
+  document.getElementById('ntStatus').value   = task.status   || 'todo';
+  document.getElementById('ntPriority').value = task.priority || '';
+  document.getElementById('ntDueDate').value  = task.dueDate  || '';
+  document.getElementById('ntSubInput').value = '';
+
+  /* Copy existing subtasks into pending list */
+  ntPendingSubtasks = (task.subtasks || []).map(function(s) {
+    return { id: s.id, text: s.text, done: s.done };
+  });
+  renderNtSubtasks();
+
+  /* Update modal title and button for edit mode */
+  document.querySelector('#ntOv h2').textContent  = '\u270F\uFE0F Edit Task';
+  document.getElementById('ntCreate').textContent = 'Save Changes';
+  document.getElementById('ntOv').classList.add('show');
+  document.getElementById('ntTitle').focus();
 }
 
 function renderNtSubtasks() {
@@ -3609,6 +3699,15 @@ function render() {
       actionsDiv.appendChild(del);
 
       row.appendChild(actionsDiv);
+
+      /* Click anywhere on task content opens the edit dialog */
+      (function(sid, tid) {
+        content.addEventListener('click', function(e) {
+          if (e.target.closest('input, button, .notes-toggle, .subtask-list')) return;
+          showEditTaskModal(sid, tid);
+        });
+      })(sec.id, task.id);
+
       tl.appendChild(row);
     });
 
@@ -4362,7 +4461,7 @@ document.getElementById('ntCreate').addEventListener('click', function() {
   var title = document.getElementById('ntTitle').value.trim();
   if (!title) { document.getElementById('ntTitle').focus(); return; }
   var secId = document.getElementById('ntSection').value;
-  createTask(secId, {
+  var data = {
     text:     title,
     desc:     document.getElementById('ntDesc').value,
     notes:    document.getElementById('ntNotes').value,
@@ -4370,7 +4469,12 @@ document.getElementById('ntCreate').addEventListener('click', function() {
     priority: document.getElementById('ntPriority').value || null,
     dueDate:  document.getElementById('ntDueDate').value  || null,
     subtasks: ntPendingSubtasks.slice()
-  });
+  };
+  if (ntEditMode) {
+    updateTask(ntEditSecId, ntEditTaskId, secId, data);
+  } else {
+    createTask(secId, data);
+  }
   hideNewTaskModal();
 });
 

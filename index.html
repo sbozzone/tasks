@@ -1125,8 +1125,10 @@
       color:var(--text-sec); font-weight:600;
       font-size:.74rem; text-transform:uppercase;
       letter-spacing:.04em; border-bottom:2px solid var(--border);
-      white-space:nowrap;
+      white-space:nowrap; cursor:pointer; user-select:none;
     }
+    .tv-table th:hover { color:var(--text); }
+    .tv-table th.tv-sort-active { color:var(--accent,#D97757); }
     .tv-table td { padding:8px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
     .tv-table tr:last-child td { border-bottom:none; }
     .tv-table tr:hover td { background:rgba(0,0,0,.025); }
@@ -1905,6 +1907,7 @@ var hideCompleted = false;     /* toggle: show/hide done tasks */
 var collapsedSecs    = {};     /* secId → bool: collapsed column */
 var collapsedGroups  = {};     /* groupId → bool: collapsed group */
 var sectionSort      = {};     /* secId → 'manual'|'priority'|'due'|'alpha'|'created' */
+var tvSort           = { col: null, dir: 'asc' }; /* All Tasks table sort state */
 var activeGroupFilter = null;  /* null = All groups, or groupId */
 
 /* ================================================================
@@ -2787,57 +2790,130 @@ function renderTableView(board) {
   var tagMap = {};
   (appData.tags || []).forEach(function(tg) { tagMap[tg.id] = tg; });
 
+  /* Build flat list of all tasks with their section context */
+  var rows = [];
+  (appData.sections || []).forEach(function(sec) {
+    var groupName = sec.groupId ? (groupMap[sec.groupId] || '—') : '—';
+    (sec.tasks || []).forEach(function(t) {
+      if (hideCompleted && t.status === 'done') return;
+      rows.push({ sec: sec, task: t, groupName: groupName });
+    });
+  });
+
+  /* Sort rows by the active column */
+  var priOrd = { high: 0, medium: 1, low: 2, '': 3 };
+  var stOrd  = { inprogress: 0, todo: 1, done: 2 };
+  if (tvSort.col) {
+    rows.sort(function(a, b) {
+      var av, bv, cmp;
+      switch (tvSort.col) {
+        case 'group':
+          av = a.groupName || ''; bv = b.groupName || '';
+          cmp = av.localeCompare(bv); break;
+        case 'section':
+          av = a.sec.title || ''; bv = b.sec.title || '';
+          cmp = av.localeCompare(bv); break;
+        case 'task':
+          av = a.task.text || ''; bv = b.task.text || '';
+          cmp = av.localeCompare(bv); break;
+        case 'status':
+          av = stOrd[a.task.status || 'todo']; bv = stOrd[b.task.status || 'todo'];
+          cmp = av - bv; break;
+        case 'priority':
+          av = priOrd[a.task.priority || '']; bv = priOrd[b.task.priority || ''];
+          cmp = av - bv; break;
+        case 'due':
+          av = a.task.dueDate || 'zzzz'; bv = b.task.dueDate || 'zzzz';
+          cmp = av < bv ? -1 : av > bv ? 1 : 0; break;
+        case 'tags':
+          cmp = (a.task.tags || []).length - (b.task.tags || []).length; break;
+        default: cmp = 0;
+      }
+      return tvSort.dir === 'asc' ? cmp : -cmp;
+    });
+  }
+
   var wrap = document.createElement('div');
   wrap.className = 'table-view';
 
   var table = document.createElement('table');
   table.className = 'tv-table';
-  table.innerHTML =
-    '<thead><tr>' +
-    '<th>Group</th><th>Section</th><th>Task</th>' +
-    '<th>Status</th><th>Priority</th><th>Due</th><th>Tags</th>' +
-    '</tr></thead>';
+
+  /* Sortable column headers */
+  var thead = document.createElement('thead');
+  var hr    = document.createElement('tr');
+  var tvCols = [
+    { key: 'group',    label: 'Group'    },
+    { key: 'section',  label: 'Section'  },
+    { key: 'task',     label: 'Task'     },
+    { key: 'status',   label: 'Status'   },
+    { key: 'priority', label: 'Priority' },
+    { key: 'due',      label: 'Due'      },
+    { key: 'tags',     label: 'Tags'     }
+  ];
+  tvCols.forEach(function(c) {
+    var th = document.createElement('th');
+    var arrow = tvSort.col === c.key ? (tvSort.dir === 'asc' ? ' \u25b2' : ' \u25bc') : '';
+    th.textContent = c.label + arrow;
+    if (tvSort.col === c.key) th.classList.add('tv-sort-active');
+    th.addEventListener('click', function() {
+      if (tvSort.col === c.key) {
+        tvSort.dir = tvSort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        tvSort.col = c.key;
+        tvSort.dir = 'asc';
+      }
+      render();
+    });
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+  table.appendChild(thead);
 
   var tbody = document.createElement('tbody');
   var statusLabel = { todo:'To Do', inprogress:'In Progress', done:'Done' };
 
-  (appData.sections || []).forEach(function(sec) {
-    var groupName = sec.groupId ? (groupMap[sec.groupId] || '—') : '—';
-    (sec.tasks || []).forEach(function(t) {
-      if (hideCompleted && t.status === 'done') return;
-      var st = t.status || 'todo';
+  rows.forEach(function(row) {
+    var sec = row.sec, t = row.task, groupName = row.groupName;
+    var st = t.status || 'todo';
 
-      var priHtml = t.priority
-        ? '<span class="tv-pb ' + t.priority + '">' + t.priority.charAt(0).toUpperCase() + t.priority.slice(1) + '</span>'
+    var priHtml = t.priority
+      ? '<span class="tv-pb ' + t.priority + '">' + t.priority.charAt(0).toUpperCase() + t.priority.slice(1) + '</span>'
+      : '';
+
+    var dueHtml = '';
+    if (t.dueDate) {
+      var d = new Date(t.dueDate + 'T00:00:00');
+      var lbl = d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+      var overdue = d < today && st !== 'done';
+      dueHtml = '<span' + (overdue ? ' class="tv-due-overdue"' : '') + '>' + lbl + '</span>';
+    }
+
+    var tagsHtml = (t.tags || []).map(function(tid) {
+      var tg = tagMap[tid];
+      return tg
+        ? '<span style="background:' + tg.color + '22;color:' + tg.color + ';padding:1px 6px;border-radius:8px;font-size:.68rem;margin-right:3px;display:inline-block">' + escHtml(tg.name) + '</span>'
         : '';
+    }).join('');
 
-      var dueHtml = '';
-      if (t.dueDate) {
-        var d = new Date(t.dueDate + 'T00:00:00');
-        var lbl = d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
-        var overdue = d < today && st !== 'done';
-        dueHtml = '<span' + (overdue ? ' class="tv-due-overdue"' : '') + '>' + lbl + '</span>';
-      }
+    var tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    if (st === 'done') tr.className = 'tv-done';
+    tr.innerHTML =
+      '<td class="tv-group">'   + escHtml(groupName)  + '</td>' +
+      '<td class="tv-section">' + escHtml(sec.title)  + '</td>' +
+      '<td class="tv-task">'    + escHtml(t.text)     + '</td>' +
+      '<td><span class="tv-sb ' + st + '">' + (statusLabel[st] || st) + '</span></td>' +
+      '<td>' + priHtml  + '</td>' +
+      '<td>' + dueHtml  + '</td>' +
+      '<td>' + tagsHtml + '</td>';
 
-      var tagsHtml = (t.tags || []).map(function(tid) {
-        var tg = tagMap[tid];
-        return tg
-          ? '<span style="background:' + tg.color + '22;color:' + tg.color + ';padding:1px 6px;border-radius:8px;font-size:.68rem;margin-right:3px;display:inline-block">' + escHtml(tg.name) + '</span>'
-          : '';
-      }).join('');
+    /* Click row to open edit dialog */
+    (function(sid, tid) {
+      tr.addEventListener('click', function() { showEditTaskModal(sid, tid); });
+    })(sec.id, t.id);
 
-      var tr = document.createElement('tr');
-      if (st === 'done') tr.className = 'tv-done';
-      tr.innerHTML =
-        '<td class="tv-group">'   + escHtml(groupName)  + '</td>' +
-        '<td class="tv-section">' + escHtml(sec.title)  + '</td>' +
-        '<td class="tv-task">'    + escHtml(t.text)     + '</td>' +
-        '<td><span class="tv-sb ' + st + '">' + (statusLabel[st] || st) + '</span></td>' +
-        '<td>' + priHtml  + '</td>' +
-        '<td>' + dueHtml  + '</td>' +
-        '<td>' + tagsHtml + '</td>';
-      tbody.appendChild(tr);
-    });
+    tbody.appendChild(tr);
   });
 
   table.appendChild(tbody);

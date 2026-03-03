@@ -2098,6 +2098,23 @@ function startSync() {
   });
 
   document.getElementById('keyLbl').textContent = syncKey;
+  listenInbox();
+}
+
+function listenInbox() {
+  if (!fbReady || !syncKey) return;
+  var inboxRef = firebase.database().ref('dashboards/' + syncKey + '/inbox');
+  inboxRef.on('child_added', function(snap) {
+    var item = snap.val();
+    if (!item || !item.text) { snap.ref.remove(); return; }
+    createTask(item.sectionId || 'sec-0', {
+      text:     item.text,
+      desc:     item.desc     || '',
+      priority: item.priority || null,
+      dueDate:  item.dueDate  || null
+    });
+    snap.ref.remove();
+  });
 }
 
 function save() {

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tasks">
   <meta name="theme-color" content="#D97757">
   <title>Bozzone Tasks</title>
   <link rel="manifest" href="manifest.json">
@@ -197,8 +198,8 @@
       grid-template-columns: 1fr;
       gap: 14px;
     }
+    /* iPad and larger iPhone landscape — 2 columns max (no desktop 3-col) */
     @media (min-width: 700px)  { .grid { grid-template-columns: repeat(2,1fr); } body { padding: 20px; } header h1 { font-size: 1.35rem; } }
-    @media (min-width: 1100px) { .grid { grid-template-columns: repeat(3,1fr); } }
 
     /* ── Cards ───────────────────────────────────── */
     .card {
@@ -5082,6 +5083,76 @@ document.getElementById('tplOv').addEventListener('click', function(e) {
    ================================================================ */
 /* Expose template modal trigger globally so render() can wire it */
 window._showTpl = showTemplateModal;
+</script>
+
+<!-- ================================================================
+     iOS-ONLY DETECTION
+     - Warns non-iOS users that this app is built for iOS
+     - Prompts iOS/Safari users to "Add to Home Screen" if not installed
+     ================================================================ -->
+<script>
+(function () {
+  var ua = navigator.userAgent;
+  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  var isStandalone = window.navigator.standalone === true;
+
+  if (!isIOS) {
+    /* Non-iOS browser: show a persistent top banner */
+    var warn = document.createElement('div');
+    warn.id = 'ios-only-warn';
+    warn.style.cssText = [
+      'position:fixed', 'top:0', 'left:0', 'right:0',
+      'background:#FFF3CD', 'border-bottom:2px solid #FFEEBA',
+      'padding:10px 40px 10px 14px', 'font-size:.82rem',
+      'color:#856404', 'z-index:9999', 'line-height:1.4',
+      'text-align:center'
+    ].join(';');
+    warn.textContent = 'This app is designed for iOS. For the best experience, open it in Safari on iPhone or iPad.';
+
+    var closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.style.cssText = [
+      'position:absolute', 'right:10px', 'top:50%',
+      'transform:translateY(-50%)', 'background:none', 'border:none',
+      'font-size:1rem', 'color:#856404', 'cursor:pointer', 'padding:4px'
+    ].join(';');
+    closeBtn.onclick = function () { warn.remove(); };
+    warn.appendChild(closeBtn);
+    document.body.appendChild(warn);
+    return;
+  }
+
+  /* iOS + Safari (not already installed) → show install prompt */
+  var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+  if (isSafari && !isStandalone) {
+    var banner = document.createElement('div');
+    banner.id = 'ios-install-banner';
+    banner.style.cssText = [
+      'position:fixed', 'bottom:0', 'left:0', 'right:0',
+      'background:#fff', 'border-top:1px solid #e0dfd9',
+      'padding:12px 40px 12px 14px',
+      'padding-bottom:calc(12px + env(safe-area-inset-bottom))',
+      'font-size:.82rem', 'color:#555', 'z-index:9999',
+      'line-height:1.45', 'box-shadow:0 -2px 12px rgba(0,0,0,.1)'
+    ].join(';');
+
+    var icon = '\uD83D\uDCE4'; /* 📤 */
+    banner.innerHTML =
+      '<strong style="color:#D97757">Add to Home Screen</strong> &mdash; ' +
+      'tap ' + icon + ' Share, then <em>"Add to Home Screen"</em> in Safari.';
+
+    var x = document.createElement('button');
+    x.textContent = '✕';
+    x.style.cssText = [
+      'position:absolute', 'right:10px', 'top:12px',
+      'background:none', 'border:none', 'font-size:1rem',
+      'color:#aaa', 'cursor:pointer', 'padding:4px'
+    ].join(';');
+    x.onclick = function () { banner.remove(); };
+    banner.appendChild(x);
+    document.body.appendChild(banner);
+  }
+})();
 </script>
 </body>
 </html>

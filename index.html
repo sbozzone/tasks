@@ -475,6 +475,24 @@
       border-radius: 6px;
     }
 
+    /* ── Column drag handle ──────────────────────── */
+    .col-drag-handle {
+      cursor: grab;
+      color: #c5c5c5;
+      font-size: .9rem;
+      padding: 0 5px 0 0;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      flex-shrink: 0;
+      line-height: 1;
+      opacity: .4;
+      transition: opacity .15s;
+    }
+    .col-drag-handle:hover { opacity: 1; }
+    .col-drag-handle:active { cursor: grabbing; color: var(--accent); opacity: 1; }
+    .col-ghost { opacity: .4; box-shadow: none !important; }
+
     /* ── Add-task row ────────────────────────────── */
     .add-row {
       display: flex;
@@ -1437,6 +1455,11 @@
     .my-day-col { border-left: 3px solid #F5A623 !important; }
     .my-day-col .card-hd { background: linear-gradient(135deg, #fff9f0, var(--card-header-bg)); }
     [data-theme="dark"] .my-day-col .card-hd { background: linear-gradient(135deg, rgba(245,166,35,.08), var(--card-header-bg)); }
+
+    /* Mailbox Column */
+    .mailbox-col { border-left: 3px solid #7B68EE !important; }
+    .mailbox-col .card-hd { background: linear-gradient(135deg, #f5f0ff, var(--card-header-bg)); }
+    [data-theme="dark"] .mailbox-col .card-hd { background: linear-gradient(135deg, rgba(123,104,238,.08), var(--card-header-bg)); }
     .my-day-source { font-size: .68rem; color: var(--text-muted); margin-top: 2px; display: block; }
     .my-day-empty { text-align: center; padding: 24px 10px; color: var(--text-muted); font-size: .82rem; line-height: 1.8; }
     /* My Day toggle button on each task */
@@ -2049,6 +2072,7 @@ function initFB() {
     loadLS();
     if (!appData.sections.length) appData = buildInitialData();
     appData = ensureArrays(appData);
+    ensureMailbox();
     render();
     return;
   }
@@ -2061,6 +2085,7 @@ function initFB() {
     loadLS();
     if (!appData.sections.length) appData = buildInitialData();
     appData = ensureArrays(appData);
+    ensureMailbox();
     render();
     return;
   }
@@ -2079,6 +2104,7 @@ function startSync() {
     if (isDragging) return;
     if (snap.exists()) {
       appData = ensureArrays(snap.val());
+      ensureMailbox();
       dot('on');
       render();
       if (firstLoad) listenInbox();
@@ -2086,6 +2112,7 @@ function startSync() {
       var oldRef = firebase.database().ref('dashboards/' + syncKey + '/tasks');
       oldRef.once('value', function(oldSnap) {
         appData = buildInitialData(oldSnap.val() || {});
+        ensureMailbox();
         save();
         listenInbox();
       });
@@ -2108,9 +2135,9 @@ function listenInbox() {
   inboxRef.on('child_added', function(snap) {
     var item = snap.val();
     if (!item || !item.text) { snap.ref.remove(); return; }
-    var secId = item.sectionId || 'sec-0';
-    if (!findSec(secId)) return; // appData not ready — leave item for retry
-    createTask(secId, {
+    var mailbox = getMailboxSec();
+    if (!mailbox) return; // appData not ready — leave item for retry
+    createTask(mailbox.id, {
       text:     item.text,
       desc:     item.desc     || '',
       priority: item.priority || null,
@@ -2144,6 +2171,26 @@ function loadLS() {
 
 function saveLS() {
   try { localStorage.setItem('bozzone-app-v2', JSON.stringify(appData)); } catch (e) {}
+}
+
+/* ================================================================
+   MAILBOX
+   ================================================================ */
+function getMailboxSec() {
+  return (appData.sections || []).filter(function(s) { return s.isMailbox; })[0] || null;
+}
+
+function ensureMailbox() {
+  if (!getMailboxSec()) {
+    appData.sections.push({
+      id: '__mailbox__',
+      title: 'Mailbox',
+      icon: '📬',
+      priority: false,
+      isMailbox: true,
+      tasks: []
+    });
+  }
 }
 
 /* ================================================================
@@ -2310,14 +2357,22 @@ function showNewTaskModal(secId) {
   ntEditSecId  = null;
   ntEditTaskId = null;
   ntPendingSubtasks = [];
-  /* Populate section select */
+  /* Populate section select — mailbox first and selected by default */
   var sel = document.getElementById('ntSection');
   sel.innerHTML = '';
+  var mailbox = getMailboxSec();
+  if (mailbox) {
+    var mbOpt = document.createElement('option');
+    mbOpt.value = mailbox.id;
+    mbOpt.textContent = (mailbox.icon || '\uD83D\uDCEC') + ' ' + mailbox.title;
+    mbOpt.selected = true;
+    sel.appendChild(mbOpt);
+  }
   (appData.sections || []).forEach(function(s) {
+    if (s.isMailbox) return;
     var opt = document.createElement('option');
     opt.value = s.id;
-    opt.textContent = s.title;
-    if (s.id === secId) opt.selected = true;
+    opt.textContent = (s.icon ? s.icon + ' ' : '') + s.title;
     sel.appendChild(opt);
   });
   /* Reset fields */
@@ -2352,13 +2407,13 @@ function showEditTaskModal(secId, taskId) {
   ntEditSecId  = secId;
   ntEditTaskId = taskId;
 
-  /* Populate section select */
+  /* Populate section select — include mailbox, select current section */
   var sel = document.getElementById('ntSection');
   sel.innerHTML = '';
   (appData.sections || []).forEach(function(s) {
     var opt = document.createElement('option');
     opt.value = s.id;
-    opt.textContent = s.title;
+    opt.textContent = (s.icon ? s.icon + ' ' : '') + s.title;
     if (s.id === secId) opt.selected = true;
     sel.appendChild(opt);
   });
@@ -2520,7 +2575,7 @@ function setSearch(text) {
 }
 
 function getFilteredSections() {
-  var secs = appData.sections || [];
+  var secs = (appData.sections || []).filter(function(s) { return !s.isMailbox; });
   /* Group focus filter */
   if (activeGroupFilter) {
     secs = secs.filter(function(sec) { return sec.groupId === activeGroupFilter; });
@@ -3176,7 +3231,15 @@ function render() {
     var mdAddSel = document.createElement('select');
     mdAddSel.className = 'my-day-add-sel';
     mdAddSel.title = 'Section to add task into';
+    var mdMailbox = getMailboxSec();
+    if (mdMailbox) {
+      var mbSelOpt = document.createElement('option');
+      mbSelOpt.value = mdMailbox.id;
+      mbSelOpt.textContent = (mdMailbox.icon || '\uD83D\uDCEC') + ' ' + mdMailbox.title;
+      mdAddSel.appendChild(mbSelOpt);
+    }
     (appData.sections || []).forEach(function(s) {
+      if (s.isMailbox) return;
       var opt = document.createElement('option');
       opt.value = s.id;
       opt.textContent = (s.icon ? s.icon + ' ' : '') + s.title;
@@ -3267,6 +3330,15 @@ function render() {
     /* ── Header ── */
     var hd = document.createElement('div');
     hd.className = 'card-hd';
+
+    /* Column drag handle (not shown for mailbox) */
+    if (!sec.isMailbox) {
+      var colGrip = document.createElement('span');
+      colGrip.className = 'col-drag-handle';
+      colGrip.innerHTML = '&#8942;';
+      colGrip.title = 'Drag to reorder column';
+      hd.appendChild(colGrip);
+    }
 
     /* Collapse button */
     var collapseBtn = document.createElement('button');
@@ -3403,22 +3475,24 @@ function render() {
     badge.textContent = done + '/' + tasks.length;
     actions.appendChild(badge);
 
-    var delBtn = document.createElement('button');
-    delBtn.className = 'sec-del';
-    delBtn.innerHTML = '&times;';
-    delBtn.title = 'Delete column';
-    (function(sid) {
-      delBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        deleteSection(sid);
-      });
-    })(sec.id);
-    actions.appendChild(delBtn);
+    if (!sec.isMailbox) {
+      var delBtn = document.createElement('button');
+      delBtn.className = 'sec-del';
+      delBtn.innerHTML = '&times;';
+      delBtn.title = 'Delete column';
+      (function(sid) {
+        delBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          deleteSection(sid);
+        });
+      })(sec.id);
+      actions.appendChild(delBtn);
+    }
 
     hd.appendChild(actions);
 
-    /* Group pill — only shown when at least one group exists */
-    if ((appData.groups || []).length > 0) {
+    /* Group pill — only shown when at least one group exists (not for mailbox) */
+    if (!sec.isMailbox && (appData.groups || []).length > 0) {
       var grpPill = document.createElement('button');
       grpPill.className = 'sec-group-pill';
       var curGrp = sec.groupId ? findGroup(sec.groupId) : null;
@@ -3838,6 +3912,14 @@ function render() {
     card.appendChild(bd);
     return card;
   } /* end buildSectionCard */
+
+  /* ── Mailbox column (fixed position: right after My Day) ── */
+  var mbSec = getMailboxSec();
+  if (mbSec) {
+    var mbCard = buildSectionCard(mbSec);
+    mbCard.classList.add('mailbox-col');
+    board.appendChild(mbCard);
+  }
 
   /* ── Grouped rendering loop ── */
   var groupedSections = {};   /* groupId → [filtSec, ...] */
@@ -4381,6 +4463,42 @@ function initSortables() {
       }
     });
   });
+
+  /* Column (section) drag-and-drop */
+  var boardEl = document.getElementById('board');
+  if (boardEl) {
+    Sortable.create(boardEl, {
+      handle: '.col-drag-handle',
+      animation: 180,
+      ghostClass: 'col-ghost',
+      draggable: '.card[data-sec-id]',
+      filter: '.mailbox-col',
+      onStart: function() { isDragging = true; },
+      onMove: function(evt) {
+        /* Keep sections below My Day and Mailbox */
+        var rel = evt.related;
+        if (rel && (rel.id === 'myDayCard' || rel.classList.contains('mailbox-col'))) {
+          return false;
+        }
+        return true;
+      },
+      onEnd: function() {
+        isDragging = false;
+        /* Read new DOM order of draggable section cards */
+        var newOrder = [];
+        boardEl.querySelectorAll('.card[data-sec-id]:not(.mailbox-col)').forEach(function(el) {
+          newOrder.push(el.dataset.secId);
+        });
+        /* Rebuild appData.sections: mailbox first, then reordered sections */
+        var secMap = {};
+        (appData.sections || []).forEach(function(s) { secMap[s.id] = s; });
+        var reordered = newOrder.map(function(id) { return secMap[id]; }).filter(Boolean);
+        var mailbox = getMailboxSec();
+        appData.sections = mailbox ? [mailbox].concat(reordered) : reordered;
+        save();
+      }
+    });
+  }
 }
 
 /* ================================================================

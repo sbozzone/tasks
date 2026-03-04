@@ -2081,11 +2081,13 @@ function startSync() {
       appData = ensureArrays(snap.val());
       dot('on');
       render();
+      if (firstLoad) listenInbox();
     } else if (firstLoad) {
       var oldRef = firebase.database().ref('dashboards/' + syncKey + '/tasks');
       oldRef.once('value', function(oldSnap) {
         appData = buildInitialData(oldSnap.val() || {});
         save();
+        listenInbox();
       });
     }
     firstLoad = false;
@@ -2098,7 +2100,6 @@ function startSync() {
   });
 
   document.getElementById('keyLbl').textContent = syncKey;
-  listenInbox();
 }
 
 function listenInbox() {
@@ -2107,7 +2108,9 @@ function listenInbox() {
   inboxRef.on('child_added', function(snap) {
     var item = snap.val();
     if (!item || !item.text) { snap.ref.remove(); return; }
-    createTask(item.sectionId || 'sec-0', {
+    var secId = item.sectionId || 'sec-0';
+    if (!findSec(secId)) return; // appData not ready — leave item for retry
+    createTask(secId, {
       text:     item.text,
       desc:     item.desc     || '',
       priority: item.priority || null,

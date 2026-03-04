@@ -1377,6 +1377,22 @@
       margin-right: 5px; display: inline-block; min-width: 22px; text-align: center;
     }
 
+    /* ── iPhone guide modal steps ───────────────── */
+    .iph-step {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      font-size: .83rem; line-height: 1.5;
+    }
+    .iph-num {
+      flex-shrink: 0; width: 22px; height: 22px;
+      border-radius: 50%; background: var(--accent);
+      color: #fff; font-size: .72rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .iph-detail { font-size: .78rem; color: var(--text-muted); }
+    .iph-detail code { background: var(--hover); padding: 1px 4px; border-radius: 3px; font-size: .74rem; }
+
     /* ═══════════════════════════════════════════════════
        ENHANCE v2 — editable FOCUS, collapse, sort, inline edit
        ═══════════════════════════════════════════════════ */
@@ -1627,6 +1643,7 @@
     <span class="key-label" id="keyLbl" title="Click to change sync key"></span>
     <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
     <button class="kbd-btn"  id="kbdBtn"  title="Keyboard shortcuts">⌨️</button>
+    <button class="kbd-btn"  id="iphoneBtn" title="iPhone Shortcuts setup">📱</button>
     <button class="gear" id="gearBtn" title="Settings">&#9881;</button>
   </div>
 </header>
@@ -1804,6 +1821,86 @@
     </label>
     <button id="ghSave">Save GitHub Settings</button>
     <button id="ghPushNow" style="margin-top:6px;background:none;border:1.5px solid var(--border);color:var(--text-sec)">&#11014; Push to GitHub Now</button>
+  </div>
+</div>
+
+<!-- iPhone Shortcuts guide modal -->
+<div class="ov" id="iphoneOv" style="display:none">
+  <div class="ov-box" style="max-width:560px;max-height:88vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <h2 style="margin:0">📱 iPhone Quick Capture</h2>
+      <button id="iphoneClose" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-muted);line-height:1">&times;</button>
+    </div>
+    <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:14px;line-height:1.5">
+      Add tasks from your iPhone home screen in seconds. Every task lands in <strong>Mailbox</strong> automatically.
+    </p>
+
+    <!-- Inbox URL -->
+    <div style="background:var(--hover);border-radius:8px;padding:12px 14px;margin-bottom:16px">
+      <div style="font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Your Firebase Inbox URL</div>
+      <code id="inboxUrl" style="font-size:.78rem;word-break:break-all;color:var(--accent);line-height:1.5;display:block;margin-bottom:8px"></code>
+      <button id="copyInboxUrl" style="font-size:.78rem;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:var(--card-bg);cursor:pointer;color:var(--text)">Copy URL</button>
+    </div>
+
+    <!-- Steps -->
+    <h3 style="font-size:.88rem;margin-bottom:10px;color:var(--accent)">Build the Shortcut — 3 actions</h3>
+
+    <div class="iph-step">
+      <div class="iph-num">1</div>
+      <div>
+        <strong>Ask for Input</strong><br>
+        <span class="iph-detail">Prompt: <em>"What's the task?"</em> · Type: Text · Save as <code>TaskTitle</code></span>
+      </div>
+    </div>
+
+    <div class="iph-step">
+      <div class="iph-num">2</div>
+      <div>
+        <strong>Dictionary</strong><br>
+        <span class="iph-detail">Add one key: <code>text</code> → <code>TaskTitle</code> (variable) · Save as <code>Payload</code></span>
+        <div style="margin-top:6px;font-size:.76rem;color:var(--text-muted)">
+          <em>Optional:</em> also add key <code>priority</code> with value <code>high</code>, <code>medium</code>, or <code>low</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="iph-step">
+      <div class="iph-num">3</div>
+      <div>
+        <strong>Get Contents of URL</strong><br>
+        <span class="iph-detail">URL: <em>paste your inbox URL above</em> · Method: <code>POST</code> · Request Body: <code>JSON</code> · Body: <code>Payload</code></span>
+      </div>
+    </div>
+
+    <div class="iph-step" style="border-bottom:none">
+      <div class="iph-num">+</div>
+      <div>
+        <strong>Show Notification</strong> <span style="color:var(--text-muted);font-size:.78rem">(optional)</span><br>
+        <span class="iph-detail">Message: <em>"Task added to Mailbox ✓"</em></span>
+      </div>
+    </div>
+
+    <div style="height:1px;background:var(--border);margin:14px 0"></div>
+
+    <!-- Add to home screen -->
+    <h3 style="font-size:.88rem;margin-bottom:8px;color:var(--accent)">Add to Home Screen</h3>
+    <p style="font-size:.82rem;color:var(--text);line-height:1.6;margin:0">
+      In the Shortcut editor tap the <strong>share icon → Add to Home Screen</strong>. Name it <em>Quick Task</em> and pick an icon (📬 works great). Tap the icon any time to capture a task in under 10 seconds.
+    </p>
+
+    <div style="height:1px;background:var(--border);margin:14px 0"></div>
+
+    <!-- Payload reference -->
+    <details style="font-size:.8rem">
+      <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin-bottom:6px">Full payload reference (for Zapier, Make, Scriptable, etc.)</summary>
+      <pre style="background:var(--hover);border-radius:6px;padding:10px;font-size:.76rem;overflow-x:auto;margin-top:8px;line-height:1.6">{
+  "text":     "Task title (required)",
+  "priority": "high | medium | low",
+  "desc":     "Optional description",
+  "dueDate":  "YYYY-MM-DD"
+}</pre>
+      <p style="color:var(--text-muted);margin:6px 0 0;line-height:1.5">All tasks go to <strong>Mailbox</strong> — <code>sectionId</code> is no longer used.</p>
+    </details>
   </div>
 </div>
 
@@ -4691,6 +4788,30 @@ document.getElementById('keyIn').addEventListener('keydown', function(e) {
 
 document.getElementById('gearBtn').addEventListener('click', showOv);
 document.getElementById('keyLbl').addEventListener('click', showOv);
+
+/* ── iPhone guide modal ── */
+function showIphoneGuide() {
+  var dbUrl = (firebaseConfig.databaseURL || '').replace(/\/$/, '');
+  var key   = syncKey || 'YOUR-SYNC-KEY';
+  var url   = dbUrl + '/dashboards/' + key + '/inbox.json';
+  document.getElementById('inboxUrl').textContent = url;
+  document.getElementById('iphoneOv').style.display = 'flex';
+}
+document.getElementById('iphoneBtn').addEventListener('click', showIphoneGuide);
+document.getElementById('iphoneClose').addEventListener('click', function() {
+  document.getElementById('iphoneOv').style.display = 'none';
+});
+document.getElementById('iphoneOv').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('copyInboxUrl').addEventListener('click', function() {
+  var url = document.getElementById('inboxUrl').textContent;
+  navigator.clipboard.writeText(url).then(function() {
+    var btn = document.getElementById('copyInboxUrl');
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy URL'; }, 2000);
+  });
+});
 
 document.getElementById('ghSave').addEventListener('click', function() {
   localStorage.setItem('bozzone-gh-token',  document.getElementById('ghToken').value.trim());

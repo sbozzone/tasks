@@ -200,6 +200,18 @@
     @media (min-width: 700px)  { .grid { grid-template-columns: repeat(2,1fr); } body { padding: 20px; } header h1 { font-size: 1.35rem; } }
     @media (min-width: 1100px) { .grid { grid-template-columns: repeat(3,1fr); } }
 
+    /* ── Group wrapper (spans full board width, sub-grid for sections) ── */
+    .group-wrapper {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    @media (min-width: 700px)  { .group-wrapper { grid-template-columns: repeat(2,1fr); } }
+    @media (min-width: 1100px) { .group-wrapper { grid-template-columns: repeat(3,1fr); } }
+    .group-wrapper .group-header { grid-column: 1 / -1; }
+    .group-wrapper-ghost { opacity: .38; }
+
     /* ── Cards ───────────────────────────────────── */
     .card {
       background: var(--card-bg);
@@ -1476,7 +1488,15 @@
       font-weight: 600; font-size: .85rem; color: var(--accent);
       user-select: none;
     }
-    .group-header:first-child { margin-top: 0; }
+    .group-wrapper .group-header { margin-top: 0; }
+    .group-drag-handle {
+      cursor: grab; color: var(--accent); opacity: .4;
+      font-size: .85rem; line-height: 1; flex-shrink: 0;
+      padding: 0 2px; touch-action: none; user-select: none;
+      -webkit-user-select: none; transition: opacity .15s;
+    }
+    .group-drag-handle:hover { opacity: 1; }
+    .group-drag-handle:active { cursor: grabbing; opacity: 1; }
     .group-collapse-btn {
       background: none; border: none; cursor: pointer;
       font-size: .9rem; padding: 0 2px; color: var(--accent);
@@ -2843,6 +2863,13 @@ function buildGroupHeader(g, count) {
     });
   })(g.id, g.name);
 
+  /* Group drag handle — prepended before collapse button */
+  var grpGrip = document.createElement('span');
+  grpGrip.className = 'group-drag-handle';
+  grpGrip.innerHTML = '&#8942;';
+  grpGrip.title = 'Drag to reorder group';
+
+  hdr.appendChild(grpGrip);
   hdr.appendChild(colBtn);
   hdr.appendChild(nameSpan);
   hdr.appendChild(countSpan);
@@ -3933,13 +3960,17 @@ function render() {
     }
   });
 
-  /* Named groups first (in appData.groups order) */
+  /* Named groups — each wrapped in a draggable container */
   (appData.groups || []).forEach(function(g) {
     var members = groupedSections[g.id] || [];
-    board.appendChild(buildGroupHeader(g, members.length));
+    var wrapper = document.createElement('div');
+    wrapper.className = 'group-wrapper';
+    wrapper.dataset.groupId = g.id;
+    wrapper.appendChild(buildGroupHeader(g, members.length));
     if (!collapsedGroups[g.id]) {
-      members.forEach(function(fs) { board.appendChild(buildSectionCard(fs)); });
+      members.forEach(function(fs) { wrapper.appendChild(buildSectionCard(fs)); });
     }
+    board.appendChild(wrapper);
   });
 
   /* Ungrouped sections below */
@@ -4464,41 +4495,90 @@ function initSortables() {
     });
   });
 
-  /* Column (section) drag-and-drop */
   var boardEl = document.getElementById('board');
-  if (boardEl) {
-    Sortable.create(boardEl, {
+  if (!boardEl) return;
+
+  /* Shared handler: rebuild appData.sections order + groupId from DOM after any section move */
+  function commitSectionOrder() {
+    isDragging = false;
+    var newIds = [];
+    var secMap = {};
+    (appData.sections || []).forEach(function(s) { secMap[s.id] = s; });
+
+    /* Sections inside group wrappers — update their groupId */
+    boardEl.querySelectorAll('.group-wrapper[data-group-id]').forEach(function(wrapper) {
+      var gid = wrapper.dataset.groupId;
+      Array.prototype.slice.call(wrapper.children).forEach(function(el) {
+        if (el.dataset.secId && !el.classList.contains('mailbox-col')) {
+          var s = secMap[el.dataset.secId];
+          if (s) { s.groupId = gid; newIds.push(s.id); }
+        }
+      });
+    });
+
+    /* Ungrouped sections — direct .card children of board (not wrappers, not fixed) */
+    Array.prototype.slice.call(boardEl.children).forEach(function(el) {
+      if (el.dataset.secId && !el.classList.contains('mailbox-col')) {
+        var s = secMap[el.dataset.secId];
+        if (s) { s.groupId = null; newIds.push(s.id); }
+      }
+    });
+
+    var mailbox = getMailboxSec();
+    var reordered = newIds.map(function(id) { return secMap[id]; }).filter(Boolean);
+    appData.sections = mailbox ? [mailbox].concat(reordered) : reordered;
+    save();
+  }
+
+  /* Group (wrapper) drag-and-drop — reorders appData.groups */
+  Sortable.create(boardEl, {
+    handle: '.group-drag-handle',
+    animation: 180,
+    ghostClass: 'group-wrapper-ghost',
+    draggable: '.group-wrapper',
+    onStart: function() { isDragging = true; },
+    onEnd: function() {
+      isDragging = false;
+      var newOrder = [];
+      Array.prototype.slice.call(boardEl.children).forEach(function(el) {
+        if (el.dataset.groupId) newOrder.push(el.dataset.groupId);
+      });
+      var grpMap = {};
+      (appData.groups || []).forEach(function(g) { grpMap[g.id] = g; });
+      appData.groups = newOrder.map(function(id) { return grpMap[id]; }).filter(Boolean);
+      save();
+    }
+  });
+
+  /* Section card drag-and-drop within/between group wrappers */
+  document.querySelectorAll('.group-wrapper').forEach(function(wrapper) {
+    Sortable.create(wrapper, {
+      group: 'sections',
       handle: '.col-drag-handle',
       animation: 180,
       ghostClass: 'col-ghost',
       draggable: '.card[data-sec-id]',
-      filter: '.mailbox-col',
       onStart: function() { isDragging = true; },
-      onMove: function(evt) {
-        /* Keep sections below My Day and Mailbox */
-        var rel = evt.related;
-        if (rel && (rel.id === 'myDayCard' || rel.classList.contains('mailbox-col'))) {
-          return false;
-        }
-        return true;
-      },
-      onEnd: function() {
-        isDragging = false;
-        /* Read new DOM order of draggable section cards */
-        var newOrder = [];
-        boardEl.querySelectorAll('.card[data-sec-id]:not(.mailbox-col)').forEach(function(el) {
-          newOrder.push(el.dataset.secId);
-        });
-        /* Rebuild appData.sections: mailbox first, then reordered sections */
-        var secMap = {};
-        (appData.sections || []).forEach(function(s) { secMap[s.id] = s; });
-        var reordered = newOrder.map(function(id) { return secMap[id]; }).filter(Boolean);
-        var mailbox = getMailboxSec();
-        appData.sections = mailbox ? [mailbox].concat(reordered) : reordered;
-        save();
-      }
+      onEnd: commitSectionOrder
     });
-  }
+  });
+
+  /* Ungrouped section card drag-and-drop (direct board children) */
+  Sortable.create(boardEl, {
+    group: 'sections',
+    handle: '.col-drag-handle',
+    animation: 180,
+    ghostClass: 'col-ghost',
+    draggable: '.card[data-sec-id]',
+    filter: '.mailbox-col',
+    onStart: function() { isDragging = true; },
+    onMove: function(evt) {
+      var rel = evt.related;
+      if (rel && (rel.id === 'myDayCard' || rel.classList.contains('mailbox-col'))) return false;
+      return true;
+    },
+    onEnd: commitSectionOrder
+  });
 }
 
 /* ================================================================

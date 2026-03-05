@@ -1589,6 +1589,7 @@
 <div class="ov" id="ov" style="display:none">
   <div class="ov-box">
     <h2>Sync Setup</h2>
+    <div id="verLabel" style="margin:-6px 0 10px;color:#888;font-size:.72rem">Version</div>
     <p>Enter a sync key below. Use the <strong>same key on every device</strong> to keep tasks in sync.</p>
     <input type="text" id="keyIn" placeholder="e.g. bozzone42" autocomplete="off" autocapitalize="off" spellcheck="false">
     <button id="keyGo">Start Syncing</button>
@@ -1632,6 +1633,7 @@ var configured = firebaseConfig.apiKey !== 'YOUR_API_KEY';
    CONSTANTS
    ================================================================ */
 var TAG_COLORS = ['#4A90D9','#5CC1A9','#D97757','#9B59B6','#E74C3C','#F39C12','#1ABC9C','#34495E'];
+var APP_VERSION = '2026-03-05.1';
 
 var DEFAULT_TAGS = [
   { id: 'tag-work',     name: 'Work',     color: '#4A90D9' },
@@ -4189,6 +4191,7 @@ function showOv() {
   var inp = document.getElementById('keyIn');
   inp.value = syncKey || '';
   inp.focus();
+  document.getElementById('verLabel').textContent = 'Version ' + APP_VERSION;
   document.getElementById('ghToken').value  = localStorage.getItem('bozzone-gh-token')  || '';
   document.getElementById('ghRepo').value   = localStorage.getItem('bozzone-gh-repo')   || '';
   document.getElementById('ghPath').value   = localStorage.getItem('bozzone-gh-path')   || '';

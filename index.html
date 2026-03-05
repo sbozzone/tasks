@@ -4145,6 +4145,7 @@ function initSortables() {
     ghostClass: 'col-ghost',
     draggable: '.card[data-sec-id]',
     filter: '.mailbox-col',
+    preventOnFilter: false,
     onStart: function() { isDragging = true; },
     onMove: function(evt) {
       var rel = evt.related;

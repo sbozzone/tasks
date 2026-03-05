@@ -2031,16 +2031,20 @@ function ensureMailbox() {
 /* ================================================================
    SHORTCUTS (URL ADD TO MAILBOX)
    Supports: ?task=, ?mb=, ?mailbox=, ?inbox=
+   Optional: ?token= (idempotency per Shortcut run)
    ================================================================ */
-function readShortcutTask() {
+function readShortcutParams() {
   var s = location.search || '';
-  if (!s || s.indexOf('=') === -1) return '';
+  if (!s || s.indexOf('=') === -1) return { text: '', token: '', raw: '' };
   var params = new URLSearchParams(s);
-  return (params.get('task') ||
-          params.get('mb') ||
-          params.get('mailbox') ||
-          params.get('inbox') ||
-          '').trim();
+  var text = (params.get('task') ||
+              params.get('mb') ||
+              params.get('mailbox') ||
+              params.get('inbox') ||
+              '').trim();
+  var cleanup = (params.get('cleanup') || '').trim();
+  var token = (params.get('token') || '').trim();
+  return { text: text, cleanup: cleanup, token: token, raw: s };
 }
 
 function clearShortcutParams() {
@@ -2052,6 +2056,37 @@ function clearShortcutParams() {
     }
   } catch (e) {}
   history.replaceState(null, '', base);
+}
+
+function markShortcutSeen(p) {
+  try {
+    var key = p.token ? ('t:' + p.token) : ('q:' + p.raw);
+    var now = Date.now();
+    var list = JSON.parse(localStorage.getItem('bozzone-shortcut-seen') || '[]');
+    if (!Array.isArray(list)) list = [];
+
+    /* prune old entries (keep 50, and keep only last 7 days) */
+    list = list.filter(function(x) {
+      return x && x.k && x.ts && (now - x.ts) < (7 * 24 * 60 * 60 * 1000);
+    });
+
+    var found = list.find(function(x) { return x.k === key; });
+    if (found) {
+      /* If no token, allow repeat after 10 minutes */
+      if (!p.token && (now - found.ts) > (10 * 60 * 1000)) {
+        found.ts = now;
+        localStorage.setItem('bozzone-shortcut-seen', JSON.stringify(list.slice(-50)));
+        return true;
+      }
+      return false;
+    }
+
+    list.push({ k: key, ts: now });
+    localStorage.setItem('bozzone-shortcut-seen', JSON.stringify(list.slice(-50)));
+    return true;
+  } catch (e) {
+    return true; /* fail open */
+  }
 }
 
 function addMailboxTaskFromShortcut(text) {
@@ -2078,6 +2113,27 @@ function addMailboxTaskFromShortcut(text) {
   var mailbox = getMailboxSec();
   if (!mailbox) return false;
   createTask(mailbox.id, { text: t });
+  return true;
+}
+
+function cleanupMailboxByText(text) {
+  var t = (text || '').trim();
+  if (!t) return false;
+  var lower = t.toLowerCase();
+  if (lower === '[provided input]' || lower === 'provided input') return false;
+
+  ensureMailbox();
+  var mailbox = getMailboxSec();
+  if (!mailbox) return false;
+
+  var before = mailbox.tasks.length;
+  mailbox.tasks = mailbox.tasks.filter(function(task) {
+    return ((task.text || '').trim() !== t);
+  });
+  if (mailbox.tasks.length !== before) {
+    save();
+    showToast('Mailbox cleaned');
+  }
   return true;
 }
 
@@ -4330,9 +4386,15 @@ initFB();
 
 /* Handle iPhone Shortcuts (URL add) */
 (function() {
-  var task = readShortcutTask();
-  if (task) {
-    if (addMailboxTaskFromShortcut(task)) clearShortcutParams();
+  var p = readShortcutParams();
+  if (p && p.cleanup) {
+    if (markShortcutSeen(p) && cleanupMailboxByText(p.cleanup)) {
+      clearShortcutParams();
+    }
+  } else if (p && p.text) {
+    if (markShortcutSeen(p) && addMailboxTaskFromShortcut(p.text)) {
+      clearShortcutParams();
+    }
   }
 })();
 

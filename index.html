@@ -2029,6 +2029,50 @@ function ensureMailbox() {
 }
 
 /* ================================================================
+   SHORTCUTS (URL ADD TO MAILBOX)
+   Supports: ?task=, ?mb=, ?mailbox=, ?inbox=
+   ================================================================ */
+function readShortcutTask() {
+  var s = location.search || '';
+  if (!s || s.indexOf('=') === -1) return '';
+  var params = new URLSearchParams(s);
+  return (params.get('task') ||
+          params.get('mb') ||
+          params.get('mailbox') ||
+          params.get('inbox') ||
+          '').trim();
+}
+
+function clearShortcutParams() {
+  if (!history.replaceState) return;
+  var base = location.pathname + location.hash;
+  try {
+    if (location.origin && location.origin !== 'null') {
+      base = location.origin + location.pathname + location.hash;
+    }
+  } catch (e) {}
+  history.replaceState(null, '', base);
+}
+
+function addMailboxTaskFromShortcut(text) {
+  var t = (text || '').trim();
+  if (!t) return false;
+
+  if (fbReady && syncKey && window.firebase && firebase.database) {
+    try {
+      firebase.database().ref('dashboards/' + syncKey + '/inbox').push({ text: t });
+      return true;
+    } catch (e) { /* fall back to local add */ }
+  }
+
+  ensureMailbox();
+  var mailbox = getMailboxSec();
+  if (!mailbox) return false;
+  createTask(mailbox.id, { text: t });
+  return true;
+}
+
+/* ================================================================
    TASK CRUD
    ================================================================ */
 function addTask(secId, text) {
@@ -4274,6 +4318,14 @@ if (!appData.sections || !appData.sections.length) {
 appData = ensureArrays(appData);   /* ensure groups[] and groupId fields exist */
 render();
 initFB();
+
+/* Handle iPhone Shortcuts (URL add) */
+(function() {
+  var task = readShortcutTask();
+  if (task) {
+    if (addMailboxTaskFromShortcut(task)) clearShortcutParams();
+  }
+})();
 
 /* Service worker */
 if ('serviceWorker' in navigator) {

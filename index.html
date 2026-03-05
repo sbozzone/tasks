@@ -4143,9 +4143,7 @@ function initSortables() {
     handle: '.col-drag-handle',
     animation: 180,
     ghostClass: 'col-ghost',
-    draggable: '.card[data-sec-id]',
-    filter: '.mailbox-col',
-    preventOnFilter: false,
+    draggable: '.card[data-sec-id]:not(.mailbox-col)',
     onStart: function() { isDragging = true; },
     onMove: function(evt) {
       var rel = evt.related;

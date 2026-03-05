@@ -1453,7 +1453,7 @@
 <body>
 
 <header>
-  <h1>Bozzone Tasks</h1>
+  <h1>Bozzone Tasks <span id="verBadge" style="margin-left:8px;color:#222;font-size:.78rem;font-weight:700;letter-spacing:.02em;background:#f0eee9;border:1px solid #e0ded7;padding:2px 6px;border-radius:10px;vertical-align:middle">Version</span></h1>
   <div class="hdr-right">
     <button class="ur-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>&#8617;</button>
     <button class="ur-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled>&#8618;</button>
@@ -1590,6 +1590,7 @@
   <div class="ov-box">
     <h2>Sync Setup</h2>
     <div id="verLabel" style="margin:-4px 0 12px;color:#222;font-size:1rem;font-weight:700;letter-spacing:.02em">Version</div>
+    <div id="verLabelSmall" style="margin:-6px 0 6px;color:#444;font-size:.82rem;font-weight:600;letter-spacing:.02em">Version</div>
     <p>Enter a sync key below. Use the <strong>same key on every device</strong> to keep tasks in sync.</p>
     <input type="text" id="keyIn" placeholder="e.g. bozzone42" autocomplete="off" autocapitalize="off" spellcheck="false">
     <button id="keyGo">Start Syncing</button>
@@ -1639,6 +1640,10 @@ var APP_VERSION = '2026-03-05.1';
 setTimeout(function() {
   var v = document.getElementById('verLabel');
   if (v) v.textContent = 'Version ' + APP_VERSION;
+  var vs = document.getElementById('verLabelSmall');
+  if (vs) vs.textContent = 'Version ' + APP_VERSION;
+  var vb = document.getElementById('verBadge');
+  if (vb) vb.textContent = 'v' + APP_VERSION;
 }, 0);
 
 var DEFAULT_TAGS = [
@@ -4168,6 +4173,8 @@ function showOv() {
   inp.value = syncKey || '';
   inp.focus();
   document.getElementById('verLabel').textContent = 'Version ' + APP_VERSION;
+  document.getElementById('verLabelSmall').textContent = 'Version ' + APP_VERSION;
+  document.getElementById('verBadge').textContent = 'v' + APP_VERSION;
   document.getElementById('ghToken').value  = localStorage.getItem('bozzone-gh-token')  || '';
   document.getElementById('ghRepo').value   = localStorage.getItem('bozzone-gh-repo')   || '';
   document.getElementById('ghPath').value   = localStorage.getItem('bozzone-gh-path')   || '';

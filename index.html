@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -706,58 +706,6 @@
       margin-top: 8px; font-family: inherit;
     }
 
-    /* ── CSV Import Modal ────────────────────────── */
-    .csv-ov {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 20px;
-    }
-    .csv-ov.show { display: flex; }
-    .csv-box {
-      background: #fff;
-      border-radius: 14px;
-      padding: 22px 18px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 8px 32px rgba(0,0,0,.2);
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    .csv-box h2 { color: var(--accent); margin-bottom: 6px; font-size: 1.05rem; }
-    .csv-box p { font-size: .82rem; color: var(--text-sec); margin-bottom: 12px; line-height: 1.5; }
-    .csv-sec-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 10px; border-radius: 6px; margin-bottom: 4px;
-      font-size: .84rem;
-    }
-    .csv-sec-item.new-sec  { background: #f0fff4; }
-    .csv-sec-item.exist-sec { background: #f5f4ef; }
-    .csv-sec-badge {
-      font-size: .68rem; padding: 2px 8px; border-radius: 10px;
-      font-weight: 600; white-space: nowrap; flex-shrink: 0; margin-left: 8px;
-    }
-    .csv-sec-badge.new   { background: #4CAF50; color: #fff; }
-    .csv-sec-badge.exist { background: var(--accent); color: #fff; }
-    .csv-hint {
-      font-size: .76rem; color: var(--text-muted);
-      background: #f8f8f8; border-radius: 6px;
-      padding: 8px 10px; margin-bottom: 12px; line-height: 1.5;
-    }
-    .csv-hint code { font-size: .74rem; background: #eee; padding: 1px 4px; border-radius: 3px; }
-    .csv-actions { display: flex; gap: 8px; margin-top: 14px; }
-    .csv-actions button {
-      flex: 1; padding: 10px; border-radius: 6px;
-      font-size: .86rem; font-family: inherit;
-      cursor: pointer; font-weight: 600;
-    }
-    .csv-btn-confirm { background: var(--accent); color: #fff; border: none; }
-    .csv-btn-confirm:active { opacity: .85; }
-    .csv-btn-cancel  { background: none; border: 1.5px solid var(--border); color: var(--text-sec); }
-
     /* ── Search Bar ──────────────────────────────── */
     .search-wrap {
       display: flex;
@@ -1075,8 +1023,7 @@
     [data-theme="dark"] .ov-box,
     [data-theme="dark"] .nt-box,
     [data-theme="dark"] .tm-box,
-    [data-theme="dark"] .tp-box,
-    [data-theme="dark"] .csv-box  { background: var(--card-bg); color: var(--text); }
+    [data-theme="dark"] .tp-box { background: var(--card-bg); color: var(--text); }
     [data-theme="dark"] .nt-field input,
     [data-theme="dark"] .nt-field textarea,
     [data-theme="dark"] .nt-field select { background: #111110; color: var(--text); border-color: var(--border); }
@@ -1240,118 +1187,6 @@
     [data-theme="dark"] .task-notes { border-left-color: var(--border); }
 
     /* ══════════════════════════════════════════════
-       BULK SELECTION
-       ══════════════════════════════════════════════ */
-    .task-select-cb {
-      display: none; margin: 3px 0 0 0;
-      width: 16px; height: 16px;
-      accent-color: var(--accent);
-      cursor: pointer; flex-shrink: 0;
-    }
-    body.bulk-mode .task-select-cb  { display: block; }
-    body.bulk-mode .drag-handle     { display: none; }
-    body.bulk-mode .task            { cursor: default; }
-    .task.bulk-selected             { background: var(--accent-light) !important; border-radius: 5px; }
-    [data-theme="dark"] .task.bulk-selected { background: #3d2010 !important; }
-
-    .bulk-bar {
-      position: fixed;
-      bottom: calc(18px + var(--safe-bottom)); left: 50%;
-      transform: translateX(-50%) translateY(110px);
-      background: #1f1f1e; color: #fff;
-      border-radius: 14px; padding: 10px 14px;
-      display: flex; align-items: center; gap: 9px;
-      box-shadow: 0 6px 28px rgba(0,0,0,.45);
-      transition: transform .3s ease; z-index: 600;
-      font-size: .81rem; white-space: nowrap;
-    }
-    .bulk-bar.show { transform: translateX(-50%) translateY(0); }
-    [data-theme="dark"] .bulk-bar { background: #2e2c28; }
-    .bulk-count { font-weight: 700; color: var(--accent); }
-    .bulk-sep   { width: 1px; height: 20px; background: #444; flex-shrink: 0; }
-    .bulk-action-btn {
-      background: none; border: none; color: #ccc;
-      font-size: .79rem; cursor: pointer;
-      padding: 4px 8px; border-radius: 6px;
-      font-family: inherit; transition: background .15s, color .15s;
-    }
-    .bulk-action-btn:hover        { background: rgba(255,255,255,.12); color: #fff; }
-    .bulk-action-btn.danger:hover { background: rgba(231,76,60,.2); color: #ff8070; }
-    .bulk-move-sel {
-      background: #2a2a28; border: 1px solid #555;
-      color: #ddd; border-radius: 6px; padding: 4px 8px;
-      font-size: .76rem; font-family: inherit;
-      cursor: pointer; outline: none; max-width: 120px;
-    }
-    .bulk-cancel-btn {
-      background: none; border: none; color: #666;
-      font-size: 1.1rem; cursor: pointer; padding: 0 3px; line-height: 1;
-    }
-    .bulk-cancel-btn:hover { color: #aaa; }
-
-    /* ══════════════════════════════════════════════
-       TASK TEMPLATES MODAL
-       ══════════════════════════════════════════════ */
-    .tpl-ov {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.5);
-      display: none; align-items: center;
-      justify-content: center; z-index: 1100; padding: 20px;
-    }
-    .tpl-ov.show { display: flex; }
-    .tpl-box {
-      background: #fff; border-radius: 14px;
-      padding: 22px 18px; max-width: 420px; width: 100%;
-      box-shadow: 0 8px 32px rgba(0,0,0,.22);
-      max-height: 88vh; overflow-y: auto;
-    }
-    [data-theme="dark"] .tpl-box { background: var(--card-bg); color: var(--text); }
-    .tpl-box h2 { color: var(--accent); font-size: 1.05rem; margin-bottom: 14px; }
-    .tpl-item {
-      display: flex; align-items: flex-start; gap: 8px;
-      padding: 10px 10px; border-radius: 8px;
-      border: 1.5px solid var(--border); margin-bottom: 8px;
-      transition: border-color .15s, background .15s;
-    }
-    .tpl-item:hover { border-color: var(--accent); background: var(--accent-light); }
-    .tpl-item-body { flex: 1; cursor: pointer; }
-    .tpl-item-title { font-size: .88rem; font-weight: 600; margin-bottom: 2px; }
-    .tpl-item-meta  { font-size: .72rem; color: var(--text-muted); }
-    .tpl-item-del {
-      background: none; border: none; color: #ccc;
-      font-size: 1rem; cursor: pointer; padding: 0 4px; flex-shrink: 0;
-    }
-    .tpl-item-del:hover { color: #e74c3c; }
-    .tpl-empty { font-size: .84rem; color: var(--text-muted); font-style: italic;
-                 padding: 14px 0; text-align: center; }
-    .tpl-section-lbl {
-      font-size: .76rem; font-weight: 600; color: var(--text-sec);
-      text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px;
-    }
-    .tpl-divider { height: 1px; background: var(--border); margin: 14px 0; }
-    .tpl-save-row { display: flex; gap: 6px; margin-bottom: 8px; }
-    .tpl-save-input {
-      flex: 1; padding: 9px 11px; border: 1.5px solid #ddd;
-      border-radius: 7px; font-size: .86rem; font-family: inherit;
-      outline: none; background: #fff; color: var(--text);
-    }
-    [data-theme="dark"] .tpl-save-input { background: #111110; border-color: var(--border); color: var(--text); }
-    .tpl-save-input:focus { border-color: var(--accent); }
-    .tpl-save-btn {
-      background: var(--accent); color: #fff; border: none;
-      border-radius: 7px; padding: 9px 15px; font-size: .86rem;
-      cursor: pointer; font-weight: 600; font-family: inherit;
-    }
-    .tpl-save-btn:active { opacity: .85; }
-    .tpl-pick-hint { font-size: .78rem; color: var(--text-sec); margin-bottom: 6px; }
-    .tpl-close {
-      width: 100%; padding: 10px; background: none;
-      border: 1.5px solid var(--border); border-radius: 8px;
-      font-size: .88rem; cursor: pointer; color: var(--text-sec);
-      margin-top: 8px; font-family: inherit;
-    }
-
-    /* ══════════════════════════════════════════════
        KEYBOARD SHORTCUTS HINT PANEL
        ══════════════════════════════════════════════ */
     .kbd-btn {
@@ -1377,23 +1212,6 @@
       margin-right: 5px; display: inline-block; min-width: 22px; text-align: center;
     }
 
-    /* ── iPhone guide modal steps ───────────────── */
-    .iph-step {
-      display: flex; gap: 12px; align-items: flex-start;
-      padding: 10px 0; border-bottom: 1px solid var(--border);
-      font-size: .83rem; line-height: 1.5;
-    }
-    .iph-num {
-      flex-shrink: 0; width: 22px; height: 22px;
-      border-radius: 50%; background: var(--accent);
-      color: #fff; font-size: .72rem; font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-      margin-top: 1px;
-    }
-    .iph-detail { font-size: .78rem; color: var(--text-muted); }
-    .iph-detail code { background: var(--hover); padding: 1px 4px; border-radius: 3px; font-size: .74rem; }
-
-    /* ═══════════════════════════════════════════════════
        ENHANCE v2 — editable FOCUS, collapse, sort, inline edit
        ═══════════════════════════════════════════════════ */
 
@@ -1643,7 +1461,6 @@
     <span class="key-label" id="keyLbl" title="Click to change sync key"></span>
     <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
     <button class="kbd-btn"  id="kbdBtn"  title="Keyboard shortcuts">⌨️</button>
-    <button class="kbd-btn"  id="iphoneBtn" title="iPhone Shortcuts setup">📱</button>
     <button class="gear" id="gearBtn" title="Settings">&#9881;</button>
   </div>
 </header>
@@ -1681,29 +1498,12 @@
 
 <div class="grid" id="board"></div>
 
-<!-- Bulk action floating bar -->
-<div class="bulk-bar" id="bulkBar">
-  <span class="bulk-count" id="bulkCount">0 selected</span>
-  <span class="bulk-sep"></span>
-  <select class="bulk-move-sel" id="bulkMoveSel" title="Move to section"></select>
-  <button class="bulk-action-btn" id="bulkMoveBtn">Move</button>
-  <span class="bulk-sep"></span>
-  <button class="bulk-action-btn" id="bulkHighBtn" title="Set High priority">🔴 High</button>
-  <button class="bulk-action-btn" id="bulkMedBtn"  title="Set Medium priority">🟡 Med</button>
-  <button class="bulk-action-btn" id="bulkDoneBtn" title="Mark done">✓ Done</button>
-  <span class="bulk-sep"></span>
-  <button class="bulk-action-btn danger" id="bulkDelBtn">🗑 Delete</button>
-  <button class="bulk-cancel-btn" id="bulkCancelBtn" title="Exit bulk mode">&times;</button>
-</div>
-
 <!-- Keyboard shortcuts panel -->
 <div class="kbd-panel" id="kbdPanel">
   <div class="kbd-panel-title">⌨️ Shortcuts</div>
   <div><kbd>N</kbd> New task</div>
   <div><kbd>/</kbd> Search</div>
   <div><kbd>D</kbd> Dark mode</div>
-  <div><kbd>T</kbd> Templates</div>
-  <div><kbd>B</kbd> Bulk select</div>
   <div><kbd>Ctrl</kbd><kbd>Z</kbd> Undo</div>
   <div><kbd>Ctrl</kbd><kbd>Y</kbd> Redo</div>
   <div><kbd>Esc</kbd> Close / cancel</div>
@@ -1723,14 +1523,6 @@
 <!-- Tag management overlay -->
 <div class="tm-ov" id="tmOv">
   <div class="tm-box" id="tmBox"></div>
-</div>
-
-<!-- Hidden CSV file input -->
-<input type="file" id="csvFileInput" accept=".csv" style="display:none">
-
-<!-- CSV Import preview overlay -->
-<div class="csv-ov" id="csvOv">
-  <div class="csv-box" id="csvBox"></div>
 </div>
 
 <!-- New Task Modal -->
@@ -1793,11 +1585,6 @@
   </div>
 </div>
 
-<!-- Task Templates Modal -->
-<div class="tpl-ov" id="tplOv">
-  <div class="tpl-box" id="tplBox"></div>
-</div>
-
 <!-- Sync-key overlay -->
 <div class="ov" id="ov" style="display:none">
   <div class="ov-box">
@@ -1821,86 +1608,6 @@
     </label>
     <button id="ghSave">Save GitHub Settings</button>
     <button id="ghPushNow" style="margin-top:6px;background:none;border:1.5px solid var(--border);color:var(--text-sec)">&#11014; Push to GitHub Now</button>
-  </div>
-</div>
-
-<!-- iPhone Shortcuts guide modal -->
-<div class="ov" id="iphoneOv" style="display:none">
-  <div class="ov-box" style="max-width:560px;max-height:88vh;overflow-y:auto">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-      <h2 style="margin:0">📱 iPhone Quick Capture</h2>
-      <button id="iphoneClose" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-muted);line-height:1">&times;</button>
-    </div>
-    <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:14px;line-height:1.5">
-      Add tasks from your iPhone home screen in seconds. Every task lands in <strong>Mailbox</strong> automatically.
-    </p>
-
-    <!-- Inbox URL -->
-    <div style="background:var(--hover);border-radius:8px;padding:12px 14px;margin-bottom:16px">
-      <div style="font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Your Firebase Inbox URL</div>
-      <code id="inboxUrl" style="font-size:.78rem;word-break:break-all;color:var(--accent);line-height:1.5;display:block;margin-bottom:8px"></code>
-      <button id="copyInboxUrl" style="font-size:.78rem;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:var(--card-bg);cursor:pointer;color:var(--text)">Copy URL</button>
-    </div>
-
-    <!-- Steps -->
-    <h3 style="font-size:.88rem;margin-bottom:10px;color:var(--accent)">Build the Shortcut — 3 actions</h3>
-
-    <div class="iph-step">
-      <div class="iph-num">1</div>
-      <div>
-        <strong>Ask for Input</strong><br>
-        <span class="iph-detail">Prompt: <em>"What's the task?"</em> · Type: Text · Save as <code>TaskTitle</code></span>
-      </div>
-    </div>
-
-    <div class="iph-step">
-      <div class="iph-num">2</div>
-      <div>
-        <strong>Dictionary</strong><br>
-        <span class="iph-detail">Add one key: <code>text</code> → <code>TaskTitle</code> (variable) · Save as <code>Payload</code></span>
-        <div style="margin-top:6px;font-size:.76rem;color:var(--text-muted)">
-          <em>Optional:</em> also add key <code>priority</code> with value <code>high</code>, <code>medium</code>, or <code>low</code>
-        </div>
-      </div>
-    </div>
-
-    <div class="iph-step">
-      <div class="iph-num">3</div>
-      <div>
-        <strong>Get Contents of URL</strong><br>
-        <span class="iph-detail">URL: <em>paste your inbox URL above</em> · Method: <code>POST</code> · Request Body: <code>JSON</code> · Body: <code>Payload</code></span>
-      </div>
-    </div>
-
-    <div class="iph-step" style="border-bottom:none">
-      <div class="iph-num">+</div>
-      <div>
-        <strong>Show Notification</strong> <span style="color:var(--text-muted);font-size:.78rem">(optional)</span><br>
-        <span class="iph-detail">Message: <em>"Task added to Mailbox ✓"</em></span>
-      </div>
-    </div>
-
-    <div style="height:1px;background:var(--border);margin:14px 0"></div>
-
-    <!-- Add to home screen -->
-    <h3 style="font-size:.88rem;margin-bottom:8px;color:var(--accent)">Add to Home Screen</h3>
-    <p style="font-size:.82rem;color:var(--text);line-height:1.6;margin:0">
-      In the Shortcut editor tap the <strong>share icon → Add to Home Screen</strong>. Name it <em>Quick Task</em> and pick an icon (📬 works great). Tap the icon any time to capture a task in under 10 seconds.
-    </p>
-
-    <div style="height:1px;background:var(--border);margin:14px 0"></div>
-
-    <!-- Payload reference -->
-    <details style="font-size:.8rem">
-      <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin-bottom:6px">Full payload reference (for Zapier, Make, Scriptable, etc.)</summary>
-      <pre style="background:var(--hover);border-radius:6px;padding:10px;font-size:.76rem;overflow-x:auto;margin-top:8px;line-height:1.6">{
-  "text":     "Task title (required)",
-  "priority": "high | medium | low",
-  "desc":     "Optional description",
-  "dueDate":  "YYYY-MM-DD"
-}</pre>
-      <p style="color:var(--text-muted);margin:6px 0 0;line-height:1.5">All tasks go to <strong>Mailbox</strong> — <code>sectionId</code> is no longer used.</p>
-    </details>
   </div>
 </div>
 
@@ -2041,8 +1748,6 @@ var activeSearch = '';         /* search query string */
 var activeView   = null;       /* null | 'overdue' | 'high' | 'inprogress' | 'week' */
 var tpTarget     = null;       /* { secId, taskId } for tag picker */
 var newTagColor  = TAG_COLORS[0];
-var bulkSelected  = {};        /* taskId → true */
-var bulkMode      = false;
 var hideCompleted = false;     /* toggle: show/hide done tasks */
 var collapsedSecs    = {};     /* secId → bool: collapsed column */
 var collapsedGroups  = {};     /* groupId → bool: collapsed group */
@@ -3712,19 +3417,6 @@ function render() {
       row.dataset.sectionId = sec.id;
       if (task.priority) row.dataset.priority = task.priority;
 
-      /* Bulk-select checkbox */
-      var selCb = document.createElement('input');
-      selCb.type = 'checkbox';
-      selCb.className = 'task-select-cb';
-      if (bulkSelected[task.id]) { selCb.checked = true; row.classList.add('bulk-selected'); }
-      (function(tid, r, cb) {
-        cb.addEventListener('change', function() {
-          if (cb.checked) { bulkSelected[tid] = true; r.classList.add('bulk-selected'); }
-          else            { delete bulkSelected[tid]; r.classList.remove('bulk-selected'); }
-          updateBulkBar();
-        });
-      })(task.id, row, selCb);
-      row.appendChild(selCb);
 
       /* Drag handle */
       var grip = document.createElement('span');
@@ -3967,18 +3659,6 @@ function render() {
       })(sec.id, task.id);
       actionsDiv.appendChild(myDayBtn);
 
-      /* Save as template button */
-      var tplBtn = document.createElement('button');
-      tplBtn.className = 'tag-btn';
-      tplBtn.innerHTML = '📋';
-      tplBtn.title = 'Save as template';
-      (function(t) {
-        tplBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          saveTaskAsTemplate(t);
-        });
-      })(task);
-      actionsDiv.appendChild(tplBtn);
 
       /* Tag toggle button */
       var tagBtn = document.createElement('button');
@@ -4092,51 +3772,6 @@ function render() {
     '<div class="add-col-label">Add Column</div>';
   addCard.addEventListener('click', function() { expandAddCol(addCard); });
   board.appendChild(addCard);
-
-  /* ── Templates Card ── */
-  var tplCard = document.createElement('div');
-  tplCard.className = 'add-col-card';
-  tplCard.innerHTML =
-    '<div class="add-col-icon" style="font-size:1.6rem">📋</div>' +
-    '<div class="add-col-label">Templates</div>';
-  tplCard.addEventListener('click', function() {
-    var fs = (appData.sections || [])[0];
-    showTemplateModal(fs ? fs.id : null);
-  });
-  board.appendChild(tplCard);
-
-  /* ── Import CSV Card ── */
-  var importCard = document.createElement('div');
-  importCard.className = 'add-col-card';
-  importCard.innerHTML =
-    '<div class="add-col-icon" style="font-size:1.6rem">\ud83d\udce5</div>' +
-    '<div class="add-col-label">Import CSV</div>';
-  importCard.addEventListener('click', function() {
-    document.getElementById('csvFileInput').value = '';
-    document.getElementById('csvFileInput').click();
-  });
-  board.appendChild(importCard);
-
-  /* ── Bulk Select Card ── */
-  var bulkCard = document.createElement('div');
-  bulkCard.className = 'add-col-card';
-  bulkCard.innerHTML =
-    '<div class="add-col-icon" style="font-size:1.6rem">☑️</div>' +
-    '<div class="add-col-label">' + (bulkMode ? 'Exit Bulk' : 'Bulk Select') + '</div>';
-  bulkCard.addEventListener('click', function() {
-    if (bulkMode) exitBulkMode();
-    else          enterBulkMode();
-  });
-  board.appendChild(bulkCard);
-
-  /* ── Download CSV Card ── */
-  var dlCard = document.createElement('div');
-  dlCard.className = 'add-col-card';
-  dlCard.innerHTML =
-    '<div class="add-col-icon" style="font-size:1.6rem">\ud83d\udcc4</div>' +
-    '<div class="add-col-label">Download CSV</div>';
-  dlCard.addEventListener('click', exportCSV);
-  board.appendChild(dlCard);
 
   /* Overall progress */
   var op = totalAll ? Math.round(doneAll / totalAll * 100) : 0;
@@ -4266,194 +3901,6 @@ document.getElementById('tpOv').addEventListener('click', function(e) {
 
 function escHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ================================================================
-   CSV IMPORT
-   ================================================================ */
-function parseCSV(text) {
-  var rows = [];
-  var lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-  lines.forEach(function(line) {
-    if (!line.trim()) return;
-    var cols = [];
-    var cur = '';
-    var inQ = false;
-    for (var i = 0; i < line.length; i++) {
-      var c = line[i];
-      if (c === '"') {
-        if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
-        else inQ = !inQ;
-      } else if (c === ',' && !inQ) {
-        cols.push(cur.trim());
-        cur = '';
-      } else {
-        cur += c;
-      }
-    }
-    cols.push(cur.trim());
-    rows.push(cols);
-  });
-  return rows;
-}
-
-function hideImportModal() {
-  document.getElementById('csvOv').classList.remove('show');
-}
-
-function showImportPreview(rows) {
-  if (rows.length < 2) {
-    showToast('CSV must have a header row and at least one data row');
-    return;
-  }
-
-  /* Skip header row, group tasks by section */
-  var sectionMap = {};  /* lowercase title -> { displayTitle, tasks[] } */
-  var skipped = 0;
-  var totalTasks = 0;
-
-  rows.slice(1).forEach(function(row) {
-    if (row.length < 2 || !row[0] || !row[1]) { skipped++; return; }
-    if (totalTasks >= 200) { skipped++; return; }
-    var key = row[0].toLowerCase();
-    if (!sectionMap[key]) sectionMap[key] = { displayTitle: row[0], tasks: [] };
-    sectionMap[key].tasks.push(row[1]);
-    totalTasks++;
-  });
-
-  if (totalTasks === 0) {
-    showToast('No valid rows found — check CSV format (section, task)');
-    return;
-  }
-
-  /* Determine new vs existing sections */
-  var existingTitles = {};
-  (appData.sections || []).forEach(function(sec) {
-    existingTitles[sec.title.toLowerCase()] = sec;
-  });
-
-  var previewItems = Object.keys(sectionMap).map(function(key) {
-    return {
-      title: sectionMap[key].displayTitle,
-      tasks: sectionMap[key].tasks,
-      isNew: !existingTitles[key]
-    };
-  });
-
-  var newCount = previewItems.filter(function(i) { return i.isNew; }).length;
-
-  /* Build modal */
-  var box = document.getElementById('csvBox');
-  var html = '<h2>\ud83d\udce5 Import Preview</h2>';
-  html += '<p><strong>' + totalTasks + '</strong> task' + (totalTasks !== 1 ? 's' : '') +
-          ' across <strong>' + previewItems.length + '</strong> section' +
-          (previewItems.length !== 1 ? 's' : '') +
-          (newCount ? ' &mdash; <strong>' + newCount + '</strong> new section' + (newCount !== 1 ? 's' : '') + ' will be created' : '') +
-          '.</p>';
-
-  html += '<div class="csv-hint">Expected format: <code>section, task</code> (first row is header)</div>';
-
-  previewItems.forEach(function(item) {
-    html +=
-      '<div class="csv-sec-item ' + (item.isNew ? 'new-sec' : 'exist-sec') + '">' +
-        '<span>' + escHtml(item.title) +
-          ' <span style="color:var(--text-muted);font-size:.76rem">(' + item.tasks.length + ')</span>' +
-        '</span>' +
-        '<span class="csv-sec-badge ' + (item.isNew ? 'new' : 'exist') + '">' +
-          (item.isNew ? 'New' : 'Existing') +
-        '</span>' +
-      '</div>';
-  });
-
-  if (skipped > 0) {
-    html += '<div style="font-size:.76rem;color:var(--text-muted);margin-top:8px">' +
-            skipped + ' row(s) skipped (blank section/task or over 200-row limit)</div>';
-  }
-
-  html +=
-    '<div class="csv-actions">' +
-      '<button class="csv-btn-cancel" id="csvCancelBtn">Cancel</button>' +
-      '<button class="csv-btn-confirm" id="csvConfirmBtn">Import All</button>' +
-    '</div>';
-
-  box.innerHTML = html;
-
-  document.getElementById('csvCancelBtn').addEventListener('click', hideImportModal);
-  document.getElementById('csvConfirmBtn').addEventListener('click', function() {
-    executeImport(previewItems, existingTitles);
-    hideImportModal();
-  });
-
-  document.getElementById('csvOv').classList.add('show');
-}
-
-function executeImport(previewItems, existingTitles) {
-  var totalAdded = 0;
-  var sectionsCreated = 0;
-
-  previewItems.forEach(function(item) {
-    var key = item.title.toLowerCase();
-    var sec = existingTitles[key];
-    if (!sec) {
-      sec = { id: uid(), title: item.title, icon: '\ud83d\udccb', priority: false, tasks: [], groupId: null };
-      appData.sections.push(sec);
-      sectionsCreated++;
-    }
-    item.tasks.forEach(function(text) {
-      if (text.trim()) {
-        sec.tasks.push({ id: uid(), text: text.trim(), done: false, tags: [] });
-        totalAdded++;
-      }
-    });
-  });
-
-  save();
-  showToast(
-    'Imported ' + totalAdded + ' task' + (totalAdded !== 1 ? 's' : '') +
-    (sectionsCreated ? ' (+' + sectionsCreated + ' new section' + (sectionsCreated !== 1 ? 's' : '') + ')' : '')
-  );
-}
-
-/* ================================================================
-   CSV EXPORT
-   ================================================================ */
-function exportCSV() {
-  var q = function(s) { return '"' + String(s || '').replace(/"/g, '""') + '"'; };
-  var rows = ['section,task,status,priority,due_date,tags,description,notes,subtasks'];
-  (appData.sections || []).forEach(function(sec) {
-    (sec.tasks || []).forEach(function(task) {
-      var tagNames = (task.tags || []).map(function(tid) {
-        var tag = findTag(tid);
-        return tag ? tag.name : '';
-      }).filter(Boolean).join('|');
-      var status = task.status || (task.done ? 'done' : 'todo');
-      var subtaskTxt = (task.subtasks || []).map(function(s) {
-        return (s.done ? '[x] ' : '[ ] ') + s.text;
-      }).join(' | ');
-      rows.push(
-        q(sec.title) + ',' +
-        q(task.text) + ',' +
-        q(status) + ',' +
-        q(task.priority || '') + ',' +
-        q(task.dueDate || '') + ',' +
-        q(tagNames) + ',' +
-        q(task.desc || '') + ',' +
-        q(task.notes || '') + ',' +
-        q(subtaskTxt)
-      );
-    });
-  });
-  var csv = rows.join('\n');
-  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'bozzone-tasks-' + new Date().toISOString().slice(0, 10) + '.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast('Downloaded ' + (rows.length - 1) + ' task' + (rows.length - 1 !== 1 ? 's' : ''));
 }
 
 /* ================================================================
@@ -4789,30 +4236,6 @@ document.getElementById('keyIn').addEventListener('keydown', function(e) {
 document.getElementById('gearBtn').addEventListener('click', showOv);
 document.getElementById('keyLbl').addEventListener('click', showOv);
 
-/* ── iPhone guide modal ── */
-function showIphoneGuide() {
-  var dbUrl = (firebaseConfig.databaseURL || '').replace(/\/$/, '');
-  var key   = syncKey || 'YOUR-SYNC-KEY';
-  var url   = dbUrl + '/dashboards/' + key + '/inbox.json';
-  document.getElementById('inboxUrl').textContent = url;
-  document.getElementById('iphoneOv').style.display = 'flex';
-}
-document.getElementById('iphoneBtn').addEventListener('click', showIphoneGuide);
-document.getElementById('iphoneClose').addEventListener('click', function() {
-  document.getElementById('iphoneOv').style.display = 'none';
-});
-document.getElementById('iphoneOv').addEventListener('click', function(e) {
-  if (e.target === this) this.style.display = 'none';
-});
-document.getElementById('copyInboxUrl').addEventListener('click', function() {
-  var url = document.getElementById('inboxUrl').textContent;
-  navigator.clipboard.writeText(url).then(function() {
-    var btn = document.getElementById('copyInboxUrl');
-    btn.textContent = 'Copied!';
-    setTimeout(function() { btn.textContent = 'Copy URL'; }, 2000);
-  });
-});
-
 document.getElementById('ghSave').addEventListener('click', function() {
   localStorage.setItem('bozzone-gh-token',  document.getElementById('ghToken').value.trim());
   localStorage.setItem('bozzone-gh-repo',   document.getElementById('ghRepo').value.trim());
@@ -4841,30 +4264,6 @@ initFB();
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(function() {});
 }
-
-/* CSV file input handler */
-document.getElementById('csvFileInput').addEventListener('change', function() {
-  var file = this.files[0];
-  if (!file) return;
-  if (!file.name.toLowerCase().endsWith('.csv')) {
-    showToast('Please select a .csv file');
-    return;
-  }
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var rows = parseCSV(e.target.result);
-    showImportPreview(rows);
-  };
-  reader.onerror = function() {
-    showToast('Error reading file');
-  };
-  reader.readAsText(file);
-});
-
-/* Close CSV modal on overlay click */
-document.getElementById('csvOv').addEventListener('click', function(e) {
-  if (e.target === this) hideImportModal();
-});
 
 /* ── Search bar ── */
 (function() {
@@ -5104,241 +4503,6 @@ setTimeout(function() {
 }, 800);
 
 /* ================================================================
-   BULK ACTIONS
-   ================================================================ */
-function enterBulkMode() {
-  bulkMode = true;
-  document.body.classList.add('bulk-mode');
-  render();
-  updateBulkBar();
-}
-
-function exitBulkMode() {
-  bulkMode = false;
-  bulkSelected = {};
-  document.body.classList.remove('bulk-mode');
-  document.getElementById('bulkBar').classList.remove('show');
-  render();
-}
-
-function updateBulkBar() {
-  var ids = Object.keys(bulkSelected);
-  var bar = document.getElementById('bulkBar');
-  var cnt = document.getElementById('bulkCount');
-  cnt.textContent = ids.length + ' selected';
-
-  /* Populate move-to dropdown */
-  var sel = document.getElementById('bulkMoveSel');
-  sel.innerHTML = '<option value="">Move to…</option>';
-  (appData.sections || []).forEach(function(sec) {
-    var opt = document.createElement('option');
-    opt.value = sec.id;
-    opt.textContent = (sec.icon || '') + ' ' + sec.title.slice(0,20);
-    sel.appendChild(opt);
-  });
-
-  bar.classList.toggle('show', ids.length > 0);
-}
-
-document.getElementById('bulkMoveBtn').addEventListener('click', function() {
-  var toSecId = document.getElementById('bulkMoveSel').value;
-  if (!toSecId) return;
-  var ids = Object.keys(bulkSelected);
-  if (!ids.length) return;
-  var toSec = findSec(toSecId);
-  if (!toSec) return;
-  ids.forEach(function(tid) {
-    (appData.sections || []).forEach(function(sec) {
-      var idx = -1;
-      (sec.tasks || []).forEach(function(t, i) { if (t.id === tid) idx = i; });
-      if (idx !== -1) {
-        var t = sec.tasks.splice(idx, 1)[0];
-        if (sec.id !== toSecId) toSec.tasks.push(t);
-        else sec.tasks.splice(idx, 0, t); /* same section — put back */
-      }
-    });
-  });
-  bulkSelected = {};
-  save();
-  showToast('Moved ' + ids.length + ' task' + (ids.length!==1?'s':''));
-  exitBulkMode();
-});
-
-document.getElementById('bulkHighBtn').addEventListener('click', function() {
-  var ids = Object.keys(bulkSelected);
-  ids.forEach(function(tid) {
-    (appData.sections||[]).forEach(function(sec){
-      (sec.tasks||[]).forEach(function(t){ if(t.id===tid) t.priority='high'; });
-    });
-  });
-  save(); showToast('Set High priority on ' + ids.length + ' task' + (ids.length!==1?'s':''));
-  exitBulkMode();
-});
-
-document.getElementById('bulkMedBtn').addEventListener('click', function() {
-  var ids = Object.keys(bulkSelected);
-  ids.forEach(function(tid) {
-    (appData.sections||[]).forEach(function(sec){
-      (sec.tasks||[]).forEach(function(t){ if(t.id===tid) t.priority='medium'; });
-    });
-  });
-  save(); showToast('Set Medium priority on ' + ids.length + ' task' + (ids.length!==1?'s':''));
-  exitBulkMode();
-});
-
-document.getElementById('bulkDoneBtn').addEventListener('click', function() {
-  var ids = Object.keys(bulkSelected);
-  ids.forEach(function(tid) {
-    (appData.sections||[]).forEach(function(sec){
-      (sec.tasks||[]).forEach(function(t){
-        if(t.id===tid){ t.status='done'; t.done=true; }
-      });
-    });
-  });
-  save(); showToast('Marked ' + ids.length + ' task' + (ids.length!==1?'s':'') + ' done');
-  exitBulkMode();
-});
-
-document.getElementById('bulkDelBtn').addEventListener('click', function() {
-  var ids = Object.keys(bulkSelected);
-  if (!ids.length) return;
-  /* Snapshot for undo */
-  var snap = JSON.stringify(appData);
-  ids.forEach(function(tid) {
-    (appData.sections||[]).forEach(function(sec){
-      sec.tasks = (sec.tasks||[]).filter(function(t){ return t.id !== tid; });
-    });
-  });
-  save();
-  showToast('Deleted ' + ids.length + ' task' + (ids.length!==1?'s':''), function() {
-    appData = ensureArrays(JSON.parse(snap));
-    saveLS();
-    if (fbReady && dbRef) dbRef.set(appData);
-    else render();
-  });
-  exitBulkMode();
-});
-
-document.getElementById('bulkCancelBtn').addEventListener('click', exitBulkMode);
-
-/* ================================================================
-   TASK TEMPLATES
-   ================================================================ */
-function loadTemplates() {
-  try { return JSON.parse(localStorage.getItem('bozzone-templates') || '[]'); } catch(e) { return []; }
-}
-function saveTemplates(tpls) {
-  try { localStorage.setItem('bozzone-templates', JSON.stringify(tpls)); } catch(e) {}
-}
-
-function saveTaskAsTemplate(task) {
-  var name = prompt('Template name:', task.text.slice(0, 40));
-  if (!name || !name.trim()) return;
-  var tpls = loadTemplates();
-  tpls.push({
-    id:       uid(),
-    name:     name.trim(),
-    text:     task.text,
-    desc:     task.desc  || '',
-    notes:    task.notes || '',
-    priority: task.priority || null,
-    subtasks: (task.subtasks || []).map(function(s) { return { text: s.text }; })
-  });
-  saveTemplates(tpls);
-  showToast('Template "' + name.trim() + '" saved');
-}
-
-function showTemplateModal(targetSecId) {
-  renderTemplateModal(targetSecId);
-  document.getElementById('tplOv').classList.add('show');
-}
-function hideTemplateModal() {
-  document.getElementById('tplOv').classList.remove('show');
-}
-
-function renderTemplateModal(targetSecId) {
-  var box = document.getElementById('tplBox');
-  var tpls = loadTemplates();
-  var secs = appData.sections || [];
-
-  var html = '<h2>📋 Task Templates</h2>';
-
-  /* Saved templates list */
-  if (!tpls.length) {
-    html += '<div class="tpl-empty">No templates saved yet.<br>Click 📋 on any task to save it as a template.</div>';
-  } else {
-    html += '<div class="tpl-section-lbl">Saved Templates</div>';
-    html += '<div class="tpl-list" id="tplList">';
-    tpls.forEach(function(tpl) {
-      var subCount = (tpl.subtasks || []).length;
-      html +=
-        '<div class="tpl-item" data-tpl-id="' + tpl.id + '">' +
-          '<div class="tpl-item-body">' +
-            '<div class="tpl-item-title">' + escHtml(tpl.name) + '</div>' +
-            '<div class="tpl-item-meta">' +
-              (tpl.priority ? '⬆ ' + tpl.priority + ' · ' : '') +
-              (subCount ? subCount + ' subtask' + (subCount!==1?'s':'') : 'No subtasks') +
-            '</div>' +
-          '</div>' +
-          '<button class="tpl-item-del" data-tpl-del="' + tpl.id + '" title="Delete template">&times;</button>' +
-        '</div>';
-    });
-    html += '</div>';
-    html += '<div class="tpl-divider"></div>';
-    html += '<div class="tpl-section-lbl">Use in section</div>';
-    html += '<select class="tpl-pick-sel" id="tplSecSel">';
-    secs.forEach(function(sec) {
-      html += '<option value="' + sec.id + '"' + (sec.id === targetSecId ? ' selected' : '') + '>' +
-              (sec.icon||'') + ' ' + escHtml(sec.title) + '</option>';
-    });
-    html += '</select>';
-    html += '<div class="tpl-pick-hint">Click a template above to create a task from it.</div>';
-  }
-
-  html += '<div class="tpl-divider"></div>';
-  html += '<button class="tpl-close" id="tplCloseBtn">Done</button>';
-  box.innerHTML = html;
-
-  /* Delete handlers */
-  box.querySelectorAll('[data-tpl-del]').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      var delId = btn.dataset.tplDel;
-      var tpls2 = loadTemplates().filter(function(t) { return t.id !== delId; });
-      saveTemplates(tpls2);
-      renderTemplateModal(targetSecId);
-      showToast('Template deleted');
-    });
-  });
-
-  /* Apply template handlers */
-  box.querySelectorAll('.tpl-item-body').forEach(function(body) {
-    body.addEventListener('click', function() {
-      var tplId = body.closest('.tpl-item').dataset.tplId;
-      var tpl   = loadTemplates().filter(function(t) { return t.id === tplId; })[0];
-      if (!tpl) return;
-      var secId = document.getElementById('tplSecSel') ?
-                  document.getElementById('tplSecSel').value : (targetSecId || (secs[0]||{}).id);
-      createTask(secId, {
-        text:     tpl.text,
-        desc:     tpl.desc,
-        notes:    tpl.notes,
-        priority: tpl.priority,
-        subtasks: (tpl.subtasks||[]).map(function(s){ return { text: s.text, done: false }; })
-      });
-      hideTemplateModal();
-      showToast('Task created from template "' + tpl.name + '"');
-    });
-  });
-
-  document.getElementById('tplCloseBtn').addEventListener('click', hideTemplateModal);
-}
-
-document.getElementById('tplOv').addEventListener('click', function(e) {
-  if (e.target === this) hideTemplateModal();
-});
-
-/* ================================================================
    KEYBOARD SHORTCUTS
    ================================================================ */
 (function() {
@@ -5375,11 +4539,8 @@ document.getElementById('tplOv').addEventListener('click', function(e) {
     /* Escape — close any open modal */
     if (e.key === 'Escape') {
       if (document.getElementById('ntOv').classList.contains('show'))  { hideNewTaskModal(); return; }
-      if (document.getElementById('tplOv').classList.contains('show')) { hideTemplateModal(); return; }
       if (document.getElementById('tpOv').classList.contains('show'))  { hideTagPicker(); return; }
       if (document.getElementById('tmOv').classList.contains('show'))  { hideTagMgmt(); return; }
-      if (document.getElementById('csvOv').classList.contains('show')) { hideImportModal(); return; }
-      if (bulkMode) { exitBulkMode(); return; }
       if (kbdOpen)  { kbdOpen = false; kbdPanel.classList.remove('show'); return; }
       if (activeView) { activeView = null; render(); return; }
       return;
@@ -5402,25 +4563,10 @@ document.getElementById('tplOv').addEventListener('click', function(e) {
         e.preventDefault();
         window._toggleDark();
         break;
-      case 't':
-        e.preventDefault();
-        var fs = (appData.sections || [])[0];
-        showTemplateModal(fs ? fs.id : null);
-        break;
-      case 'b':
-        e.preventDefault();
-        if (bulkMode) exitBulkMode();
-        else          enterBulkMode();
-        break;
     }
   });
 })();
 
-/* ================================================================
-   "Templates" button in the board action area
-   ================================================================ */
-/* Expose template modal trigger globally so render() can wire it */
-window._showTpl = showTemplateModal;
 </script>
 </body>
 </html>

@@ -1594,21 +1594,7 @@
     <input type="text" id="keyIn" placeholder="e.g. bozzone42" autocomplete="off" autocapitalize="off" spellcheck="false">
     <button id="keyGo">Start Syncing</button>
 
-    <div style="height:1px;background:var(--border);margin:16px 0"></div>
-    <h3 style="color:var(--accent);font-size:.95rem;margin-bottom:8px">GitHub Sync</h3>
-    <p style="font-size:.8rem;color:#888;margin-bottom:10px;line-height:1.5">
-      Auto-commit your tasks as <code style="font-size:.76rem;background:#f0f0ec;padding:1px 4px;border-radius:3px">tasks.json</code> to a GitHub repo.
-      Create a <strong>fine-grained PAT</strong> with <em>Contents: Read &amp; write</em> for the target repo.
-    </p>
-    <input type="password" id="ghToken" placeholder="Personal Access Token" autocomplete="off" autocapitalize="off" style="margin-bottom:8px">
-    <input type="text" id="ghRepo" placeholder="owner/repo (e.g. alice/my-tasks)" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-bottom:8px">
-    <input type="text" id="ghPath" placeholder="File path (default: tasks.json)" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-bottom:8px">
-    <input type="text" id="ghBranch" placeholder="Branch (default: main)" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-bottom:8px">
-    <label style="display:flex;align-items:center;gap:8px;font-size:.84rem;color:#555;margin-bottom:10px;cursor:pointer">
-      <input type="checkbox" id="ghAuto"> Auto-push after every save (10 s debounce)
-    </label>
-    <button id="ghSave">Save GitHub Settings</button>
-    <button id="ghPushNow" style="margin-top:6px;background:none;border:1.5px solid var(--border);color:var(--text-sec)">&#11014; Push to GitHub Now</button>
+    <!-- GitHub Sync section removed from setup screen -->
   </div>
 </div>
 
@@ -4280,11 +4266,16 @@ function showOv() {
   inp.focus();
   document.getElementById('verLabel').textContent = 'Version ' + APP_VERSION;
   document.getElementById('verBadge').textContent = 'v' + APP_VERSION;
-  document.getElementById('ghToken').value  = localStorage.getItem('bozzone-gh-token')  || '';
-  document.getElementById('ghRepo').value   = localStorage.getItem('bozzone-gh-repo')   || '';
-  document.getElementById('ghPath').value   = localStorage.getItem('bozzone-gh-path')   || '';
-  document.getElementById('ghBranch').value = localStorage.getItem('bozzone-gh-branch') || '';
-  document.getElementById('ghAuto').checked = localStorage.getItem('bozzone-gh-auto') === '1';
+  var ghToken  = document.getElementById('ghToken');
+  var ghRepo   = document.getElementById('ghRepo');
+  var ghPath   = document.getElementById('ghPath');
+  var ghBranch = document.getElementById('ghBranch');
+  var ghAuto   = document.getElementById('ghAuto');
+  if (ghToken)  ghToken.value  = localStorage.getItem('bozzone-gh-token')  || '';
+  if (ghRepo)   ghRepo.value   = localStorage.getItem('bozzone-gh-repo')   || '';
+  if (ghPath)   ghPath.value   = localStorage.getItem('bozzone-gh-path')   || '';
+  if (ghBranch) ghBranch.value = localStorage.getItem('bozzone-gh-branch') || '';
+  if (ghAuto)   ghAuto.checked = localStorage.getItem('bozzone-gh-auto') === '1';
 }
 function hideOv() {
   document.getElementById('ov').style.display = 'none';
@@ -4356,16 +4347,20 @@ document.getElementById('keyIn').addEventListener('keydown', function(e) {
 document.getElementById('gearBtn').addEventListener('click', showOv);
 document.getElementById('keyLbl').addEventListener('click', showOv);
 
-document.getElementById('ghSave').addEventListener('click', function() {
-  localStorage.setItem('bozzone-gh-token',  document.getElementById('ghToken').value.trim());
-  localStorage.setItem('bozzone-gh-repo',   document.getElementById('ghRepo').value.trim());
-  localStorage.setItem('bozzone-gh-path',   document.getElementById('ghPath').value.trim() || 'tasks.json');
-  localStorage.setItem('bozzone-gh-branch', document.getElementById('ghBranch').value.trim() || 'main');
-  localStorage.setItem('bozzone-gh-auto',   document.getElementById('ghAuto').checked ? '1' : '0');
-  showToast('GitHub settings saved');
-});
+var ghSaveBtn = document.getElementById('ghSave');
+if (ghSaveBtn) {
+  ghSaveBtn.addEventListener('click', function() {
+    localStorage.setItem('bozzone-gh-token',  document.getElementById('ghToken').value.trim());
+    localStorage.setItem('bozzone-gh-repo',   document.getElementById('ghRepo').value.trim());
+    localStorage.setItem('bozzone-gh-path',   document.getElementById('ghPath').value.trim() || 'tasks.json');
+    localStorage.setItem('bozzone-gh-branch', document.getElementById('ghBranch').value.trim() || 'main');
+    localStorage.setItem('bozzone-gh-auto',   document.getElementById('ghAuto').checked ? '1' : '0');
+    showToast('GitHub settings saved');
+  });
+}
 
-document.getElementById('ghPushNow').addEventListener('click', pushToGitHub);
+var ghPushBtn = document.getElementById('ghPushNow');
+if (ghPushBtn) ghPushBtn.addEventListener('click', pushToGitHub);
 
 /* ================================================================
    INIT

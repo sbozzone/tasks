@@ -2056,7 +2056,16 @@ function clearShortcutParams() {
 
 function addMailboxTaskFromShortcut(text) {
   var t = (text || '').trim();
+  var lower = t.toLowerCase();
   if (!t) return false;
+  /* Guard against Shortcut placeholders */
+  if (lower === '[provided input]' || lower === 'provided input') return false;
+  /* Basic dedupe: ignore same task within 5 seconds */
+  try {
+    var last = JSON.parse(localStorage.getItem('bozzone-shortcut-last') || 'null');
+    if (last && last.text === t && (Date.now() - last.ts) < 5000) return false;
+    localStorage.setItem('bozzone-shortcut-last', JSON.stringify({ text: t, ts: Date.now() }));
+  } catch (e) {}
 
   if (fbReady && syncKey && window.firebase && firebase.database) {
     try {

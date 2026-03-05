@@ -1591,6 +1591,7 @@
 <div class="ov" id="ov" style="display:none">
   <div class="ov-box">
     <h2>Sync Setup</h2>
+    <div id="verLabel" style="margin:-4px 0 12px;color:#222;font-size:1rem;font-weight:700;letter-spacing:.02em">Version</div>
     <p>Enter a sync key below. Use the <strong>same key on every device</strong> to keep tasks in sync.</p>
     <input type="text" id="keyIn" placeholder="e.g. bozzone42" autocomplete="off" autocapitalize="off" spellcheck="false">
     <button id="keyGo">Start Syncing</button>
@@ -1634,6 +1635,13 @@ var configured = firebaseConfig.apiKey !== 'YOUR_API_KEY';
    CONSTANTS
    ================================================================ */
 var TAG_COLORS = ['#4A90D9','#5CC1A9','#D97757','#9B59B6','#E74C3C','#F39C12','#1ABC9C','#34495E'];
+var APP_VERSION = '2026-03-05.1';
+
+/* Stamp version into settings label ASAP */
+setTimeout(function() {
+  var v = document.getElementById('verLabel');
+  if (v) v.textContent = 'Version ' + APP_VERSION;
+}, 0);
 
 var DEFAULT_TAGS = [
   { id: 'tag-work',     name: 'Work',     color: '#4A90D9' },
@@ -4115,8 +4123,7 @@ function initSortables() {
     handle: '.col-drag-handle',
     animation: 180,
     ghostClass: 'col-ghost',
-    draggable: '.card[data-sec-id]',
-    filter: '.mailbox-col',
+    draggable: '.card[data-sec-id]:not(.mailbox-col)',
     onStart: function() { isDragging = true; },
     onMove: function(evt) {
       var rel = evt.related;
@@ -4162,6 +4169,7 @@ function showOv() {
   var inp = document.getElementById('keyIn');
   inp.value = syncKey || '';
   inp.focus();
+  document.getElementById('verLabel').textContent = 'Version ' + APP_VERSION;
   document.getElementById('ghToken').value  = localStorage.getItem('bozzone-gh-token')  || '';
   document.getElementById('ghRepo').value   = localStorage.getItem('bozzone-gh-repo')   || '';
   document.getElementById('ghPath').value   = localStorage.getItem('bozzone-gh-path')   || '';
@@ -4567,6 +4575,58 @@ setTimeout(function() {
         break;
     }
   });
+})();
+
+/* ================================================================
+   TOUCH DEBUG (opt-in via ?touchdebug=1 or localStorage flag)
+   ================================================================ */
+(function() {
+  var enable = location.search.indexOf('touchdebug=1') !== -1 ||
+               localStorage.getItem('bozzone-touch-debug') === '1';
+  if (!enable) return;
+
+  function ensureBox(id, cssText) {
+    var el = document.getElementById(id);
+    if (el) return el;
+    el = document.createElement('div');
+    el.id = id;
+    el.style.cssText = cssText;
+    document.body.appendChild(el);
+    return el;
+  }
+
+  var panel = ensureBox('touchDebugPanel',
+    'position:fixed;left:6px;top:6px;z-index:2000;background:rgba(0,0,0,.75);' +
+    'color:#fff;padding:6px 8px;border-radius:6px;font:12px/1.3 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;' +
+    'max-width:70vw;pointer-events:none;');
+  var hl = ensureBox('touchDebugHL',
+    'position:fixed;z-index:1999;border:2px solid #ff3b30;pointer-events:none;');
+
+  function fmtEl(el) {
+    if (!el) return 'none';
+    var cls = (el.className && el.className.toString) ? el.className.toString().trim() : '';
+    if (cls.length > 60) cls = cls.slice(0, 60) + '…';
+    return el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (cls ? '.' + cls.replace(/\s+/g, '.') : '');
+  }
+
+  function update(e) {
+    var t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+    if (!t) return;
+    var el = document.elementFromPoint(t.clientX, t.clientY);
+    if (el) {
+      var r = el.getBoundingClientRect();
+      hl.style.left = r.left + 'px';
+      hl.style.top = r.top + 'px';
+      hl.style.width = r.width + 'px';
+      hl.style.height = r.height + 'px';
+    }
+    var mb = el ? !!el.closest('.mailbox-col') : false;
+    panel.textContent = (e.type + ': ') + fmtEl(el) + (mb ? '  [mailbox]' : '');
+  }
+
+  document.addEventListener('touchstart', update, { capture: true, passive: true });
+  document.addEventListener('touchend', update, { capture: true, passive: true });
+  document.addEventListener('click', update, true);
 })();
 
 </script>

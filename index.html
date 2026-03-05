@@ -1590,7 +1590,6 @@
   <div class="ov-box">
     <h2>Sync Setup</h2>
     <div id="verLabel" style="margin:-4px 0 12px;color:#222;font-size:1rem;font-weight:700;letter-spacing:.02em">Version</div>
-    <div id="verLabelSmall" style="margin:-6px 0 6px;color:#444;font-size:.82rem;font-weight:600;letter-spacing:.02em">Version</div>
     <p>Enter a sync key below. Use the <strong>same key on every device</strong> to keep tasks in sync.</p>
     <input type="text" id="keyIn" placeholder="e.g. bozzone42" autocomplete="off" autocapitalize="off" spellcheck="false">
     <button id="keyGo">Start Syncing</button>
@@ -1634,14 +1633,12 @@ var configured = firebaseConfig.apiKey !== 'YOUR_API_KEY';
    CONSTANTS
    ================================================================ */
 var TAG_COLORS = ['#4A90D9','#5CC1A9','#D97757','#9B59B6','#E74C3C','#F39C12','#1ABC9C','#34495E'];
-var APP_VERSION = '2026-03-05.1';
+var APP_VERSION = '2026-03-05.2';
 
 /* Stamp version into settings label ASAP */
 setTimeout(function() {
   var v = document.getElementById('verLabel');
   if (v) v.textContent = 'Version ' + APP_VERSION;
-  var vs = document.getElementById('verLabelSmall');
-  if (vs) vs.textContent = 'Version ' + APP_VERSION;
   var vb = document.getElementById('verBadge');
   if (vb) vb.textContent = 'v' + APP_VERSION;
 }, 0);
@@ -4282,7 +4279,6 @@ function showOv() {
   inp.value = syncKey || '';
   inp.focus();
   document.getElementById('verLabel').textContent = 'Version ' + APP_VERSION;
-  document.getElementById('verLabelSmall').textContent = 'Version ' + APP_VERSION;
   document.getElementById('verBadge').textContent = 'v' + APP_VERSION;
   document.getElementById('ghToken').value  = localStorage.getItem('bozzone-gh-token')  || '';
   document.getElementById('ghRepo').value   = localStorage.getItem('bozzone-gh-repo')   || '';

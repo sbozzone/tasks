@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stephen's Tasks — Bozzone Enterprises</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #faf9f5;
+      color: #141413;
+      padding: 24px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #D97757;
+      padding-bottom: 14px;
+      margin-bottom: 24px;
+    }
+
+    header h1 { font-size: 1.5rem; color: #D97757; }
+    header span { font-size: 0.85rem; color: #888; }
+
+    .focus-banner {
+      background: #fff3ec;
+      border-left: 4px solid #D97757;
+      padding: 10px 16px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+      color: #7a3a1e;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: #f5f4ef;
+      padding: 12px 16px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-bottom: 1px solid #e5e4df;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-header .badge {
+      background: #D97757;
+      color: white;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .card-body { padding: 12px 16px; }
+
+    .task {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0efea;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .task:last-child { border-bottom: none; }
+
+    .task input[type="checkbox"] {
+      margin-top: 2px;
+      accent-color: #D97757;
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .task label {
+      cursor: pointer;
+      color: #333;
+    }
+
+    .task.done label {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    .progress-bar-wrap {
+      background: #eee;
+      border-radius: 4px;
+      height: 5px;
+      margin: 10px 0 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: #D97757;
+      border-radius: 4px;
+    }
+
+    .progress-label {
+      font-size: 0.75rem;
+      color: #999;
+      text-align: right;
+      margin-bottom: 8px;
+    }
+
+    .priority-card .card-header {
+      background: #fff3ec;
+      border-bottom-color: #f8d5c2;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📋 Bozzone Enterprises — Task Dashboard</h1>
+  <span>Updated: Feb 25, 2026</span>
+</header>
+
+<div class="focus-banner">
+  🎯 <strong>PRIMARY FOCUS:</strong> YourStoryHomeDesign Social Marketing Plan — Community Connect News article (March)
+</div>
+
+<div class="grid" id="board"></div>
+
+<script>
+  const SECTIONS = [
+    {
+      title: "🎯 YourStory — Pre-Publication",
+      priority: true,
+      tasks: [
+        "Verify website contact form is working",
+        "Update Google Business profile with fresh photos (before article drops)",
+        "Ask Catherine Myers for exact publication date",
+        "Confirm if article appears online — get URL when live",
+        "Ask Catherine for permission to use article/excerpts on website and marketing"
+      ]
+    },
+    {
+      title: "🎯 YourStory — Post-Publication",
+      priority: true,
+      tasks: [
+        "Share article on Facebook page, Instagram, and local groups",
+        "Save article as PDF and screenshot for future marketing",
+        "Add 'as featured in Community Connect News' to website and bio",
+        "Reach out to local interior designers as referral partners (use article as credibility)",
+        "Prepare response script for incoming inquiries from article readers",
+        "Launch Facebook Ads campaign (once first commission comes in)"
+      ]
+    },
+    {
+      title: "📱 Social Marketing Foundation",
+      tasks: [
+        "Identify target audience demographics",
+        "Plan content calendar around article launch",
+        "Create brand voice and messaging guidelines"
+      ]
+    },
+    {
+      title: "🛠️ MSS — Miter Saw Station",
+      tasks: [
+        "Make saw platform with MDF and speed braces",
+        "Install floating brackets",
+        "Rip 1/2 inch plywood sheet",
+        "Take photographs when complete"
+      ]
+    },
+    {
+      title: "🛒 Z$ Shopping List",
+      tasks: [
+        "Grey paint",
+        "1/8 inch hardboard"
+      ]
+    },
+    {
+      title: "📺 Retooling for Retirement",
+      tasks: [
+        "Upper Cabs video",
+        "Plan video content calendar",
+        "Create first video (pick topic from deck)",
+        "Reach out to sponsors: Harvey Tools, Bambu Lab, xTool"
+      ]
+    },
+    {
+      title: "🏗️ Product Ideas and Designs",
+      tasks: [
+        "Furniture Designs",
+        "Retro Game controller",
+        "Novel functional nostalgia",
+        "Rolling Packout shelf system"
+      ]
+    },
+    {
+      title: "💰 Financial and Admin",
+      tasks: [
+        "Taxes — $5,106 estimated (need approx $2,426 more)",
+        "Set up analog Kanban board to manage projects",
+        "Sell tools on eBay"
+      ]
+    }
+  ];
+
+  function getId(sectionTitle, i) {
+    return 'task-' + (sectionTitle + '-' + i).toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 60);
+  }
+
+  function isChecked(id) {
+    return localStorage.getItem(id) === 'true';
+  }
+
+  function setChecked(id, val) {
+    localStorage.setItem(id, String(val));
+  }
+
+  function buildBoard() {
+    const board = document.getElementById('board');
+    board.innerHTML = '';
+
+    SECTIONS.forEach(function(section) {
+      const doneCount = section.tasks.filter(function(_, i) {
+        return isChecked(getId(section.title, i));
+      }).length;
+      const total = section.tasks.length;
+      const pct = total ? Math.round((doneCount / total) * 100) : 0;
+
+      const card = document.createElement('div');
+      card.className = 'card' + (section.priority ? ' priority-card' : '');
+
+      const header = document.createElement('div');
+      header.className = 'card-header';
+      header.innerHTML = '<span>' + section.title + '</span><span class="badge">' + doneCount + '/' + total + '</span>';
+      card.appendChild(header);
+
+      const body = document.createElement('div');
+      body.className = 'card-body';
+
+      const barWrap = document.createElement('div');
+      barWrap.className = 'progress-bar-wrap';
+      const bar = document.createElement('div');
+      bar.className = 'progress-bar';
+      bar.style.width = pct + '%';
+      barWrap.appendChild(bar);
+      body.appendChild(barWrap);
+
+      const pLabel = document.createElement('div');
+      pLabel.className = 'progress-label';
+      pLabel.textContent = pct + '% complete';
+      body.appendChild(pLabel);
+
+      section.tasks.forEach(function(taskText, i) {
+        const id = getId(section.title, i);
+        const checked = isChecked(id);
+
+        const div = document.createElement('div');
+        div.className = 'task' + (checked ? ' done' : '');
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = id;
+        cb.checked = checked;
+        cb.addEventListener('change', function() {
+          setChecked(id, cb.checked);
+          buildBoard();
+        });
+
+        const lbl = document.createElement('label');
+        lbl.htmlFor = id;
+        lbl.textContent = taskText;
+
+        div.appendChild(cb);
+        div.appendChild(lbl);
+        body.appendChild(div);
+      });
+
+      card.appendChild(body);
+      board.appendChild(card);
+    });
+  }
+
+  buildBoard();
+</script>
+</body>
+</html>

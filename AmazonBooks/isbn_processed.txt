@@ -1,0 +1,7 @@
+# Processed ISBNs Log
+# ISBNs are appended here automatically after each run.
+# Do not edit manually — used to prevent duplicate processing.
+#
+# Format: ISBN | Title | Date Processed
+# -----------------------------------------------
+9781451673319 | Fahrenheit 451 | 2026-03-02

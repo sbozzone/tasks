@@ -1,0 +1,24 @@
+I need advice about optimizing cash flow and having some breathing room with our budget. Create a  financial planning spreadsheet. Some tabs that come to mind: account balances budget Monthly cash flow Retirement forecaster Please add as you see fit
+
+Financial Planning Question
+Current Situation
+Income
+* Your net deposit: ~$1,680 (26 times/year)
+* Karen's net deposit: ~$3,484 (12 times/year)
+Liabilities
+Student Loan
+* Balance: $40,000
+* Interest rate: 8%
+* Monthly payment: $653.13
+Mortgage
+* Balance: ~$180,000
+* Interest rate: <4%
+* Monthly payment: $1,594 (includes $100/month extra principal)
+Assets
+Emergency Fund
+* Balance: $13,000
+* Rate: 3.15%
+Retirement Portfolio
+* Balance: $740,651.64
+Question
+What's the optimal strategy to accelerate payoff of the student loan while making meaningful progress on the mortgage?

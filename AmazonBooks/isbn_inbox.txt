@@ -1,0 +1,11 @@
+# Amazon Books ISBN Inbox
+# Add one ISBN per line below this header.
+# 13-digit ISBNs (starting with 978 or 979) are preferred.
+# 10-digit ISBNs from older books are also accepted.
+#
+# Example:
+# 9780385333849
+# 9780062316097
+#
+# -----------------------------------------------
+9781451673319

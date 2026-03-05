@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where:*)",
+      "Bash(powershell -Command \"Add-Type -AssemblyName DocumentFormat.OpenXml; $doc = [DocumentFormat.OpenXml.Packaging.WordprocessingDocument]::Open\\(''C:\\\\Users\\\\sbozz\\\\OneDrive\\\\Documents\\\\Claude\\\\PA\\\\New features.docx'', $false\\); $doc.MainDocumentPart.Document.Body.InnerText\")",
+      "Bash(powershell -Command \"$word = New-Object -ComObject Word.Application; $word.Visible = $false; $doc = $word.Documents.Open\\(''C:\\\\Users\\\\sbozz\\\\OneDrive\\\\Documents\\\\Claude\\\\PA\\\\New features.docx''\\); $doc.Content.Text; $doc.Close\\(\\); $word.Quit\\(\\)\")",
+      "Bash(python:*)",
+      "Bash(node -e \":*)",
+      "Bash(curl -s http://localhost:3001/Git_tasks/index.html)"
+    ]
+  }
+}

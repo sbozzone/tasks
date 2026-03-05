@@ -1635,6 +1635,12 @@ var configured = firebaseConfig.apiKey !== 'YOUR_API_KEY';
 var TAG_COLORS = ['#4A90D9','#5CC1A9','#D97757','#9B59B6','#E74C3C','#F39C12','#1ABC9C','#34495E'];
 var APP_VERSION = '2026-03-05.1';
 
+/* Stamp version into settings label ASAP */
+setTimeout(function() {
+  var v = document.getElementById('verLabel');
+  if (v) v.textContent = 'Version ' + APP_VERSION;
+}, 0);
+
 var DEFAULT_TAGS = [
   { id: 'tag-work',     name: 'Work',     color: '#4A90D9' },
   { id: 'tag-shop',     name: 'Shop',     color: '#5CC1A9' },

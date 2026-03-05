@@ -4596,6 +4596,58 @@ setTimeout(function() {
   });
 })();
 
+/* ================================================================
+   TOUCH DEBUG (opt-in via ?touchdebug=1 or localStorage flag)
+   ================================================================ */
+(function() {
+  var enable = location.search.indexOf('touchdebug=1') !== -1 ||
+               localStorage.getItem('bozzone-touch-debug') === '1';
+  if (!enable) return;
+
+  function ensureBox(id, cssText) {
+    var el = document.getElementById(id);
+    if (el) return el;
+    el = document.createElement('div');
+    el.id = id;
+    el.style.cssText = cssText;
+    document.body.appendChild(el);
+    return el;
+  }
+
+  var panel = ensureBox('touchDebugPanel',
+    'position:fixed;left:6px;top:6px;z-index:2000;background:rgba(0,0,0,.75);' +
+    'color:#fff;padding:6px 8px;border-radius:6px;font:12px/1.3 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;' +
+    'max-width:70vw;pointer-events:none;');
+  var hl = ensureBox('touchDebugHL',
+    'position:fixed;z-index:1999;border:2px solid #ff3b30;pointer-events:none;');
+
+  function fmtEl(el) {
+    if (!el) return 'none';
+    var cls = (el.className && el.className.toString) ? el.className.toString().trim() : '';
+    if (cls.length > 60) cls = cls.slice(0, 60) + '…';
+    return el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (cls ? '.' + cls.replace(/\s+/g, '.') : '');
+  }
+
+  function update(e) {
+    var t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+    if (!t) return;
+    var el = document.elementFromPoint(t.clientX, t.clientY);
+    if (el) {
+      var r = el.getBoundingClientRect();
+      hl.style.left = r.left + 'px';
+      hl.style.top = r.top + 'px';
+      hl.style.width = r.width + 'px';
+      hl.style.height = r.height + 'px';
+    }
+    var mb = el ? !!el.closest('.mailbox-col') : false;
+    panel.textContent = (e.type + ': ') + fmtEl(el) + (mb ? '  [mailbox]' : '');
+  }
+
+  document.addEventListener('touchstart', update, { capture: true, passive: true });
+  document.addEventListener('touchend', update, { capture: true, passive: true });
+  document.addEventListener('click', update, true);
+})();
+
 </script>
 </body>
 </html>

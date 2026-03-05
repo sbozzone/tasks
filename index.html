@@ -1741,6 +1741,7 @@ var SEED = [
 var appData      = { sections: [], tags: [] };
 var syncKey      = localStorage.getItem('bozzone-sync-key');
 var dbRef        = null;
+var inboxRef     = null;
 var fbReady      = false;
 var isDragging   = false;
 var activeFilter = null;       /* null = All, or tag id */
@@ -1953,18 +1954,47 @@ function startSync() {
 
 function listenInbox() {
   if (!fbReady || !syncKey) return;
-  var inboxRef = firebase.database().ref('dashboards/' + syncKey + '/inbox');
+
+  /* Prevent duplicate listeners when sync gets restarted. */
+  if (inboxRef) inboxRef.off();
+  inboxRef = firebase.database().ref('dashboards/' + syncKey + '/inbox');
+
+  function normalizeInboxItem(raw) {
+    var item = raw;
+
+    /* Shortcut "File" body can arrive as a JSON string. */
+    if (typeof item === 'string') {
+      var txt = item.trim();
+      if (!txt) return null;
+      if ((txt[0] === '{' && txt[txt.length - 1] === '}') ||
+          (txt[0] === '[' && txt[txt.length - 1] === ']')) {
+        try { item = JSON.parse(txt); } catch (e) {}
+      } else {
+        return { text: txt };
+      }
+    }
+
+    if (!item || typeof item !== 'object') return null;
+
+    var text = item.text || item.task || item.title || item.message || '';
+    if (typeof text !== 'string') text = String(text || '');
+    text = text.trim();
+    if (!text) return null;
+
+    return {
+      text: text,
+      desc: item.desc || item.notes || '',
+      priority: item.priority || null,
+      dueDate: item.dueDate || null
+    };
+  }
+
   inboxRef.on('child_added', function(snap) {
-    var item = snap.val();
-    if (!item || !item.text) { snap.ref.remove(); return; }
+    var item = normalizeInboxItem(snap.val());
+    if (!item) { snap.ref.remove(); return; }
     var mailbox = getMailboxSec();
     if (!mailbox) return; // appData not ready — leave item for retry
-    createTask(mailbox.id, {
-      text:     item.text,
-      desc:     item.desc     || '',
-      priority: item.priority || null,
-      dueDate:  item.dueDate  || null
-    });
+    createTask(mailbox.id, item);
     snap.ref.remove();
   });
 }

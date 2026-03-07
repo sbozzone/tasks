@@ -23,8 +23,9 @@
       --card-bg: #fff;
       --border: #e5e4df;
       --text: #141413;
-      --text-sec: #888;
+      --text-sec: #666;
       --text-muted: #bbb;
+      --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
@@ -44,28 +45,66 @@
       background: var(--bg);
       z-index: 100;
       border-bottom: 2px solid var(--accent);
-      padding: env(safe-area-inset-top, 8px) 16px 10px;
+      padding: calc(var(--safe-top) + 10px) 16px 12px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      gap: 8px;
+      gap: 12px;
     }
-    header h1 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--accent);
+    .hdr-left { flex: 1; min-width: 0; }
+    .hdr-back {
+      font-size: .8rem;
+      color: var(--text-sec);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-bottom: 4px;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .hdr-back:active { opacity: .6; }
+    .hdr-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.1;
+      letter-spacing: -.02em;
+    }
+    .hdr-date {
+      font-size: .88rem;
+      color: var(--text-sec);
+      margin-top: 3px;
+      font-weight: 400;
     }
     .hdr-right {
       display: flex;
       align-items: center;
       gap: 10px;
+      padding-top: 4px;
+      flex-shrink: 0;
     }
+    .bulb-btn {
+      background: none;
+      border: none;
+      font-size: 1.35rem;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 8px;
+      line-height: 1;
+      opacity: .75;
+      transition: opacity .15s, background .15s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .bulb-btn:active { opacity: 1; background: rgba(245,166,35,.15); }
     .sync-dot {
       width: 9px; height: 9px;
       border-radius: 50%;
       background: #ccc;
       transition: background .3s;
       flex-shrink: 0;
+      margin-top: 6px;
     }
     .sync-dot.green  { background: #4CAF50; }
     .sync-dot.yellow { background: #FFC107; }
@@ -75,27 +114,25 @@
     main {
       max-width: 600px;
       margin: 0 auto;
-      padding: 16px 12px calc(32px + var(--safe-bottom));
+      padding: 20px 12px calc(40px + var(--safe-bottom));
     }
 
-    /* ── Hero header ── */
-    .hero {
-      text-align: center;
-      padding: 20px 16px 24px;
-      background: linear-gradient(135deg, #fff9f0, var(--card-bg));
-      border-radius: 14px;
-      margin-bottom: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    /* ── Count bar ── */
+    .count-bar {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 18px;
+      padding: 0 2px;
     }
-    .hero-sun { font-size: 2.4rem; margin-bottom: 8px; }
-    .hero-count {
+    .count-num {
       font-size: 2rem;
       font-weight: 700;
       color: var(--accent);
-      margin-bottom: 6px;
+      line-height: 1;
     }
-    .hero-sub {
-      font-size: .88rem;
+    .count-label {
+      font-size: .95rem;
       color: var(--text-sec);
     }
 
@@ -106,6 +143,40 @@
       gap: 10px;
     }
 
+    /* ── Swipe wrapper ── */
+    .swipe-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    .swipe-reveal {
+      position: absolute;
+      inset: 0;
+      background: #4CAF50;
+      display: flex;
+      align-items: center;
+      padding-left: 20px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      pointer-events: none;
+      border-radius: 12px;
+      opacity: 0;
+    }
+    .swipe-reveal.undo {
+      background: #888;
+      justify-content: flex-end;
+      padding-left: 0;
+      padding-right: 20px;
+    }
+    .swipe-card {
+      position: relative;
+      z-index: 1;
+      transition: transform .22s cubic-bezier(.25,.8,.25,1);
+      will-change: transform;
+    }
+    .swipe-card.dragging { transition: none; }
+
     .task-row {
       background: var(--card-bg);
       border-radius: 12px;
@@ -115,25 +186,26 @@
       gap: 12px;
       border-left: 4px solid var(--border);
       box-shadow: 0 1px 3px rgba(0,0,0,.05);
-      transition: border-color .2s, opacity .2s;
       cursor: pointer;
       -webkit-user-select: none;
       user-select: none;
     }
-    .task-row:active { opacity: .75; }
     .task-row.status-inprogress { border-left-color: var(--accent); }
     .task-row.status-done {
       border-left-color: #ccc;
-      opacity: .55;
+      opacity: .5;
     }
-    .task-row.status-done .task-label { text-decoration: line-through; color: var(--text-sec); }
+    .task-row.status-done .task-label {
+      text-decoration: line-through;
+      color: var(--text-sec);
+    }
 
-    /* ── Status circle button ── */
+    /* ── Status circle ── */
     .status-btn {
       flex-shrink: 0;
       width: 26px; height: 26px;
       border-radius: 50%;
-      border: 2px solid var(--border);
+      border: 2px solid #ccc;
       background: none;
       cursor: pointer;
       display: flex;
@@ -144,7 +216,7 @@
       margin-top: 1px;
       color: #888;
     }
-    .status-btn:active { transform: scale(.9); }
+    .status-btn:active { transform: scale(.88); }
     .status-btn[data-status="inprogress"] {
       border-color: var(--accent);
       background: rgba(217,119,87,.1);
@@ -156,7 +228,7 @@
       color: #fff;
     }
 
-    /* ── Task text & meta ── */
+    /* ── Task content ── */
     .task-content { flex: 1; min-width: 0; }
     .task-label {
       display: block;
@@ -167,7 +239,7 @@
       margin-bottom: 3px;
     }
     .task-meta {
-      font-size: .75rem;
+      font-size: .74rem;
       color: var(--text-sec);
       display: flex;
       flex-wrap: wrap;
@@ -179,7 +251,7 @@
       color: var(--accent);
       border-radius: 4px;
       padding: 1px 6px;
-      font-size: .72rem;
+      font-size: .71rem;
       font-weight: 500;
     }
     .due-chip.overdue {
@@ -196,7 +268,7 @@
     .priority-dot.medium { background: #FB8C00; }
     .priority-dot.low    { background: #43A047; }
 
-    /* ── Done section ── */
+    /* ── Completed section ── */
     .done-toggle {
       display: flex;
       align-items: center;
@@ -210,9 +282,10 @@
       letter-spacing: .04em;
       -webkit-user-select: none;
       user-select: none;
+      padding: 2px 0;
     }
     .done-toggle:active { opacity: .7; }
-    .done-caret { font-size: .7rem; transition: transform .2s; }
+    .done-caret { font-size: .65rem; transition: transform .2s; }
     .done-caret.open { transform: rotate(90deg); }
     #doneList { display: none; }
     #doneList.open { display: flex; flex-direction: column; gap: 10px; }
@@ -223,9 +296,137 @@
       padding: 48px 20px;
       color: var(--text-muted);
       font-size: .9rem;
-      line-height: 1.8;
+      line-height: 2;
     }
-    .empty-icon { font-size: 2.8rem; margin-bottom: 12px; }
+    .empty-icon { font-size: 2.6rem; margin-bottom: 10px; }
+
+    /* ── Suggestions bottom sheet ── */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.35);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+    }
+    .sheet-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .sheet {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--card-bg);
+      border-radius: 20px 20px 0 0;
+      z-index: 201;
+      max-height: 75vh;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.32,0,.67,0);
+      padding-bottom: var(--safe-bottom);
+    }
+    .sheet.open {
+      transform: translateY(0);
+      transition: transform .3s cubic-bezier(.33,1,.68,1);
+    }
+    .sheet-handle {
+      width: 36px; height: 4px;
+      background: #ddd;
+      border-radius: 2px;
+      margin: 10px auto 0;
+      flex-shrink: 0;
+    }
+    .sheet-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px 10px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .sheet-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .sheet-done-btn {
+      background: none;
+      border: none;
+      font-size: .95rem;
+      font-weight: 600;
+      color: #2196F3;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .sheet-done-btn:active { opacity: .6; }
+    .sheet-body {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      flex: 1;
+      padding: 8px 0 12px;
+    }
+    .sheet-section-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      padding: 10px 20px 6px;
+    }
+    .sugg-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 20px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .sugg-row:active { background: rgba(0,0,0,.04); }
+    .sugg-circle {
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid #ccc;
+    }
+    .sugg-body { flex: 1; min-width: 0; }
+    .sugg-text {
+      font-size: .93rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sugg-meta {
+      font-size: .72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sugg-add {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      font-weight: 300;
+      color: #2196F3;
+      cursor: pointer;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 6px;
+    }
+    .sugg-add:active { opacity: .5; }
+    .sugg-empty {
+      text-align: center;
+      padding: 24px 20px;
+      color: var(--text-muted);
+      font-size: .85rem;
+    }
 
     /* ── Toast ── */
     #toast {
@@ -248,37 +449,26 @@
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
-
-    /* ── Back link ── */
-    .back-link {
-      font-size: .82rem;
-      color: var(--text-sec);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 2px 4px;
-      border-radius: 4px;
-      transition: color .15s;
-    }
-    .back-link:hover { color: var(--accent); }
   </style>
 </head>
 <body>
 
 <header>
-  <a class="back-link" href="index.html">&#8592; Full App</a>
-  <h1>My Day</h1>
+  <div class="hdr-left">
+    <a class="hdr-back" href="index.html">&#8249; Lists</a>
+    <div class="hdr-title">My Day</div>
+    <div class="hdr-date" id="hdrDate"></div>
+  </div>
   <div class="hdr-right">
+    <button class="bulb-btn" id="bulbBtn" title="Suggestions">💡</button>
     <div class="sync-dot" id="dot" title="Sync status"></div>
   </div>
 </header>
 
 <main>
-  <div class="hero" id="hero">
-    <div class="hero-sun">☀️</div>
-    <div class="hero-count" id="heroCount">—</div>
-    <div class="hero-sub" id="heroSub">Loading…</div>
+  <div class="count-bar" id="countBar" style="display:none;">
+    <span class="count-num" id="countNum">0</span>
+    <span class="count-label" id="countLabel">tasks remaining</span>
   </div>
 
   <div class="task-list" id="taskList"></div>
@@ -290,11 +480,22 @@
   <div class="task-list" id="doneList"></div>
 </main>
 
+<!-- Suggestions sheet -->
+<div class="sheet-backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-hdr">
+    <span class="sheet-title">Suggestions</span>
+    <button class="sheet-done-btn" id="sheetDoneBtn">Done</button>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+
 <div id="toast"></div>
 
 <script>
 /* ================================================================
-   CONFIG — same Firebase project as main app
+   CONFIG
    ================================================================ */
 var firebaseConfig = {
   apiKey: "AIzaSyCmZWuIQ6NzvS2Lhzo725Wf6Cnro6NKWzI",
@@ -309,15 +510,15 @@ var firebaseConfig = {
 /* ================================================================
    STATE
    ================================================================ */
-var appData  = { sections: [], tags: [] };
-var syncKey  = localStorage.getItem('bozzone-sync-key');
-var dbRef    = null;
-var fbReady  = false;
+var appData = { sections: [], tags: [] };
+var syncKey = localStorage.getItem('bozzone-sync-key');
+var dbRef   = null;
+var fbReady = false;
 
 /* ================================================================
    HELPERS
    ================================================================ */
-function dot(cls) {
+function setDot(cls) {
   document.getElementById('dot').className = 'sync-dot ' + cls;
 }
 
@@ -360,12 +561,22 @@ function ensureArrays(d) {
 }
 
 /* ================================================================
+   DATE HEADER
+   ================================================================ */
+(function() {
+  var now = new Date();
+  document.getElementById('hdrDate').textContent = now.toLocaleDateString(undefined, {
+    weekday: 'long', month: 'long', day: 'numeric'
+  });
+})();
+
+/* ================================================================
    STORAGE
    ================================================================ */
 function loadLS() {
   try {
     var s = localStorage.getItem('bozzone-app-v2');
-    if (s) { appData = ensureArrays(JSON.parse(s)); }
+    if (s) appData = ensureArrays(JSON.parse(s));
   } catch (e) {}
 }
 
@@ -375,15 +586,12 @@ function saveLS() {
 
 function save() {
   saveLS();
-  if (fbReady && dbRef) {
-    dbRef.set(appData);
-  } else {
-    render();
-  }
+  if (fbReady && dbRef) dbRef.set(appData);
+  else render();
 }
 
 /* ================================================================
-   CYCLE STATUS
+   STATUS
    ================================================================ */
 function cycleStatus(secId, taskId) {
   var sec = findSec(secId);
@@ -394,29 +602,99 @@ function cycleStatus(secId, taskId) {
       var next = cur === 'todo' ? 'done' : cur === 'done' ? 'todo' : 'done';
       sec.tasks[i].status = next;
       sec.tasks[i].done   = (next === 'done');
-      var msg = next === 'done' ? 'Task done! ✓' : 'Marked to do';
-      showToast(msg);
+      showToast(next === 'done' ? 'Task done! ✓' : 'Marked to do');
       break;
     }
   }
   save();
 }
 
+function addToMyDay(secId, taskId) {
+  var sec = findSec(secId);
+  if (!sec) return;
+  for (var i = 0; i < sec.tasks.length; i++) {
+    if (sec.tasks[i].id === taskId) {
+      sec.tasks[i].myDay = true;
+      showToast('Added to My Day ☀️');
+      break;
+    }
+  }
+  save();
+  renderSheet();
+}
+
 /* ================================================================
-   RENDER
+   SWIPE TO COMPLETE
    ================================================================ */
-function buildTaskRow(item, isDone) {
+function attachSwipe(wrap, card, reveal, secId, taskId) {
+  var startX = 0, startY = 0, curX = 0, swiping = false, locked = false;
+  var THRESHOLD = 80;
+
+  card.addEventListener('touchstart', function(e) {
+    var t = e.touches[0];
+    startX = t.clientX; startY = t.clientY;
+    curX = 0; swiping = false; locked = false;
+    card.classList.remove('dragging');
+  }, { passive: true });
+
+  card.addEventListener('touchmove', function(e) {
+    var t = e.touches[0];
+    var dx = t.clientX - startX;
+    var dy = t.clientY - startY;
+    if (!locked) {
+      if (Math.abs(dy) > Math.abs(dx) + 5) { locked = true; return; }
+      if (Math.abs(dx) > 8) { swiping = true; locked = true; }
+    }
+    if (!swiping) return;
+    e.preventDefault();
+    curX = dx;
+    var clamped = Math.max(-THRESHOLD * 0.6, Math.min(THRESHOLD * 1.4, curX));
+    card.classList.add('dragging');
+    card.style.transform = 'translateX(' + clamped + 'px)';
+    reveal.style.opacity = Math.min(1, Math.abs(clamped) / THRESHOLD) * 0.9;
+    reveal.classList.toggle('undo', curX < 0);
+    reveal.textContent = curX >= 0 ? '✓ Done' : '↩ Undo';
+  }, { passive: false });
+
+  card.addEventListener('touchend', function() {
+    if (!swiping) return;
+    card.classList.remove('dragging');
+    if (Math.abs(curX) > THRESHOLD) {
+      card.style.transform = 'translateX(' + (curX > 0 ? '110%' : '-110%') + ')';
+      setTimeout(function() { cycleStatus(secId, taskId); }, 180);
+    } else {
+      card.style.transform = '';
+      reveal.style.opacity = 0;
+    }
+    swiping = false;
+  });
+}
+
+/* ================================================================
+   BUILD TASK ROW
+   ================================================================ */
+function buildTaskRow(item) {
   var t = item.task;
   var status = t.status || (t.done ? 'done' : 'todo');
+
+  /* Swipe wrapper */
+  var wrap = document.createElement('div');
+  wrap.className = 'swipe-wrap';
+
+  var reveal = document.createElement('div');
+  reveal.className = 'swipe-reveal';
+  reveal.textContent = '✓ Done';
+
+  var card = document.createElement('div');
+  card.className = 'swipe-card';
 
   var row = document.createElement('div');
   row.className = 'task-row status-' + status;
 
-  /* Status circle */
+  /* Circle */
   var btn = document.createElement('button');
   btn.className = 'status-btn';
   btn.setAttribute('data-status', status);
-  btn.title = status === 'done' ? 'Mark incomplete' : 'Mark complete';
   if (status === 'done') btn.innerHTML = '&#10003;';
   else if (status === 'inprogress') btn.innerHTML = '&#9680;';
   (function(sid, tid) {
@@ -436,14 +714,13 @@ function buildTaskRow(item, isDone) {
   label.textContent = t.text;
   content.appendChild(label);
 
-  /* Meta line */
   var meta = document.createElement('div');
   meta.className = 'task-meta';
 
   if (t.priority) {
     var pd = document.createElement('span');
     pd.className = 'priority-dot ' + t.priority;
-    pd.title = t.priority + ' priority';
+    pd.title = t.priority;
     meta.appendChild(pd);
     var pt = document.createElement('span');
     pt.textContent = t.priority.charAt(0).toUpperCase() + t.priority.slice(1);
@@ -462,9 +739,18 @@ function buildTaskRow(item, isDone) {
   if (meta.children.length) content.appendChild(meta);
   row.appendChild(content);
 
-  return row;
+  card.appendChild(row);
+  wrap.appendChild(reveal);
+  wrap.appendChild(card);
+
+  attachSwipe(wrap, card, reveal, item.secId, t.id);
+
+  return wrap;
 }
 
+/* ================================================================
+   RENDER MAIN
+   ================================================================ */
 function render() {
   var active = [], done = [];
 
@@ -478,30 +764,31 @@ function render() {
     });
   });
 
-  /* Hero */
-  var count = active.length;
-  var heroCount = document.getElementById('heroCount');
-  var heroSub   = document.getElementById('heroSub');
-  heroCount.textContent = count + (count === 1 ? ' task' : ' tasks');
-  heroSub.textContent   = count === 0
-    ? 'All done! Great work today. 🎉'
-    : 'Focus on your day. Get started!';
-
-  /* Active tasks */
-  var list = document.getElementById('taskList');
-  list.innerHTML = '';
-  if (!count && !done.length) {
-    var empty = document.createElement('div');
-    empty.className = 'empty';
-    empty.innerHTML = '<div class="empty-icon">☀️</div>No tasks in My Day.<br>Open the full app and tap ☀️ on any task.';
-    list.appendChild(empty);
+  /* Count bar */
+  var countBar = document.getElementById('countBar');
+  var countNum = document.getElementById('countNum');
+  var countLabel = document.getElementById('countLabel');
+  if (active.length || done.length) {
+    countBar.style.display = 'flex';
+    countNum.textContent = active.length;
+    countLabel.textContent = active.length === 1 ? 'task remaining' : active.length === 0 ? 'All done! 🎉' : 'tasks remaining';
   } else {
-    active.forEach(function(item) {
-      list.appendChild(buildTaskRow(item, false));
-    });
+    countBar.style.display = 'none';
   }
 
-  /* Done section */
+  /* Active list */
+  var list = document.getElementById('taskList');
+  list.innerHTML = '';
+  if (!active.length && !done.length) {
+    var empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.innerHTML = '<div class="empty-icon">☀️</div>No tasks in My Day.<br>Tap 💡 to add from suggestions,<br>or tap ☀️ on a task in the full app.';
+    list.appendChild(empty);
+  } else {
+    active.forEach(function(item) { list.appendChild(buildTaskRow(item)); });
+  }
+
+  /* Completed */
   var doneToggle = document.getElementById('doneToggle');
   var doneList   = document.getElementById('doneList');
   var doneLabel  = document.getElementById('doneLabel');
@@ -509,9 +796,7 @@ function render() {
     doneToggle.style.display = 'flex';
     doneLabel.textContent = 'Completed (' + done.length + ')';
     doneList.innerHTML = '';
-    done.forEach(function(item) {
-      doneList.appendChild(buildTaskRow(item, true));
-    });
+    done.forEach(function(item) { doneList.appendChild(buildTaskRow(item)); });
   } else {
     doneToggle.style.display = 'none';
     doneList.innerHTML = '';
@@ -521,13 +806,110 @@ function render() {
 }
 
 /* ================================================================
-   DONE SECTION TOGGLE
+   SUGGESTIONS SHEET
+   ================================================================ */
+function renderSheet() {
+  var body = document.getElementById('sheetBody');
+  body.innerHTML = '';
+
+  /* Collect all non-myDay, non-done tasks, sort newest first by ID */
+  var candidates = [];
+  (appData.sections || []).forEach(function(sec) {
+    (sec.tasks || []).forEach(function(task) {
+      if (task.myDay) return;
+      var status = task.status || (task.done ? 'done' : 'todo');
+      if (status === 'done') return;
+      candidates.push({ task: task, secId: sec.id, secTitle: sec.title });
+    });
+  });
+
+  /* Sort by task ID descending (IDs start with 't' + timestamp ms) */
+  candidates.sort(function(a, b) {
+    var ta = parseInt(a.task.id.replace(/\D/g, ''), 10) || 0;
+    var tb = parseInt(b.task.id.replace(/\D/g, ''), 10) || 0;
+    return tb - ta;
+  });
+
+  if (!candidates.length) {
+    var emp = document.createElement('div');
+    emp.className = 'sugg-empty';
+    emp.textContent = 'No suggestions — all tasks are already in My Day or completed.';
+    body.appendChild(emp);
+    return;
+  }
+
+  var label = document.createElement('div');
+  label.className = 'sheet-section-label';
+  label.textContent = 'Recently Added';
+  body.appendChild(label);
+
+  candidates.slice(0, 20).forEach(function(item) {
+    var t = item.task;
+    var row = document.createElement('div');
+    row.className = 'sugg-row';
+
+    var circle = document.createElement('div');
+    circle.className = 'sugg-circle';
+
+    var bdy = document.createElement('div');
+    bdy.className = 'sugg-body';
+
+    var txt = document.createElement('div');
+    txt.className = 'sugg-text';
+    txt.textContent = t.text;
+
+    var metaParts = [item.secTitle];
+    if (t.dueDate) {
+      var d = new Date(t.dueDate + 'T00:00:00');
+      metaParts.push(d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
+    }
+    var metaEl = document.createElement('div');
+    metaEl.className = 'sugg-meta';
+    metaEl.textContent = metaParts.join(' · ');
+
+    bdy.appendChild(txt);
+    bdy.appendChild(metaEl);
+
+    var addBtn = document.createElement('button');
+    addBtn.className = 'sugg-add';
+    addBtn.textContent = '+';
+    addBtn.title = 'Add to My Day';
+    (function(sid, tid) {
+      addBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        addToMyDay(sid, tid);
+      });
+    })(item.secId, t.id);
+
+    row.appendChild(circle);
+    row.appendChild(bdy);
+    row.appendChild(addBtn);
+    body.appendChild(row);
+  });
+}
+
+function openSheet() {
+  renderSheet();
+  document.getElementById('backdrop').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+}
+
+function closeSheet() {
+  document.getElementById('backdrop').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+}
+
+document.getElementById('bulbBtn').addEventListener('click', openSheet);
+document.getElementById('sheetDoneBtn').addEventListener('click', closeSheet);
+document.getElementById('backdrop').addEventListener('click', closeSheet);
+
+/* ================================================================
+   COMPLETED SECTION TOGGLE
    ================================================================ */
 document.getElementById('doneToggle').addEventListener('click', function() {
   var dl = document.getElementById('doneList');
   var caret = document.getElementById('doneCaret');
-  var open = dl.classList.toggle('open');
-  caret.classList.toggle('open', open);
+  caret.classList.toggle('open', dl.classList.toggle('open'));
 });
 
 /* ================================================================
@@ -537,11 +919,11 @@ firebase.initializeApp(firebaseConfig);
 fbReady = true;
 
 if (syncKey) {
-  dot('yellow');
+  setDot('yellow');
   dbRef = firebase.database().ref('dashboards/' + syncKey + '/v2');
 
   firebase.database().ref('.info/connected').on('value', function(s) {
-    dot(s.val() ? 'green' : 'yellow');
+    setDot(s.val() ? 'green' : 'yellow');
   });
 
   dbRef.on('value', function(snap) {
@@ -551,8 +933,7 @@ if (syncKey) {
     render();
   });
 } else {
-  /* No sync key — use local storage only */
-  dot('red');
+  setDot('red');
   loadLS();
   render();
 }

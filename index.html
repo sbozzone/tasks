@@ -1449,6 +1449,26 @@
     }
     .my-day-add-sel:focus { border-color: #F5A623; }
 
+    /* ── My Day swipe-to-complete ────────────────── */
+    .md-swipe-wrap {
+      position: relative; overflow: hidden; border-radius: 10px;
+    }
+    .md-swipe-reveal {
+      position: absolute; inset: 0;
+      background: #4CAF50;
+      display: flex; align-items: center; padding-left: 18px;
+      color: #fff; font-size: 1.1rem; font-weight: 700;
+      pointer-events: none; border-radius: 10px;
+      opacity: 0; transition: opacity .1s;
+    }
+    .md-swipe-reveal.undo { background: #888; justify-content: flex-end; padding-left: 0; padding-right: 18px; }
+    .md-swipe-card {
+      position: relative; z-index: 1;
+      transition: transform .22s cubic-bezier(.25,.8,.25,1);
+      will-change: transform;
+    }
+    .md-swipe-card.swiping { transition: none; }
+
   </style>
 </head>
 <body>
@@ -2947,6 +2967,55 @@ function renderTableView(board) {
 /* ================================================================
    RENDER — MY DAY COMPACT VIEW (focus mode)
    ================================================================ */
+/* ── Swipe-to-complete helper (used in My Day compact view) ── */
+function addSwipeToComplete(wrap, card, reveal, secId, taskId) {
+  var startX = 0, startY = 0, curX = 0, swiping = false, locked = false;
+  var THRESHOLD = 80;
+
+  card.addEventListener('touchstart', function(e) {
+    var t = e.touches[0];
+    startX = t.clientX; startY = t.clientY;
+    curX = 0; swiping = false; locked = false;
+    card.classList.remove('swiping');
+  }, { passive: true });
+
+  card.addEventListener('touchmove', function(e) {
+    var t = e.touches[0];
+    var dx = t.clientX - startX;
+    var dy = t.clientY - startY;
+    if (!locked) {
+      if (Math.abs(dy) > Math.abs(dx) + 5) { locked = true; return; } // vertical scroll
+      if (Math.abs(dx) > 8) { swiping = true; locked = true; }
+    }
+    if (!swiping) return;
+    e.preventDefault();
+    curX = dx;
+    var clamped = Math.max(-THRESHOLD * 0.6, Math.min(THRESHOLD * 1.4, curX));
+    card.classList.add('swiping');
+    card.style.transform = 'translateX(' + clamped + 'px)';
+    var progress = Math.min(1, Math.abs(clamped) / THRESHOLD);
+    reveal.style.opacity = progress * 0.9;
+    reveal.classList.toggle('undo', curX < 0);
+    reveal.textContent = curX >= 0 ? '✓ Done' : '↩ Undo';
+  }, { passive: false });
+
+  card.addEventListener('touchend', function() {
+    if (!swiping) return;
+    card.classList.remove('swiping');
+    if (curX > THRESHOLD) {
+      card.style.transform = 'translateX(110%)';
+      setTimeout(function() { cycleStatus(secId, taskId); }, 180);
+    } else if (curX < -THRESHOLD) {
+      card.style.transform = 'translateX(-110%)';
+      setTimeout(function() { cycleStatus(secId, taskId); }, 180);
+    } else {
+      card.style.transform = '';
+      reveal.style.opacity = 0;
+    }
+    swiping = false;
+  });
+}
+
 function renderMyDayCompactView(board) {
   var mdTasks = [];
   (appData.sections || []).forEach(function(sec) {
@@ -3022,7 +3091,18 @@ function renderMyDayCompactView(board) {
         taskDiv.addEventListener('click', function() { showEditTaskModal(sid, tid); });
       })(item.secId, t.id);
 
-      list.appendChild(taskDiv);
+      /* Swipe-to-complete wrapper */
+      var swWrap = document.createElement('div');
+      swWrap.className = 'md-swipe-wrap';
+      var swReveal = document.createElement('div');
+      swReveal.className = 'md-swipe-reveal';
+      swReveal.textContent = '✓ Done';
+      taskDiv.className = (taskDiv.className || '') + ' md-swipe-card';
+      swWrap.appendChild(swReveal);
+      swWrap.appendChild(taskDiv);
+      addSwipeToComplete(swWrap, taskDiv, swReveal, item.secId, t.id);
+
+      list.appendChild(swWrap);
     });
   }
 

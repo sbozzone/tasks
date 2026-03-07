@@ -3311,19 +3311,38 @@ function renderTableView(board) {
    ================================================================ */
 var quotesCache = null;
 
+var FALLBACK_QUOTES = [
+  { text: 'The only way to do great work is to love what you do.', attribution: 'Steve Jobs' },
+  { text: "Don't watch the clock; do what it does. Keep going.", attribution: 'Sam Levenson' },
+  { text: "You miss 100% of the shots you don't take.", attribution: 'Wayne Gretzky' },
+  { text: 'The future belongs to those who believe in the beauty of their dreams.', attribution: 'Eleanor Roosevelt' },
+  { text: 'It is during our darkest moments that we must focus to see the light.', attribution: 'Aristotle' },
+  { text: "Believe you can and you're halfway there.", attribution: 'Theodore Roosevelt' },
+  { text: 'Act as if what you do makes a difference. It does.', attribution: 'William James' },
+  { text: 'Success is not final, failure is not fatal: it is the courage to continue that counts.', attribution: 'Winston Churchill' },
+  { text: 'The secret of getting ahead is getting started.', attribution: 'Mark Twain' },
+  { text: "Don't wait. The time will never be just right.", attribution: 'Napoleon Hill' },
+  { text: 'Well done is better than well said.', attribution: 'Benjamin Franklin' },
+  { text: 'In the middle of every difficulty lies opportunity.', attribution: 'Albert Einstein' },
+  { text: "It always seems impossible until it's done.", attribution: 'Nelson Mandela' },
+  { text: 'Start where you are. Use what you have. Do what you can.', attribution: 'Arthur Ashe' },
+  { text: 'You are never too old to set another goal or to dream a new dream.', attribution: 'C.S. Lewis' }
+];
+
 function loadQuotes() {
   if (quotesCache) return Promise.resolve(quotesCache);
 
   return fetch('quotes.txt')
     .then(function(response) { return response.text(); })
     .then(function(text) {
-      quotesCache = parseQuotes(text);
+      var parsed = parseQuotes(text);
+      quotesCache = parsed.length ? parsed : FALLBACK_QUOTES;
       return quotesCache;
     })
     .catch(function(err) {
       console.warn('Failed to load quotes:', err);
-      quotesCache = [];
-      return [];
+      quotesCache = FALLBACK_QUOTES;
+      return FALLBACK_QUOTES;
     });
 }
 

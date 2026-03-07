@@ -1,0 +1,552 @@
+# Daily Inspiration Quotes
+# Format: Section header with count, brief description, then numbered quotes with attribution
+# Add/edit easily: Just follow the pattern and save. Quotes are loaded randomly on each page view.
+
+## DAILY INSPIRATION (45 quotes)
+Uplifting and motivational quotes to inspire your day.
+
+1. The only way to do great work is to love what you do.
+— Steve Jobs
+
+2. Don't watch the clock; do what it does. Keep going.
+— Sam Levenson
+
+3. You miss 100% of the shots you don't take.
+— Wayne Gretzky
+
+4. The future belongs to those who believe in the beauty of their dreams.
+— Eleanor Roosevelt
+
+5. It is during our darkest moments that we must focus to see the light.
+— Aristotle
+
+6. The only impossible journey is the one you never begin.
+— Tony Robbins
+
+7. In the middle of difficulty lies opportunity.
+— Albert Einstein
+
+8. Success is not final, failure is not fatal: it is the courage to continue that counts.
+— Winston Churchill
+
+9. Believe you can and you're halfway there.
+— Theodore Roosevelt
+
+10. The best time to plant a tree was 20 years ago. The second best time is now.
+— Chinese Proverb
+
+11. Your limitation—it's only your imagination. Push beyond it.
+— Unknown
+
+12. Great things never came from comfort zones.
+— Unknown
+
+13. Dream it. Wish it. Do it.
+— Unknown
+
+14. Success doesn't just find you. You have to go out and get it.
+— Unknown
+
+15. The harder you work for something, the greater you'll feel when you achieve it.
+— Unknown
+
+16. Dream bigger. Do bigger.
+— Unknown
+
+17. Don't stop when you're tired. Stop when you're done.
+— Unknown
+
+18. Wake up with determination. Go to bed with satisfaction.
+— Unknown
+
+19. Do something today that your future self will thank you for.
+— Sean Patrick Flanery
+
+20. Little things make big days.
+— Unknown
+
+21. It's going to be hard, but hard does not mean impossible.
+— Unknown
+
+22. Don't wait for opportunity. Create it.
+— Unknown
+
+23. Sometimes we're tested not to show our weaknesses, but to discover our strengths.
+— Unknown
+
+24. The key to success is to focus on goals, not obstacles.
+— Unknown
+
+25. Dream it. Believe it. Build it.
+— Unknown
+
+26. Protect your peace. It's sacred.
+— Unknown
+
+27. You are braver than you believe, stronger than you seem, and smarter than you think.
+— A.A. Milne
+
+28. Comparison is the thief of joy.
+— Theodore Roosevelt
+
+29. Everything you want is on the other side of fear.
+— Jack Canfield
+
+30. Believe in yourself. You are braver than you think, more talented than you know, and capable of more than you imagine.
+— Roy T. Bennett
+
+31. I learned that courage was not the absence of fear, but the triumph over it.
+— Nelson Mandela
+
+32. The only impossible thing is the thing you don't start.
+— Unknown
+
+33. Act as if what you do makes a difference. It does.
+— William James
+
+34. Success is the sum of small efforts repeated day in and day out.
+— Robert Collier
+
+35. Your potential is limitless. Your excuses are not.
+— Unknown
+
+36. Challenges are what make life interesting; overcoming them is what makes life meaningful.
+— Joshua J. Marine
+
+37. The way to get started is to quit talking and begin doing.
+— Walt Disney
+
+38. Don't be afraid to give up the good to go for the great.
+— John D. Rockefeller
+
+39. I am not afraid of storms, for I am learning how to sail my ship.
+— Louisa May Alcott
+
+40. The biggest risk is not taking any risk.
+— Unknown
+
+41. Your comeback is always greater than your setback.
+— Unknown
+
+42. Discipline is choosing between what you want now and what you want most.
+— Abraham Lincoln
+
+43. Excellence is not a destination; it is a continuous journey that never ends.
+— Brian Tracy
+
+44. You don't have to be great to start, but you have to start to be great.
+— Zig Ziglar
+
+45. The only limit to our realization of tomorrow is our doubts of today.
+— Franklin D. Roosevelt
+
+## PROGRAMMING & DEVELOPER WISDOM (100 quotes)
+Insights and humor from the world of software development.
+
+1. Any fool can write code that a computer can understand. Good programmers write code that humans can understand.
+— Martin Fowler
+
+2. There are two hard things in Computer Science: cache invalidation and naming things.
+— Phil Karlton
+
+3. Premature optimization is the root of all evil.
+— Donald Knuth
+
+4. Programs are meant to be read by humans and only incidentally for computers to execute.
+— Donald Knuth
+
+5. The best code is no code at all.
+— Unknown
+
+6. Code is poetry written for machines to execute and humans to understand.
+— Unknown
+
+7. Simple things should be simple, complex things should be possible.
+— Alan Kay
+
+8. A good programmer is someone who always looks both ways before crossing a one-way street.
+— Doug Linder
+
+9. The only way to learn a new programming language is by writing programs in it.
+— Dennis Ritchie
+
+10. Before software should be reusable, it should be usable.
+— Ralph Johnson
+
+11. Make it work, make it right, make it fast—in that order.
+— Kent Beck
+
+12. Debugging is like being the detective in a crime drama.
+— Filipe Fortes
+
+13. If it's stupid but works, it's not stupid.
+— Unknown
+
+14. I have always been more interested in the future than in preserving the past.
+— Grace Hopper
+
+15. Java is to JavaScript as car is to carpet.
+— Chris Heilmann
+
+16. Talk is cheap. Show me the code.
+— Linus Torvalds
+
+17. The most important property of a program is whether it accomplishes the intention of its user.
+— C.A.R. Hoare
+
+18. Fix the cause, not the symptom.
+— Steve Maguire
+
+19. Testing leads to failure, and failure leads to success.
+— Unknown
+
+20. Quality is not an act, it is a habit.
+— Aristotle
+
+21. Don't let perfect be the enemy of good.
+— Voltaire
+
+22. A person who never made a mistake never tried anything new.
+— Albert Einstein
+
+23. In software development, the most important thing is to deliver value.
+— Unknown
+
+24. The best way to predict the future is to implement it.
+— Unknown
+
+25. A good architecture is something that allows the system to grow.
+— Uncle Bob Martin
+
+26. Code reviews are about making the code better, not making the developer feel bad.
+— Unknown
+
+27. Shipping is a feature.
+— Unknown
+
+28. The code you write tomorrow should be better than the code you wrote today.
+— Unknown
+
+29. Every line of code is a liability.
+— Unknown
+
+30. Sometimes, it's better to leave something for the next person to fix.
+— Unknown
+
+31. Documentation is a love letter that you write to your future self.
+— Damian Conway
+
+32. Refactoring is not just about making code cleaner—it's about making it easier to understand.
+— Unknown
+
+33. If you're good at something, never do it for free... unless you love it.
+— Joker (and programmers)
+
+34. The real problem is that programmers have spent far too much time worrying about efficiency in the wrong places and at the wrong times; premature optimization is the root of all evil.
+— Donald Knuth
+
+35. It works on my machine.
+— Every Developer Ever
+
+36. A API is not just code; it's a promise.
+— Unknown
+
+37. Don't repeat yourself.
+— DRY Principle
+
+38. Fail fast, fail often, fail forward.
+— John C. Maxwell
+
+39. The most powerful tool a programmer has is their ability to abstract complexity.
+— Unknown
+
+40. A well-written function should do one thing and do it well.
+— Unknown
+
+41. Testing is not about finding bugs; it's about building confidence.
+— Unknown
+
+42. Readability counts.
+— The Zen of Python
+
+43. Explicit is better than implicit.
+— The Zen of Python
+
+44. Complex is better than complicated.
+— The Zen of Python
+
+45. In programming, every problem is an opportunity to learn something new.
+— Unknown
+
+46. The most difficult part of programming is deciding what data structure to use.
+— Unknown
+
+47. A comment should explain WHY, not WHAT.
+— Unknown
+
+48. Variables are meant to vary, functions are meant to function, classes are meant to classify.
+— Unknown
+
+49. The best engineers are lazy—they find ways to do more with less code.
+— Unknown
+
+50. I'm not a great programmer; I'm just a good programmer with great habits.
+— Kent Beck
+
+51. There are only two hard things in Computer Science.
+— Phil Karlton
+
+52. The sooner you start to code, the longer the program will take.
+— Roy Carlson
+
+53. If you think you understand everything that's going on, you're drastically underestimating the complexity of the problems you're looking at.
+— Unknown
+
+54. Every 10 years, the software development industry has to relearn the same lessons about complexity.
+— Unknown
+
+55. Simplicity is prerequisite for reliability.
+— Edsger W. Dijkstra
+
+56. Copy-pasting code is probably fine.
+— (No One, Ever)
+
+57. If you're having trouble understanding what your code does, it's probably too complex.
+— Unknown
+
+58. The customer doesn't pay us to write code, they pay us to solve their problems.
+— Unknown
+
+59. There's no place like 127.0.0.1
+— Internet Humor
+
+60. Why do Java developers wear glasses? Because they can't C#.
+— Programming Joke
+
+61. How many programmers does it take to change a lightbulb? None, that's a hardware problem.
+— Classic Joke
+
+62. Why do programmers prefer dark mode? Because light attracts bugs!
+— Developer Humor
+
+63. I would just like to interject for a moment. What you're referring to as Linux...
+— Richard Stallman (pasta)
+
+64. Real programmers count from 0.
+— Unknown
+
+65. There are 10 types of people in the world: those who understand binary and those who don't.
+— Classic Joke
+
+66. I haven't failed, I've just found 10,000 ways that won't work.
+— Thomas Edison
+
+67. If debugging is the process of removing software bugs, then programming must be the process of putting them in.
+— Edsger Dijkstra
+
+68. Why do programmers always get Christmas and Halloween mixed up? Because Oct 31 equals Dec 25.
+— Binary Humor
+
+69. Stackoverflow: where you search for answers, read 10 different explanations, and end up writing your own solution.
+— Developer Experience
+
+70. It's not a bug, it's a feature!
+— Classic Dev Excuse
+
+71. I would just like to interject for a moment to discuss version numbers.
+— Unknown
+
+72. sudo make me a sandwich.
+— Linux Humor
+
+73. The best comment in the code: "// I have no idea how this works but it does."
+— Real Life
+
+74. "99 little bugs in my code, 99 little bugs. Take one down, patch it around. 127 little bugs in my code."
+— Programmer's Nursery Rhyme
+
+75. Git is a wonderful tool. You can lose your work with a single command!
+— Developer Sarcasm
+
+76. Every time you force push, a kitten dies.
+— Git Safety Warning
+
+77. When will it be done? Soon™
+— Project Manager Speak
+
+78. This code looks good to ship!
+— Famous Last Words
+
+79. That's not a bug, it's an undocumented feature.
+— QA Engineer
+
+80. Just one more thing...
+— Feature Creep
+
+81. I've always been more interested in the future than in preserving the past.
+— Grace Hopper
+
+82. The best program is one written by someone else.
+— Unknown
+
+83. I'd just be making excuses, but the complexity is really high.
+— Unknown
+
+84. A language that doesn't affect the way you think about programming is not worth knowing.
+— Alan Perlis
+
+85. The human spirit needs actual nature more than scenery. However, programmers need good coffee more than nature.
+— Unknown
+
+86. Programming is the art of telling another human what you want the computer to do.
+— Donald Knuth
+
+87. Good code is its own best documentation. As you're about to add a comment, ask yourself, "How can I improve the code so that this comment isn't needed?"
+— Steve McConnell
+
+88. The proper use of comments is to explain why the code does what it does, not what it does.
+— Unknown
+
+89. True legacy code is code that works.
+— Unknown
+
+90. Namespaces are one honking great idea — let's do more of those!
+— The Zen of Python
+
+91. Beautiful is better than ugly.
+— The Zen of Python
+
+92. Now is better than never. Although never is often better than right now.
+— The Zen of Python
+
+93. If the implementation is hard to explain, it's a bad idea.
+— The Zen of Python
+
+94. A perfect solution today is better than a perfect solution tomorrow.
+— Unknown
+
+95. Treat your code like it will be read by a mad man in the middle of the night who has a weapon.
+— Unknown
+
+96. First, solve the problem. Then, write the code.
+— John Johnson
+
+97. Code is meant to be read. Code that's hard to read is hard to maintain, and code that's hard to maintain is expensive.
+— Unknown
+
+98. Developers are made, not born. And they're made through practice, dedication, and a lot of coffee.
+— Unknown
+
+99. The best error message is the one that never appears.
+— Unknown
+
+100. Life is too short to write bad code.
+— Unknown
+
+## CREATIVITY & CRAFTSMANSHIP (35 quotes)
+For makers, builders, and creative thinkers.
+
+1. Creativity takes courage.
+— Henri Matisse
+
+2. The chief enemy of creativity is good sense.
+— Pablo Picasso
+
+3. You can't use up creativity. The more you use, the more you have.
+— Maya Angelou
+
+4. Every artist dips his brush in his own soul, and paints his own nature into his pictures.
+— Henry Ward Beecher
+
+5. The worst enemy to creativity is self-doubt.
+— Sylvia Plath
+
+6. Creativity is intelligence having fun.
+— Albert Einstein
+
+7. The chief enemy of creativity is good sense.
+— Pablo Picasso
+
+8. To be creative means to be in love with life. You have to be willing to die for it.
+— Saul Bellow
+
+9. Creativity is seeing what others see and thinking what no one else has ever thought.
+— Albert Einstein
+
+10. The piece of work I do is nothing unless it's original.
+— John Updike
+
+11. Creativity is the power to connect the seemingly unconnected.
+— William Plomer
+
+12. Create with the heart; build with the mind.
+— Criss Jami
+
+13. Great things are done by a series of small things brought together.
+— Vincent Van Gogh
+
+14. The world breaks everyone, and afterward, many are strong in the broken places.
+— Ernest Hemingway
+
+15. Inspiration exists, but it has to find you working.
+— Pablo Picasso
+
+16. You're going to fail. You're going to mess up. That's a given. But the key is to keep going.
+— Tony Hawk
+
+17. Don't wait for permission to create.
+— Unknown
+
+18. Your unique perspective is your greatest asset.
+— Unknown
+
+19. Make something that didn't exist before.
+— Unknown
+
+20. The best way to predict the future is to build it.
+— Unknown
+
+21. Craftsmanship is about pride in your work, no matter how small the task.
+— Unknown
+
+22. Every mistake is a lesson in disguise.
+— Unknown
+
+23. Your ideas are worth pursuing. Trust yourself.
+— Unknown
+
+24. Done is better than perfect.
+— Sheryl Sandberg
+
+25. Failure is just the name we give to experiences we haven't yet learned from.
+— Unknown
+
+26. The craft improves with every piece you make.
+— Unknown
+
+27. Your creative work doesn't have to be original to be valuable—it has to be honest.
+— Unknown
+
+28. Make it with your hands, your heart, and your mind.
+— Unknown
+
+29. Beauty is in the details.
+— Unknown
+
+30. Every maker started as a beginner.
+— Unknown
+
+31. The work you do today is the beginning of the work you'll be proud of tomorrow.
+— Unknown
+
+32. Hands-on creation is the best form of problem-solving.
+— Unknown
+
+33. Your creation is a reflection of your values and vision.
+— Unknown
+
+34. Build things that last.
+— Unknown
+
+35. Every craftsperson was once a learner. Keep learning, keep making.
+— Unknown

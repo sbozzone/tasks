@@ -399,7 +399,7 @@
     }
     .task-content label {
       cursor: pointer;
-      color: #333;
+      color: var(--text);
       user-select: none;
       -webkit-user-select: none;
       word-break: break-word;
@@ -1082,6 +1082,7 @@
     }
     .view-chip:active { transform: scale(.95); }
     .view-chip.active                { color:#fff; border-color:#555; background:#555; }
+    .view-chip.active.vc-myday       { background:#F5A623; border-color:#F5A623; }
     .view-chip.active.vc-overdue     { background:#c0392b; border-color:#c0392b; }
     .view-chip.active.vc-high        { background:#e74c3c; border-color:#e74c3c; }
     .view-chip.active.vc-progress    { background:#D97757; border-color:#D97757; }
@@ -2586,6 +2587,7 @@ function renderViewBar() {
   bar.innerHTML = '';
 
   var views = [
+    { id: 'myday',      label: '☀️ My Day',      cls: 'vc-myday'    },
     { id: 'overdue',    label: '🔴 Overdue',    cls: 'vc-overdue'  },
     { id: 'high',       label: '⬆ High Pri',    cls: 'vc-high'     },
     { id: 'inprogress', label: '⏳ In Progress', cls: 'vc-progress' },
@@ -2596,10 +2598,11 @@ function renderViewBar() {
   /* Count tasks per view for badge */
   var today = new Date(); today.setHours(0,0,0,0);
   var weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate() + 7);
-  var vc = { overdue:0, high:0, inprogress:0, week:0, table:0 };
+  var vc = { myday:0, overdue:0, high:0, inprogress:0, week:0, table:0 };
   (appData.sections || []).forEach(function(sec) {
     (sec.tasks || []).forEach(function(t) {
       vc.table++;
+      if (t.myDay) vc.myday++;
       if (t.status !== 'done') {
         if (t.dueDate) {
           var d = new Date(t.dueDate + 'T00:00:00');
@@ -2930,6 +2933,92 @@ function renderTableView(board) {
   board.appendChild(wrap);
 }
 
+/* ================================================================
+   RENDER — MY DAY COMPACT VIEW (focus mode)
+   ================================================================ */
+function renderMyDayCompactView(board) {
+  var mdTasks = [];
+  (appData.sections || []).forEach(function(sec) {
+    (sec.tasks || []).forEach(function(task) {
+      if (!task.myDay || task.status === 'done') return;
+      mdTasks.push({ task: task, secId: sec.id, secTitle: sec.title, icon: sec.icon });
+    });
+  });
+
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'max-width:600px;margin:0 auto;padding:0 8px;';
+
+  /* Header with count */
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'text-align:center;margin-bottom:20px;padding:12px;background:linear-gradient(135deg,#fff9f0,var(--card-bg));border-radius:12px;';
+  var count = mdTasks.filter(function(t) { return t.task.status !== 'inprogress'; }).length;
+  var inProgress = mdTasks.filter(function(t) { return t.task.status === 'inprogress'; }).length;
+  hdr.innerHTML = '<div style="font-size:2.2rem;margin-bottom:8px;">☀️</div>' +
+    '<div style="font-size:1.8rem;font-weight:700;color:var(--accent);margin-bottom:6px;">' + count + ' tasks</div>' +
+    '<div style="font-size:.85rem;color:var(--text-sec);">Focus on your day. ' + (inProgress > 0 ? inProgress + ' in progress.' : 'Get started!') + '</div>';
+  wrap.appendChild(hdr);
+
+  /* Task list */
+  var list = document.createElement('div');
+  list.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+
+  if (!mdTasks.length) {
+    var empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;padding:40px 20px;color:var(--text-muted);font-style:italic;';
+    empty.textContent = 'No tasks in My Day. Click the lightbulb to add from suggestions, or drag tasks here.';
+    list.appendChild(empty);
+  } else {
+    mdTasks.forEach(function(item) {
+      var t = item.task;
+      var taskDiv = document.createElement('div');
+      taskDiv.style.cssText = 'background:var(--card-bg);border-radius:10px;padding:12px 14px;border-left:4px solid ' +
+        (t.status === 'inprogress' ? 'var(--accent)' : '#ddd') + ';';
+
+      /* Status button (compact) */
+      var statusBtn = document.createElement('button');
+      statusBtn.className = 'status-btn';
+      statusBtn.setAttribute('data-status', t.status || 'todo');
+      statusBtn.style.cssText = 'margin-right:8px;margin-top:2px;float:left;';
+      (function(sid, tid) {
+        statusBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          cycleStatus(sid, tid);
+        });
+      })(item.secId, t.id);
+
+      /* Task text */
+      var content = document.createElement('div');
+      content.style.cssText = 'margin-left:32px;';
+      var label = document.createElement('label');
+      label.style.cssText = 'display:block;cursor:pointer;color:var(--text);margin-bottom:4px;line-height:1.4;font-weight:500;';
+      label.textContent = t.text;
+      content.appendChild(label);
+
+      /* Priority + Due */
+      var meta = document.createElement('div');
+      meta.style.cssText = 'font-size:.75rem;color:var(--text-sec);margin-top:4px;';
+      var parts = [];
+      if (t.priority) parts.push(t.priority.charAt(0).toUpperCase() + t.priority.slice(1));
+      if (t.dueDate) parts.push('Due: ' + new Date(t.dueDate + 'T00:00:00').toLocaleDateString(undefined, {month:'short', day:'numeric'}));
+      if (parts.length) meta.textContent = parts.join(' • ');
+      content.appendChild(meta);
+
+      taskDiv.appendChild(statusBtn);
+      taskDiv.appendChild(content);
+
+      /* Click to edit */
+      (function(sid, tid) {
+        taskDiv.addEventListener('click', function() { showEditTaskModal(sid, tid); });
+      })(item.secId, t.id);
+
+      list.appendChild(taskDiv);
+    });
+  }
+
+  wrap.appendChild(list);
+  board.appendChild(wrap);
+}
+
 function render() {
   if (isDragging) return;
 
@@ -2940,6 +3029,7 @@ function render() {
   var board = document.getElementById('board');
   board.innerHTML = '';
 
+  if (activeView === 'myday') { renderMyDayCompactView(board); return; }
   if (activeView === 'table') { renderTableView(board); return; }
 
   /* ── My Day virtual column ── */

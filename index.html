@@ -2934,6 +2934,85 @@ function renderTableView(board) {
 }
 
 /* ================================================================
+   QUOTES SYSTEM — Load and display daily inspiration
+   ================================================================ */
+var quotesCache = null;
+
+function loadQuotes() {
+  if (quotesCache) return Promise.resolve(quotesCache);
+
+  return fetch('quotes.txt')
+    .then(function(response) { return response.text(); })
+    .then(function(text) {
+      quotesCache = parseQuotes(text);
+      return quotesCache;
+    })
+    .catch(function(err) {
+      console.warn('Failed to load quotes:', err);
+      quotesCache = [];
+      return [];
+    });
+}
+
+function parseQuotes(text) {
+  var quotes = [];
+  var lines = text.split('\n');
+  var currentQuote = '';
+  var currentAttribution = '';
+
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+
+    /* Skip empty lines, headers, and section descriptions */
+    if (!line.trim() || line.trim().startsWith('#') || line.trim().startsWith('##') ||
+        /^\d+\.|— /.test(line.trim()) === false && currentQuote === '' && !line.match(/^[0-9]+\./)) {
+      if (line.match(/^[0-9]+\./)) {
+        /* Start of new quote */
+        var cleaned = line.replace(/^[0-9]+\.\s*/, '');
+        currentQuote = cleaned;
+        currentAttribution = '';
+      }
+      continue;
+    }
+
+    if (line.trim().startsWith('—')) {
+      /* Attribution line */
+      if (currentQuote) {
+        currentAttribution = line.trim().substring(1).trim();
+        if (currentQuote && currentAttribution) {
+          quotes.push({ text: currentQuote, attribution: currentAttribution });
+        }
+        currentQuote = '';
+        currentAttribution = '';
+      }
+    } else if (line.match(/^[0-9]+\./)) {
+      /* New quote number */
+      if (currentQuote && currentAttribution) {
+        quotes.push({ text: currentQuote, attribution: currentAttribution });
+      }
+      currentQuote = line.replace(/^[0-9]+\.\s*/, '');
+      currentAttribution = '';
+    } else if (currentQuote && line.trim()) {
+      /* Continuation of quote text */
+      currentQuote += ' ' + line.trim();
+    }
+  }
+
+  /* Add last quote if exists */
+  if (currentQuote && currentAttribution) {
+    quotes.push({ text: currentQuote, attribution: currentAttribution });
+  }
+
+  return quotes;
+}
+
+function getRandomQuote(quotes) {
+  if (!quotes || quotes.length === 0) return null;
+  var index = Math.floor(Math.random() * quotes.length);
+  return quotes[index];
+}
+
+/* ================================================================
    RENDER — MY DAY COMPACT VIEW (focus mode)
    ================================================================ */
 function renderMyDayCompactView(board) {
@@ -2957,6 +3036,24 @@ function renderMyDayCompactView(board) {
     '<div style="font-size:1.8rem;font-weight:700;color:var(--accent);margin-bottom:6px;">' + count + ' tasks</div>' +
     '<div style="font-size:.85rem;color:var(--text-sec);">Focus on your day. ' + (inProgress > 0 ? inProgress + ' in progress.' : 'Get started!') + '</div>';
   wrap.appendChild(hdr);
+
+  /* Daily quote */
+  loadQuotes().then(function(quotes) {
+    var quote = getRandomQuote(quotes);
+    if (quote) {
+      var quoteDiv = document.createElement('div');
+      quoteDiv.style.cssText = 'background:var(--card-bg);border-left:4px solid var(--accent);padding:16px;border-radius:8px;margin-bottom:20px;line-height:1.6;';
+      var quoteText = document.createElement('div');
+      quoteText.style.cssText = 'font-style:italic;color:var(--text);font-size:.95rem;margin-bottom:8px;';
+      quoteText.textContent = '"' + quote.text + '"';
+      var quoteAttribution = document.createElement('div');
+      quoteAttribution.style.cssText = 'color:var(--text-sec);font-size:.8rem;text-align:right;';
+      quoteAttribution.textContent = '— ' + quote.attribution;
+      quoteDiv.appendChild(quoteText);
+      quoteDiv.appendChild(quoteAttribution);
+      wrap.appendChild(quoteDiv);
+    }
+  });
 
   /* Task list */
   var list = document.createElement('div');

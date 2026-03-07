@@ -984,6 +984,104 @@
     }
     .ov-box button:active { opacity: .9; }
 
+    /* ── Settings overlay ────────────────────────── */
+    .settings-ov {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .settings-box {
+      background: var(--bg);
+      border-radius: 16px 16px 0 0;
+      width: 100%;
+      max-width: 480px;
+      padding: 0 0 calc(24px + var(--safe-bottom));
+      box-shadow: 0 -4px 24px rgba(0,0,0,.18);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .settings-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .settings-hdr h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0;
+    }
+    .settings-done-btn {
+      background: none; border: none;
+      color: var(--accent); font-size: .95rem;
+      font-weight: 600; cursor: pointer; padding: 4px 0;
+    }
+    .settings-done-btn:active { opacity: .7; }
+    .settings-section-lbl {
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: .07em;
+      padding: 16px 20px 6px;
+      text-transform: uppercase;
+    }
+    .settings-list {
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row-label {
+      font-size: .93rem;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    /* iOS-style toggle switch */
+    .sw-toggle {
+      position: relative;
+      display: inline-block;
+      width: 51px;
+      height: 31px;
+      flex-shrink: 0;
+    }
+    .sw-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .sw-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: #ccc;
+      border-radius: 31px;
+      transition: background .22s;
+    }
+    .sw-slider:before {
+      content: '';
+      position: absolute;
+      height: 27px; width: 27px;
+      left: 2px; bottom: 2px;
+      background: white;
+      border-radius: 50%;
+      transition: transform .22s;
+      box-shadow: 0 2px 4px rgba(0,0,0,.22);
+    }
+    .sw-toggle input:checked + .sw-slider { background: #34C759; }
+    .sw-toggle input:checked + .sw-slider:before { transform: translateX(20px); }
+    [data-theme="dark"] .sw-slider { background: #48484a; }
+    [data-theme="dark"] .sw-toggle input:checked + .sw-slider { background: #30d158; }
+    [data-theme="dark"] .settings-list { background: var(--card-bg); }
+
     /* ── Config banner ───────────────────────────── */
     .cfg-banner {
       background: #FFF3CD;
@@ -1449,6 +1547,26 @@
     }
     .my-day-add-sel:focus { border-color: #F5A623; }
 
+    /* ── My Day swipe-to-complete ────────────────── */
+    .md-swipe-wrap {
+      position: relative; overflow: hidden; border-radius: 10px;
+    }
+    .md-swipe-reveal {
+      position: absolute; inset: 0;
+      background: #4CAF50;
+      display: flex; align-items: center; padding-left: 18px;
+      color: #fff; font-size: 1.1rem; font-weight: 700;
+      pointer-events: none; border-radius: 10px;
+      opacity: 0; transition: opacity .1s;
+    }
+    .md-swipe-reveal.undo { background: #888; justify-content: flex-end; padding-left: 0; padding-right: 18px; }
+    .md-swipe-card {
+      position: relative; z-index: 1;
+      transition: transform .22s cubic-bezier(.25,.8,.25,1);
+      will-change: transform;
+    }
+    .md-swipe-card.swiping { transition: none; }
+
   </style>
 </head>
 <body>
@@ -1586,6 +1704,40 @@
   </div>
 </div>
 
+<!-- Settings overlay -->
+<div class="settings-ov" id="settingsOv" style="display:none">
+  <div class="settings-box">
+    <div class="settings-hdr">
+      <h2>Settings</h2>
+      <button class="settings-done-btn" id="settingsDoneBtn">Done</button>
+    </div>
+    <div class="settings-section-lbl">General</div>
+    <div class="settings-list">
+      <div class="settings-row">
+        <span class="settings-row-label">Add New Tasks on Top</span>
+        <label class="sw-toggle">
+          <input type="checkbox" id="setAddTop">
+          <span class="sw-slider"></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <span class="settings-row-label">Play Completion Sound</span>
+        <label class="sw-toggle">
+          <input type="checkbox" id="setCompletionSound">
+          <span class="sw-slider"></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <span class="settings-row-label">Recognize Dates in Task Titles</span>
+        <label class="sw-toggle">
+          <input type="checkbox" id="setParseDates">
+          <span class="sw-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Sync-key overlay -->
 <div class="ov" id="ov" style="display:none">
   <div class="ov-box">
@@ -1620,7 +1772,18 @@ var configured = firebaseConfig.apiKey !== 'YOUR_API_KEY';
    CONSTANTS
    ================================================================ */
 var TAG_COLORS = ['#4A90D9','#5CC1A9','#D97757','#9B59B6','#E74C3C','#F39C12','#1ABC9C','#34495E'];
-var APP_VERSION = '2026-03-05.2';
+var APP_VERSION = (function() {
+  var d = new Date();
+  var dateStr = d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+  var stored = JSON.parse(localStorage.getItem('bozzone-ver-info') || 'null');
+  var n = (stored && stored.date === dateStr) ? stored.n : 1;
+  if (!stored || stored.date !== dateStr) {
+    localStorage.setItem('bozzone-ver-info', JSON.stringify({ date: dateStr, n: 1 }));
+  }
+  return dateStr + '.' + n;
+})();
 
 /* Stamp version into settings label ASAP */
 setTimeout(function() {
@@ -1629,6 +1792,108 @@ setTimeout(function() {
   var vb = document.getElementById('verBadge');
   if (vb) vb.textContent = 'v' + APP_VERSION;
 }, 0);
+
+/* ================================================================
+   SETTINGS
+   ================================================================ */
+var appSettings = {
+  addTop:          localStorage.getItem('bozzone-add-top')           === '1',
+  completionSound: localStorage.getItem('bozzone-completion-sound')  === '1',
+  parseDates:      localStorage.getItem('bozzone-parse-dates')       === '1'
+};
+
+function saveSetting(key, val) {
+  appSettings[key] = val;
+  var lsMap = { addTop: 'bozzone-add-top', completionSound: 'bozzone-completion-sound', parseDates: 'bozzone-parse-dates' };
+  if (lsMap[key]) localStorage.setItem(lsMap[key], val ? '1' : '0');
+}
+
+function showSettings() {
+  document.getElementById('setAddTop').checked          = appSettings.addTop;
+  document.getElementById('setCompletionSound').checked = appSettings.completionSound;
+  document.getElementById('setParseDates').checked      = appSettings.parseDates;
+  document.getElementById('settingsOv').style.display   = 'flex';
+}
+
+function closeSettings() {
+  document.getElementById('settingsOv').style.display = 'none';
+}
+
+/* Play a pleasant two-tone chime using Web Audio API */
+function playCompletionSound() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [[523.25, 0, 0.12], [783.99, 0.1, 0.18]].forEach(function(note) {
+      var osc  = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = note[0];
+      gain.gain.setValueAtTime(0, ctx.currentTime + note[1]);
+      gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + note[1] + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + note[1] + note[2]);
+      osc.start(ctx.currentTime + note[1]);
+      osc.stop(ctx.currentTime + note[1] + note[2] + 0.05);
+    });
+  } catch(e) {}
+}
+
+/* Parse a date string from task title text. Returns 'YYYY-MM-DD' or null. */
+function parseDateFromTitle(text) {
+  if (!text) return null;
+  var t = text.toLowerCase();
+  var now = new Date(); now.setHours(0,0,0,0);
+
+  function fmt(d) {
+    return d.getFullYear() + '-' +
+      String(d.getMonth()+1).padStart(2,'0') + '-' +
+      String(d.getDate()).padStart(2,'0');
+  }
+  function addDays(d, n) { var r = new Date(d); r.setDate(r.getDate() + n); return r; }
+
+  /* "today" / "tomorrow" */
+  if (/\btoday\b/.test(t))    return fmt(now);
+  if (/\btomorrow\b/.test(t)) return fmt(addDays(now, 1));
+
+  /* "in N days/weeks" */
+  var m = t.match(/\bin\s+(\d+)\s+(day|days)\b/);
+  if (m) return fmt(addDays(now, parseInt(m[1])));
+  m = t.match(/\bin\s+(\d+)\s+(week|weeks)\b/);
+  if (m) return fmt(addDays(now, parseInt(m[1]) * 7));
+
+  /* "next week" */
+  if (/\bnext\s+week\b/.test(t)) return fmt(addDays(now, 7));
+
+  /* Day names: "monday", "(next) tuesday", etc. */
+  var days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+  var nextPfx = /\bnext\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/.exec(t);
+  var dayPfx  = /\b(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/.exec(t);
+  var match   = nextPfx || dayPfx;
+  if (match) {
+    var target = days.indexOf(match[1]);
+    var diff   = target - now.getDay();
+    if (diff <= 0 || nextPfx) diff += 7;
+    return fmt(addDays(now, diff));
+  }
+
+  /* Month name + day: "jan 15", "january 15th" */
+  var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  var fullMo = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+  for (var i = 0; i < 12; i++) {
+    var re = new RegExp('\\b(' + months[i] + '|' + fullMo[i] + ')\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b');
+    var mo = re.exec(t);
+    if (mo) {
+      var day = parseInt(mo[2]);
+      var yr  = now.getFullYear();
+      var d   = new Date(yr, i, day);
+      if (d < now) d.setFullYear(yr + 1);
+      return fmt(d);
+    }
+  }
+
+  return null;
+}
 
 var DEFAULT_TAGS = [
   { id: 'tag-work',     name: 'Work',     color: '#4A90D9' },
@@ -2127,7 +2392,9 @@ function cleanupMailboxByText(text) {
 function addTask(secId, text) {
   var sec = findSec(secId);
   if (!sec) return;
-  sec.tasks.push({ id: uid(), text: text.trim(), done: false, tags: [] });
+  var task = { id: uid(), text: text.trim(), done: false, tags: [] };
+  if (appSettings.addTop) sec.tasks.unshift(task);
+  else                    sec.tasks.push(task);
   save();
 }
 
@@ -2166,15 +2433,18 @@ function toggleTask(secId, taskId) {
 function cycleStatus(secId, taskId) {
   var sec = findSec(secId);
   if (!sec) return;
+  var completed = false;
   for (var i = 0; i < sec.tasks.length; i++) {
     if (sec.tasks[i].id === taskId) {
       var cur = sec.tasks[i].status || 'todo';
       var next = cur === 'todo' ? 'inprogress' : cur === 'inprogress' ? 'done' : 'todo';
       sec.tasks[i].status = next;
       sec.tasks[i].done   = (next === 'done');
+      if (next === 'done') completed = true;
       break;
     }
   }
+  if (completed && appSettings.completionSound) playCompletionSound();
   save();
 }
 
@@ -2185,22 +2455,26 @@ function createTask(secId, data) {
   var sec = findSec(secId);
   if (!sec) return;
   var status = data.status || 'todo';
+  var taskText = (data.text || '').trim();
+  var dueDate  = data.dueDate || null;
+  if (!dueDate && appSettings.parseDates) dueDate = parseDateFromTitle(taskText);
   var task = {
     id:       uid(),
-    text:     (data.text || '').trim(),
+    text:     taskText,
     desc:     (data.desc || '').trim(),
     notes:    (data.notes || '').trim(),
     status:   status,
     done:     status === 'done',
     priority: data.priority || null,
-    dueDate:  data.dueDate  || null,
+    dueDate:  dueDate,
     subtasks: (data.subtasks || []).map(function(s) {
       return { id: uid(), text: s.text, done: false };
     }),
     tags: []
   };
   if (!task.text) return;
-  sec.tasks.push(task);
+  if (appSettings.addTop) sec.tasks.unshift(task);
+  else                    sec.tasks.push(task);
   save();
   showToast('Task created');
 }
@@ -2936,6 +3210,55 @@ function renderTableView(board) {
 /* ================================================================
    RENDER — MY DAY COMPACT VIEW (focus mode)
    ================================================================ */
+/* ── Swipe-to-complete helper (used in My Day compact view) ── */
+function addSwipeToComplete(wrap, card, reveal, secId, taskId) {
+  var startX = 0, startY = 0, curX = 0, swiping = false, locked = false;
+  var THRESHOLD = 80;
+
+  card.addEventListener('touchstart', function(e) {
+    var t = e.touches[0];
+    startX = t.clientX; startY = t.clientY;
+    curX = 0; swiping = false; locked = false;
+    card.classList.remove('swiping');
+  }, { passive: true });
+
+  card.addEventListener('touchmove', function(e) {
+    var t = e.touches[0];
+    var dx = t.clientX - startX;
+    var dy = t.clientY - startY;
+    if (!locked) {
+      if (Math.abs(dy) > Math.abs(dx) + 5) { locked = true; return; } // vertical scroll
+      if (Math.abs(dx) > 8) { swiping = true; locked = true; }
+    }
+    if (!swiping) return;
+    e.preventDefault();
+    curX = dx;
+    var clamped = Math.max(-THRESHOLD * 0.6, Math.min(THRESHOLD * 1.4, curX));
+    card.classList.add('swiping');
+    card.style.transform = 'translateX(' + clamped + 'px)';
+    var progress = Math.min(1, Math.abs(clamped) / THRESHOLD);
+    reveal.style.opacity = progress * 0.9;
+    reveal.classList.toggle('undo', curX < 0);
+    reveal.textContent = curX >= 0 ? '✓ Done' : '↩ Undo';
+  }, { passive: false });
+
+  card.addEventListener('touchend', function() {
+    if (!swiping) return;
+    card.classList.remove('swiping');
+    if (curX > THRESHOLD) {
+      card.style.transform = 'translateX(110%)';
+      setTimeout(function() { cycleStatus(secId, taskId); }, 180);
+    } else if (curX < -THRESHOLD) {
+      card.style.transform = 'translateX(-110%)';
+      setTimeout(function() { cycleStatus(secId, taskId); }, 180);
+    } else {
+      card.style.transform = '';
+      reveal.style.opacity = 0;
+    }
+    swiping = false;
+  });
+}
+
 function renderMyDayCompactView(board) {
   var mdTasks = [];
   (appData.sections || []).forEach(function(sec) {
@@ -3011,7 +3334,18 @@ function renderMyDayCompactView(board) {
         taskDiv.addEventListener('click', function() { showEditTaskModal(sid, tid); });
       })(item.secId, t.id);
 
-      list.appendChild(taskDiv);
+      /* Swipe-to-complete wrapper */
+      var swWrap = document.createElement('div');
+      swWrap.className = 'md-swipe-wrap';
+      var swReveal = document.createElement('div');
+      swReveal.className = 'md-swipe-reveal';
+      swReveal.textContent = '✓ Done';
+      taskDiv.className = (taskDiv.className || '') + ' md-swipe-card';
+      swWrap.appendChild(swReveal);
+      swWrap.appendChild(taskDiv);
+      addSwipeToComplete(swWrap, taskDiv, swReveal, item.secId, t.id);
+
+      list.appendChild(swWrap);
     });
   }
 
@@ -4434,8 +4768,20 @@ document.getElementById('keyIn').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') document.getElementById('keyGo').click();
 });
 
-document.getElementById('gearBtn').addEventListener('click', showOv);
+document.getElementById('gearBtn').addEventListener('click', showSettings);
 document.getElementById('keyLbl').addEventListener('click', showOv);
+
+/* Settings panel wiring */
+document.getElementById('settingsDoneBtn').addEventListener('click', closeSettings);
+document.getElementById('settingsOv').addEventListener('click', function(e) {
+  if (e.target === this) closeSettings();
+});
+['setAddTop','setCompletionSound','setParseDates'].forEach(function(id) {
+  var keyMap = { setAddTop: 'addTop', setCompletionSound: 'completionSound', setParseDates: 'parseDates' };
+  document.getElementById(id).addEventListener('change', function() {
+    saveSetting(keyMap[id], this.checked);
+  });
+});
 
 var ghSaveBtn = document.getElementById('ghSave');
 if (ghSaveBtn) {

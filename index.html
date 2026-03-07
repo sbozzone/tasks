@@ -749,9 +749,12 @@
       line-height: 1;
       color: transparent;
     }
-    .status-btn[data-status="todo"]       { border-color: #bbb; color: transparent; background: #fff; }
-    .status-btn[data-status="inprogress"] { border-color: var(--accent); color: var(--accent); background: #fff3ec; font-size: .7rem; }
-    .status-btn[data-status="done"]       { border-color: #27AE60; color: #fff; background: #27AE60; }
+    .status-btn[data-status="not_started"] { border-color: #bbb; color: transparent; background: #fff; }
+    .status-btn[data-status="todo"]        { border-color: #bbb; color: transparent; background: #fff; }
+    .status-btn[data-status="in_progress"] { border-color: var(--accent); color: var(--accent); background: #fff3ec; font-size: .7rem; }
+    .status-btn[data-status="inprogress"]  { border-color: var(--accent); color: var(--accent); background: #fff3ec; font-size: .7rem; }
+    .status-btn[data-status="blocked"]     { border-color: #e74c3c; color: #e74c3c; background: #fde8e8; font-size: .7rem; }
+    .status-btn[data-status="done"]        { border-color: #27AE60; color: #fff; background: #27AE60; }
     .status-btn:hover { opacity: .8; }
 
     /* Task done-state via status */
@@ -759,6 +762,7 @@
     .task.status-done { opacity: .72; }
 
     /* ── Priority border ─────────────────────────── */
+    .task[data-priority="urgent"] { border-left: 3px solid #8B0000; padding-left: 7px; }
     .task[data-priority="high"]   { border-left: 3px solid #e74c3c; padding-left: 7px; }
     .task[data-priority="medium"] { border-left: 3px solid #F39C12; padding-left: 7px; }
     .task[data-priority="low"]    { border-left: 3px solid #27AE60; padding-left: 7px; }
@@ -1213,10 +1217,14 @@
     .tv-section { color:var(--text-sec); font-size:.78rem; white-space:nowrap; }
     .tv-task    { font-weight:500; min-width:180px; }
     .tv-sb { display:inline-block; padding:2px 8px; border-radius:10px; font-size:.7rem; font-weight:600; white-space:nowrap; }
-    .tv-sb.todo       { background:#f0f0ee; color:#888; }
-    .tv-sb.inprogress { background:#fff3ec; color:var(--accent,#D97757); }
-    .tv-sb.done       { background:#e8f8ee; color:#27AE60; }
+    .tv-sb.not_started { background:#f0f0ee; color:#888; }
+    .tv-sb.todo        { background:#f0f0ee; color:#888; }
+    .tv-sb.in_progress { background:#fff3ec; color:var(--accent,#D97757); }
+    .tv-sb.inprogress  { background:#fff3ec; color:var(--accent,#D97757); }
+    .tv-sb.blocked     { background:#fde8e8; color:#c0392b; }
+    .tv-sb.done        { background:#e8f8ee; color:#27AE60; }
     .tv-pb { display:inline-block; padding:2px 7px; border-radius:10px; font-size:.7rem; font-weight:600; white-space:nowrap; }
+    .tv-pb.urgent { background:#fdf0f0; color:#8B0000; }
     .tv-pb.high   { background:#fdecea; color:#c0392b; }
     .tv-pb.medium { background:#fef9e7; color:#b7950b; }
     .tv-pb.low    { background:#eaf6fb; color:#2980b9; }
@@ -1401,7 +1409,10 @@
     .my-day-col .card-hd { background: linear-gradient(135deg, #fff9f0, var(--card-header-bg)); }
     [data-theme="dark"] .my-day-col .card-hd { background: linear-gradient(135deg, rgba(245,166,35,.08), var(--card-header-bg)); }
 
-    /* Mailbox Column */
+    /* Inbox Column */
+    .inbox-col { border-left: 3px solid #7B68EE !important; }
+    .inbox-col .card-hd { background: linear-gradient(135deg, #f5f0ff, var(--card-header-bg)); }
+    [data-theme="dark"] .inbox-col .card-hd { background: linear-gradient(135deg, rgba(123,104,238,.08), var(--card-header-bg)); }
     .mailbox-col { border-left: 3px solid #7B68EE !important; }
     .mailbox-col .card-hd { background: linear-gradient(135deg, #f5f0ff, var(--card-header-bg)); }
     [data-theme="dark"] .mailbox-col .card-hd { background: linear-gradient(135deg, rgba(123,104,238,.08), var(--card-header-bg)); }
@@ -1660,8 +1671,9 @@
       <div class="nt-field">
         <label>Status</label>
         <select id="ntStatus">
-          <option value="todo">To Do</option>
-          <option value="inprogress">In Progress</option>
+          <option value="not_started">Not Started</option>
+          <option value="in_progress">In Progress</option>
+          <option value="blocked">Blocked</option>
           <option value="done">Done</option>
         </select>
       </div>
@@ -1672,6 +1684,7 @@
           <option value="low">Low</option>
           <option value="medium">Medium</option>
           <option value="high">High</option>
+          <option value="urgent">Urgent</option>
         </select>
       </div>
     </div>
@@ -1680,6 +1693,12 @@
         <label>Due Date</label>
         <input type="date" id="ntDueDate">
       </div>
+      <div class="nt-field">
+        <label>Start Date</label>
+        <input type="date" id="ntStartDate">
+      </div>
+    </div>
+    <div class="nt-row">
       <div class="nt-field">
         <label>Section</label>
         <select id="ntSection"></select>
@@ -2007,7 +2026,7 @@ var fbReady      = false;
 var isDragging   = false;
 var activeFilter = null;       /* null = All, or tag id */
 var activeSearch = '';         /* search query string */
-var activeView   = null;       /* null | 'overdue' | 'high' | 'inprogress' | 'week' */
+var activeView   = null;       /* null | 'overdue' | 'high' | 'in_progress' | 'week' */
 var tpTarget     = null;       /* { secId, taskId } for tag picker */
 var newTagColor  = TAG_COLORS[0];
 var hideCompleted = false;     /* toggle: show/hide done tasks */
@@ -2044,62 +2063,80 @@ function findTag(id) {
   return null;
 }
 
-/* ── Group CRUD helpers ── */
-function findGroup(id) {
+/* ── Project CRUD helpers ── */
+function findProject(id) {
   if (!id) return null;
-  var groups = appData.groups || [];
-  for (var i = 0; i < groups.length; i++) {
-    if (groups[i].id === id) return groups[i];
+  var projects = appData.projects || [];
+  for (var i = 0; i < projects.length; i++) {
+    if (projects[i].id === id) return projects[i];
   }
   return null;
 }
 
-function addGroup(name) {
-  if (!appData.groups) appData.groups = [];
+/* Keep old name as alias for backward compat */
+var findGroup = findProject;
+
+function addProject(name) {
+  if (!appData.projects) appData.projects = [];
   var g = { id: uid(), name: (name || 'New Group').trim() };
-  appData.groups.push(g);
+  appData.projects.push(g);
   save();
   return g;
 }
 
-function deleteGroup(groupId) {
-  if (!appData.groups) return;
+/* Keep old name as alias */
+var addGroup = addProject;
+
+function deleteProject(groupId) {
+  if (!appData.projects) return;
   var idx = -1;
-  for (var i = 0; i < appData.groups.length; i++) {
-    if (appData.groups[i].id === groupId) { idx = i; break; }
+  for (var i = 0; i < appData.projects.length; i++) {
+    if (appData.projects[i].id === groupId) { idx = i; break; }
   }
   if (idx === -1) return;
-  appData.groups.splice(idx, 1);
-  /* Unassign sections that belonged to this group */
+  appData.projects.splice(idx, 1);
+  /* Unassign sections that belonged to this project */
   (appData.sections || []).forEach(function(sec) {
-    if (sec.groupId === groupId) sec.groupId = null;
+    if (sec.projectId === groupId) sec.projectId = null;
   });
   save();
 }
 
-function renameGroup(groupId, name) {
-  var g = findGroup(groupId);
+/* Keep old name as alias */
+var deleteGroup = deleteProject;
+
+function renameProject(groupId, name) {
+  var g = findProject(groupId);
   if (g && name && name.trim()) { g.name = name.trim(); save(); }
 }
 
-function assignSectionToGroup(secId, groupId) {
+/* Keep old name as alias */
+var renameGroup = renameProject;
+
+function assignSectionToProject(secId, groupId) {
   var sec = findSec(secId);
-  if (sec) { sec.groupId = groupId || null; save(); }
+  if (sec) { sec.projectId = groupId || null; save(); }
 }
+
+/* Keep old name as alias */
+var assignSectionToGroup = assignSectionToProject;
 
 /* Firebase can turn arrays into objects — normalize on read */
 function ensureArrays(data) {
-  if (!data) return { sections: [], tags: DEFAULT_TAGS.slice() };
+  if (!data) return { sections: [], tags: DEFAULT_TAGS.slice(), projects: [] };
   if (!data.sections) data.sections = [];
   if (!Array.isArray(data.sections)) data.sections = Object.values(data.sections);
   /* Seed default tags if tags never set */
   if (!data.tags) data.tags = DEFAULT_TAGS.map(function(t) { return {id:t.id, name:t.name, color:t.color}; });
   if (!Array.isArray(data.tags)) data.tags = Object.values(data.tags);
-  /* Groups array */
-  if (!data.groups) data.groups = [];
-  if (!Array.isArray(data.groups)) data.groups = Object.values(data.groups);
+  /* Projects array (migrated from groups) */
+  if (!data.projects) data.projects = data.groups ? (Array.isArray(data.groups) ? data.groups : Object.values(data.groups)) : [];
+  if (!Array.isArray(data.projects)) data.projects = Object.values(data.projects);
   data.sections.forEach(function(sec) {
-    if (sec.groupId === undefined) sec.groupId = null;
+    /* Migrate groupId → projectId */
+    if (sec.projectId === undefined) sec.projectId = (sec.groupId !== undefined ? sec.groupId : null);
+    /* Migrate isMailbox → isInbox */
+    if (sec.isInbox === undefined) sec.isInbox = !!sec.isMailbox;
   });
   data.sections.forEach(function(sec) {
     if (!sec.tasks) sec.tasks = [];
@@ -2107,14 +2144,31 @@ function ensureArrays(data) {
     sec.tasks.forEach(function(task) {
       if (!task.tags) task.tags = [];
       if (!Array.isArray(task.tags)) task.tags = Object.values(task.tags);
-      /* ── New field migrations ── */
-      if (!task.status)                   task.status   = task.done ? 'done' : 'todo';
-      if (!task.subtasks)                 task.subtasks = [];
-      if (!Array.isArray(task.subtasks))  task.subtasks = [];
-      if (task.priority === undefined)    task.priority = null;
-      if (task.dueDate  === undefined)    task.dueDate  = null;
-      if (task.desc     === undefined)    task.desc     = '';
-      if (task.notes    === undefined)    task.notes    = '';
+      /* ── Field migrations ── */
+      /* text → title */
+      if (!task.title && task.text) task.title = task.text;
+      if (!task.title) task.title = '';
+      task.text = task.title;
+      /* desc → description */
+      if (!task.description && task.desc !== undefined) task.description = task.desc;
+      if (task.description === undefined) task.description = '';
+      /* Status migration */
+      if (!task.status) task.status = task.done ? 'done' : 'not_started';
+      if (task.status === 'todo') task.status = 'not_started';
+      if (task.status === 'inprogress') task.status = 'in_progress';
+      task.done = (task.status === 'done');
+      /* New optional fields */
+      if (!task.subtasks) task.subtasks = [];
+      if (!Array.isArray(task.subtasks)) task.subtasks = [];
+      task.subtasks.forEach(function(sub) {
+        if (!sub.title && sub.text) sub.title = sub.text;
+        if (!sub.title) sub.title = '';
+      });
+      if (task.priority === undefined)      task.priority     = null;
+      if (task.dueDate  === undefined)      task.dueDate      = null;
+      if (task.startDate === undefined)     task.startDate    = null;
+      if (task.completedDate === undefined) task.completedDate = null;
+      if (task.notes    === undefined)      task.notes        = '';
     });
   });
   return data;
@@ -2135,7 +2189,7 @@ function buildInitialData(oldStates) {
         priority: !!sec.priority,
         tasks: sec.tasks.map(function(text, ti) {
           var oldId = (sec.title + '-' + ti).toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 60);
-          return { id: uid(), text: text, done: !!oldStates[oldId], tags: [] };
+          return { id: uid(), title: text, text: text, done: !!oldStates[oldId], tags: [], status: 'not_started', description: '', notes: '', priority: null, dueDate: null, startDate: null, completedDate: null, subtasks: [] };
         })
       };
     })
@@ -2156,7 +2210,7 @@ function initFB() {
     loadLS();
     if (!appData.sections.length) appData = buildInitialData();
     appData = ensureArrays(appData);
-    ensureMailbox();
+    ensureInbox();
     render();
     return;
   }
@@ -2169,7 +2223,7 @@ function initFB() {
     loadLS();
     if (!appData.sections.length) appData = buildInitialData();
     appData = ensureArrays(appData);
-    ensureMailbox();
+    ensureInbox();
     render();
     return;
   }
@@ -2181,24 +2235,35 @@ function startSync() {
   if (!fbReady || !syncKey) return;
   dot('wait');
 
-  dbRef = firebase.database().ref('dashboards/' + syncKey + '/v2');
+  dbRef = firebase.database().ref('dashboards/' + syncKey + '/v3');
 
   var firstLoad = true;
   dbRef.on('value', function(snap) {
     if (isDragging) return;
     if (snap.exists()) {
       appData = ensureArrays(snap.val());
-      ensureMailbox();
+      ensureInbox();
       dot('on');
       render();
       if (firstLoad) listenInbox();
     } else if (firstLoad) {
-      var oldRef = firebase.database().ref('dashboards/' + syncKey + '/tasks');
-      oldRef.once('value', function(oldSnap) {
-        appData = buildInitialData(oldSnap.val() || {});
-        ensureMailbox();
-        save();
-        listenInbox();
+      /* Try to migrate from v2 first */
+      var v2Ref = firebase.database().ref('dashboards/' + syncKey + '/v2');
+      v2Ref.once('value', function(v2Snap) {
+        if (v2Snap.exists()) {
+          appData = ensureArrays(v2Snap.val());
+          ensureInbox();
+          save();
+          listenInbox();
+        } else {
+          var oldRef = firebase.database().ref('dashboards/' + syncKey + '/tasks');
+          oldRef.once('value', function(oldSnap) {
+            appData = buildInitialData(oldSnap.val() || {});
+            ensureInbox();
+            save();
+            listenInbox();
+          });
+        }
       });
     }
     firstLoad = false;
@@ -2219,13 +2284,13 @@ function listenInbox() {
   inboxRef.on('child_added', function(snap) {
     var item = snap.val();
     if (!item || !item.text) { snap.ref.remove(); return; }
-    var mailbox = getMailboxSec();
-    if (!mailbox) return; // appData not ready — leave item for retry
-    createTask(mailbox.id, {
-      text:     item.text,
-      desc:     item.desc     || '',
-      priority: item.priority || null,
-      dueDate:  item.dueDate  || null
+    var inbox = getInboxSec();
+    if (!inbox) return; // appData not ready — leave item for retry
+    createTask(inbox.id, {
+      title:       item.text,
+      description: item.desc     || '',
+      priority:    item.priority || null,
+      dueDate:     item.dueDate  || null
     });
     snap.ref.remove();
   });
@@ -2246,36 +2311,46 @@ function save() {
    ================================================================ */
 function loadLS() {
   try {
-    var s = localStorage.getItem('bozzone-app-v2');
+    var s = localStorage.getItem('bozzone-app-v3');
     if (s) { appData = ensureArrays(JSON.parse(s)); return; }
+    /* Fallback: migrate from v2 */
+    var s2 = localStorage.getItem('bozzone-app-v2');
+    if (s2) { appData = ensureArrays(JSON.parse(s2)); return; }
     var old = localStorage.getItem('bozzone-states');
     if (old) appData = buildInitialData(JSON.parse(old));
   } catch (e) {}
 }
 
 function saveLS() {
-  try { localStorage.setItem('bozzone-app-v2', JSON.stringify(appData)); } catch (e) {}
+  try { localStorage.setItem('bozzone-app-v3', JSON.stringify(appData)); } catch (e) {}
 }
 
 /* ================================================================
-   MAILBOX
+   INBOX
    ================================================================ */
-function getMailboxSec() {
-  return (appData.sections || []).filter(function(s) { return s.isMailbox; })[0] || null;
+function getInboxSec() {
+  return (appData.sections || []).filter(function(s) { return s.isInbox || s.isMailbox; })[0] || null;
 }
 
-function ensureMailbox() {
-  if (!getMailboxSec()) {
+/* Keep old name as alias */
+var getMailboxSec = getInboxSec;
+
+function ensureInbox() {
+  if (!getInboxSec()) {
     appData.sections.push({
       id: '__mailbox__',
       title: 'Mailbox',
       icon: '📬',
       priority: false,
+      isInbox: true,
       isMailbox: true,
       tasks: []
     });
   }
 }
+
+/* Keep old name as alias */
+var ensureMailbox = ensureInbox;
 
 /* ================================================================
    SHORTCUTS (URL ADD TO MAILBOX)
@@ -2338,7 +2413,7 @@ function markShortcutSeen(p) {
   }
 }
 
-function addMailboxTaskFromShortcut(text) {
+function addInboxTaskFromShortcut(text) {
   var t = (text || '').trim();
   var lower = t.toLowerCase();
   if (!t) return false;
@@ -2358,33 +2433,39 @@ function addMailboxTaskFromShortcut(text) {
     } catch (e) { /* fall back to local add */ }
   }
 
-  ensureMailbox();
-  var mailbox = getMailboxSec();
-  if (!mailbox) return false;
-  createTask(mailbox.id, { text: t });
+  ensureInbox();
+  var inbox = getInboxSec();
+  if (!inbox) return false;
+  createTask(inbox.id, { title: t });
   return true;
 }
 
-function cleanupMailboxByText(text) {
+/* Keep old name as alias */
+var addMailboxTaskFromShortcut = addInboxTaskFromShortcut;
+
+function cleanupInboxByText(text) {
   var t = (text || '').trim();
   if (!t) return false;
   var lower = t.toLowerCase();
   if (lower === '[provided input]' || lower === 'provided input') return false;
 
-  ensureMailbox();
-  var mailbox = getMailboxSec();
-  if (!mailbox) return false;
+  ensureInbox();
+  var inbox = getInboxSec();
+  if (!inbox) return false;
 
-  var before = mailbox.tasks.length;
-  mailbox.tasks = mailbox.tasks.filter(function(task) {
-    return ((task.text || '').trim() !== t);
+  var before = inbox.tasks.length;
+  inbox.tasks = inbox.tasks.filter(function(task) {
+    return ((task.title || task.text || '').trim() !== t);
   });
-  if (mailbox.tasks.length !== before) {
+  if (inbox.tasks.length !== before) {
     save();
     showToast('Mailbox cleaned');
   }
   return true;
 }
+
+/* Keep old name as alias */
+var cleanupMailboxByText = cleanupInboxByText;
 
 /* ================================================================
    TASK CRUD
@@ -2392,7 +2473,8 @@ function cleanupMailboxByText(text) {
 function addTask(secId, text) {
   var sec = findSec(secId);
   if (!sec) return;
-  var task = { id: uid(), text: text.trim(), done: false, tags: [] };
+  var trimmed = text.trim();
+  var task = { id: uid(), title: trimmed, text: trimmed, done: false, tags: [], status: 'not_started', description: '', notes: '', priority: null, dueDate: null, startDate: null, completedDate: null, subtasks: [] };
   if (appSettings.addTop) sec.tasks.unshift(task);
   else                    sec.tasks.push(task);
   save();
@@ -2436,11 +2518,17 @@ function cycleStatus(secId, taskId) {
   var completed = false;
   for (var i = 0; i < sec.tasks.length; i++) {
     if (sec.tasks[i].id === taskId) {
-      var cur = sec.tasks[i].status || 'todo';
-      var next = cur === 'todo' ? 'inprogress' : cur === 'inprogress' ? 'done' : 'todo';
+      var cur = sec.tasks[i].status || 'not_started';
+      /* Normalize legacy statuses */
+      if (cur === 'todo') cur = 'not_started';
+      if (cur === 'inprogress') cur = 'in_progress';
+      var next = cur === 'not_started' ? 'in_progress' : cur === 'in_progress' ? 'done' : 'not_started';
       sec.tasks[i].status = next;
       sec.tasks[i].done   = (next === 'done');
-      if (next === 'done') completed = true;
+      if (next === 'done') {
+        completed = true;
+        sec.tasks[i].completedDate = new Date().toISOString().slice(0, 10);
+      }
       break;
     }
   }
@@ -2454,25 +2542,28 @@ function cycleStatus(secId, taskId) {
 function createTask(secId, data) {
   var sec = findSec(secId);
   if (!sec) return;
-  var status = data.status || 'todo';
-  var taskText = (data.text || '').trim();
+  var status = data.status || 'not_started';
+  var taskText = (data.title || data.text || '').trim();
   var dueDate  = data.dueDate || null;
   if (!dueDate && appSettings.parseDates) dueDate = parseDateFromTitle(taskText);
   var task = {
-    id:       uid(),
-    text:     taskText,
-    desc:     (data.desc || '').trim(),
-    notes:    (data.notes || '').trim(),
-    status:   status,
-    done:     status === 'done',
-    priority: data.priority || null,
-    dueDate:  dueDate,
+    id:            uid(),
+    title:         taskText,
+    text:          taskText,
+    description:   (data.description || data.desc || '').trim(),
+    notes:         (data.notes || '').trim(),
+    status:        status,
+    done:          status === 'done',
+    priority:      data.priority || null,
+    dueDate:       dueDate,
+    startDate:     data.startDate || null,
+    completedDate: data.completedDate || null,
     subtasks: (data.subtasks || []).map(function(s) {
-      return { id: uid(), text: s.text, done: false };
+      return { id: uid(), title: s.title || s.text, text: s.title || s.text, done: false };
     }),
     tags: []
   };
-  if (!task.text) return;
+  if (!task.title) return;
   if (appSettings.addTop) sec.tasks.unshift(task);
   else                    sec.tasks.push(task);
   save();
@@ -2492,16 +2583,20 @@ function updateTask(oldSecId, taskId, newSecId, data) {
   if (taskIdx === -1) return;
 
   var task   = oldSec.tasks[taskIdx];
-  var status = data.status || 'todo';
-  task.text     = (data.text  || '').trim();
-  task.desc     = (data.desc  || '').trim();
-  task.notes    = (data.notes || '').trim();
-  task.status   = status;
-  task.done     = (status === 'done');
-  task.priority = data.priority || null;
-  task.dueDate  = data.dueDate  || null;
+  var status = data.status || 'not_started';
+  var taskText = (data.title || data.text || '').trim();
+  task.title         = taskText;
+  task.text          = taskText;
+  task.description   = (data.description || data.desc || '').trim();
+  task.notes         = (data.notes || '').trim();
+  task.status        = status;
+  task.done          = (status === 'done');
+  task.priority      = data.priority || null;
+  task.dueDate       = data.dueDate  || null;
+  task.startDate     = data.startDate || null;
+  task.completedDate = data.completedDate || null;
   task.subtasks = (data.subtasks || []).map(function(s) {
-    return { id: s.id || uid(), text: s.text, done: s.done || false };
+    return { id: s.id || uid(), title: s.title || s.text, text: s.title || s.text, done: s.done || false };
   });
 
   /* Move to different section if the user changed it */
@@ -2533,7 +2628,8 @@ function addSubtask(secId, taskId, text) {
   var task = sec.tasks.filter(function(t) { return t.id === taskId; })[0];
   if (!task) return;
   if (!task.subtasks) task.subtasks = [];
-  task.subtasks.push({ id: uid(), text: text.trim(), done: false });
+  var trimmedSub = text.trim();
+  task.subtasks.push({ id: uid(), title: trimmedSub, text: trimmedSub, done: false });
   save();
 }
 
@@ -2559,10 +2655,10 @@ function showNewTaskModal(secId) {
   ntEditSecId  = null;
   ntEditTaskId = null;
   ntPendingSubtasks = [];
-  /* Populate section select — mailbox first and selected by default */
+  /* Populate section select — inbox first and selected by default */
   var sel = document.getElementById('ntSection');
   sel.innerHTML = '';
-  var mailbox = getMailboxSec();
+  var mailbox = getInboxSec();
   if (mailbox) {
     var mbOpt = document.createElement('option');
     mbOpt.value = mailbox.id;
@@ -2571,7 +2667,7 @@ function showNewTaskModal(secId) {
     sel.appendChild(mbOpt);
   }
   (appData.sections || []).forEach(function(s) {
-    if (s.isMailbox) return;
+    if (s.isInbox || s.isMailbox) return;
     var opt = document.createElement('option');
     opt.value = s.id;
     opt.textContent = (s.icon ? s.icon + ' ' : '') + s.title;
@@ -2581,9 +2677,10 @@ function showNewTaskModal(secId) {
   document.getElementById('ntTitle').value    = '';
   document.getElementById('ntDesc').value     = '';
   document.getElementById('ntNotes').value    = '';
-  document.getElementById('ntStatus').value   = 'todo';
+  document.getElementById('ntStatus').value   = 'not_started';
   document.getElementById('ntPriority').value = '';
   document.getElementById('ntDueDate').value  = '';
+  document.getElementById('ntStartDate').value = '';
   document.getElementById('ntSubInput').value = '';
   renderNtSubtasks();
   document.querySelector('#ntOv h2').textContent  = '\u2795 Create New Task';
@@ -2621,17 +2718,18 @@ function showEditTaskModal(secId, taskId) {
   });
 
   /* Populate fields with existing task data */
-  document.getElementById('ntTitle').value    = task.text     || '';
-  document.getElementById('ntDesc').value     = task.desc     || '';
+  document.getElementById('ntTitle').value    = task.title || task.text     || '';
+  document.getElementById('ntDesc').value     = task.description || task.desc || '';
   document.getElementById('ntNotes').value    = task.notes    || '';
-  document.getElementById('ntStatus').value   = task.status   || 'todo';
+  document.getElementById('ntStatus').value   = task.status   || 'not_started';
   document.getElementById('ntPriority').value = task.priority || '';
   document.getElementById('ntDueDate').value  = task.dueDate  || '';
+  document.getElementById('ntStartDate').value = task.startDate || '';
   document.getElementById('ntSubInput').value = '';
 
   /* Copy existing subtasks into pending list */
   ntPendingSubtasks = (task.subtasks || []).map(function(s) {
-    return { id: s.id, text: s.text, done: s.done };
+    return { id: s.id, title: s.title || s.text, text: s.title || s.text, done: s.done };
   });
   renderNtSubtasks();
 
@@ -2649,7 +2747,7 @@ function renderNtSubtasks() {
     var item = document.createElement('div');
     item.className = 'nt-subtask-item';
     var sp = document.createElement('span');
-    sp.textContent = s.text;
+    sp.textContent = s.title || s.text;
     var del = document.createElement('button');
     del.className = 'nt-subtask-del';
     del.innerHTML = '&times;';
@@ -2777,10 +2875,10 @@ function setSearch(text) {
 }
 
 function getFilteredSections() {
-  var secs = (appData.sections || []).filter(function(s) { return !s.isMailbox; });
+  var secs = (appData.sections || []).filter(function(s) { return !s.isInbox && !s.isMailbox; });
   /* Group focus filter */
   if (activeGroupFilter) {
-    secs = secs.filter(function(sec) { return sec.groupId === activeGroupFilter; });
+    secs = secs.filter(function(sec) { return sec.projectId === activeGroupFilter || sec.groupId === activeGroupFilter; });
   }
   var needsFilter = activeFilter || activeSearch || activeView || hideCompleted;
   if (!needsFilter) return secs;
@@ -2802,9 +2900,9 @@ function getFilteredSections() {
           var d = new Date(t.dueDate + 'T00:00:00');
           if (d >= today) return false;
         } else if (activeView === 'high') {
-          if (t.priority !== 'high') return false;
-        } else if (activeView === 'inprogress') {
-          if (t.status !== 'inprogress') return false;
+          if (t.priority !== 'high' && t.priority !== 'urgent') return false;
+        } else if (activeView === 'in_progress') {
+          if (t.status !== 'in_progress' && t.status !== 'inprogress') return false;
         } else if (activeView === 'week') {
           if (t.status === 'done' || !t.dueDate) return false;
           var dw = new Date(t.dueDate + 'T00:00:00');
@@ -2814,11 +2912,11 @@ function getFilteredSections() {
       /* Search filter */
       if (activeSearch) {
         var q = activeSearch;
-        var inTitle = (t.text || '').toLowerCase().indexOf(q) !== -1;
-        var inDesc  = (t.desc || '').toLowerCase().indexOf(q) !== -1;
+        var inTitle = (t.title || t.text || '').toLowerCase().indexOf(q) !== -1;
+        var inDesc  = (t.description || t.desc || '').toLowerCase().indexOf(q) !== -1;
         var inNotes = (t.notes|| '').toLowerCase().indexOf(q) !== -1;
         var inSubs  = (t.subtasks || []).some(function(s) {
-          return (s.text || '').toLowerCase().indexOf(q) !== -1;
+          return (s.title || s.text || '').toLowerCase().indexOf(q) !== -1;
         });
         if (!inTitle && !inDesc && !inNotes && !inSubs) return false;
       }
@@ -2829,7 +2927,8 @@ function getFilteredSections() {
       title: sec.title,
       icon: sec.icon,
       priority: sec.priority,
-      groupId: sec.groupId,
+      projectId: sec.projectId,
+      groupId: sec.projectId,
       tasks: tasks
     };
   }).filter(function(sec) {
@@ -2861,18 +2960,18 @@ function renderViewBar() {
   bar.innerHTML = '';
 
   var views = [
-    { id: 'myday',      label: '☀️ My Day',      cls: 'vc-myday'    },
-    { id: 'overdue',    label: '🔴 Overdue',    cls: 'vc-overdue'  },
-    { id: 'high',       label: '⬆ High Pri',    cls: 'vc-high'     },
-    { id: 'inprogress', label: '⏳ In Progress', cls: 'vc-progress' },
-    { id: 'week',       label: '📅 My Week',     cls: 'vc-week'     },
-    { id: 'table',      label: '📋 All Tasks',   cls: 'vc-table'    }
+    { id: 'myday',       label: '☀️ My Day',         cls: 'vc-myday'    },
+    { id: 'overdue',     label: '🔴 Overdue',         cls: 'vc-overdue'  },
+    { id: 'high',        label: '⬆ High/Urgent',      cls: 'vc-high'     },
+    { id: 'in_progress', label: '⏳ In Progress',      cls: 'vc-progress' },
+    { id: 'week',        label: '📅 My Week',          cls: 'vc-week'     },
+    { id: 'table',       label: '📋 All Tasks',        cls: 'vc-table'    }
   ];
 
   /* Count tasks per view for badge */
   var today = new Date(); today.setHours(0,0,0,0);
   var weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate() + 7);
-  var vc = { myday:0, overdue:0, high:0, inprogress:0, week:0, table:0 };
+  var vc = { myday:0, overdue:0, high:0, in_progress:0, week:0, table:0 };
   (appData.sections || []).forEach(function(sec) {
     (sec.tasks || []).forEach(function(t) {
       vc.table++;
@@ -2883,8 +2982,8 @@ function renderViewBar() {
           if (d < today)  vc.overdue++;
           if (d >= today && d <= weekEnd) vc.week++;
         }
-        if (t.priority === 'high')      vc.high++;
-        if (t.status === 'inprogress')  vc.inprogress++;
+        if (t.priority === 'high' || t.priority === 'urgent') vc.high++;
+        if (t.status === 'in_progress' || t.status === 'inprogress') vc.in_progress++;
       }
     });
   });
@@ -2905,14 +3004,14 @@ function renderViewBar() {
 }
 
 /* ================================================================
-   RENDER — GROUP FOCUS BAR
+   RENDER — PROJECT FOCUS BAR
    ================================================================ */
-function renderGroupBar() {
+function renderProjectBar() {
   var bar = document.getElementById('groupBar');
   if (!bar) return;
   bar.innerHTML = '';
-  var groups = appData.groups || [];
-  if (!groups.length) return;   /* hide bar when no groups exist */
+  var projects = appData.projects || [];
+  if (!projects.length) return;   /* hide bar when no projects exist */
 
   /* All pill */
   var allPill = document.createElement('button');
@@ -2923,8 +3022,8 @@ function renderGroupBar() {
   });
   bar.appendChild(allPill);
 
-  /* One pill per group */
-  groups.forEach(function(g) {
+  /* One pill per project */
+  projects.forEach(function(g) {
     var pill = document.createElement('button');
     pill.className = 'grp-pill' + (activeGroupFilter === g.id ? ' active' : '');
     pill.textContent = g.name;
@@ -2983,9 +3082,9 @@ function renderFilterBar() {
 }
 
 /* ================================================================
-   GROUP HEADER — full-width row that spans the board grid
+   PROJECT HEADER — full-width row that spans the board grid
    ================================================================ */
-function buildGroupHeader(g, count) {
+function buildProjectHeader(g, count) {
   var hdr = document.createElement('div');
   hdr.className = 'group-header';
   hdr.dataset.groupId = g.id;
@@ -3017,7 +3116,7 @@ function buildGroupHeader(g, count) {
       inp.focus(); inp.select();
       function commit() {
         var v = inp.value.trim();
-        if (v) renameGroup(gid, v);
+        if (v) renameProject(gid, v);
         else render();
       }
       inp.addEventListener('blur', commit);
@@ -3042,7 +3141,7 @@ function buildGroupHeader(g, count) {
     delBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       if (confirm('Delete group \u201c' + gname + '\u201d? Columns will become ungrouped.')) {
-        deleteGroup(gid);
+        deleteProject(gid);
       }
     });
   })(g.id, g.name);
@@ -3072,14 +3171,14 @@ function renderTableView(board) {
 
   /* Build lookup maps */
   var groupMap = {};
-  (appData.groups || []).forEach(function(g) { groupMap[g.id] = g.name; });
+  (appData.projects || []).forEach(function(g) { groupMap[g.id] = g.name; });
   var tagMap = {};
   (appData.tags || []).forEach(function(tg) { tagMap[tg.id] = tg; });
 
   /* Build flat list of all tasks with their section context */
   var rows = [];
   (appData.sections || []).forEach(function(sec) {
-    var groupName = sec.groupId ? (groupMap[sec.groupId] || '—') : '—';
+    var groupName = (sec.projectId || sec.groupId) ? (groupMap[sec.projectId || sec.groupId] || '—') : '—';
     (sec.tasks || []).forEach(function(t) {
       if (hideCompleted && t.status === 'done') return;
       rows.push({ sec: sec, task: t, groupName: groupName });
@@ -3087,8 +3186,8 @@ function renderTableView(board) {
   });
 
   /* Sort rows by the active column */
-  var priOrd = { high: 0, medium: 1, low: 2, '': 3 };
-  var stOrd  = { inprogress: 0, todo: 1, done: 2 };
+  var priOrd = { urgent: 0, high: 1, medium: 2, low: 3, '': 4 };
+  var stOrd  = { in_progress: 0, inprogress: 0, not_started: 1, todo: 1, done: 2 };
   if (tvSort.col) {
     rows.sort(function(a, b) {
       var av, bv, cmp;
@@ -3100,10 +3199,10 @@ function renderTableView(board) {
           av = a.sec.title || ''; bv = b.sec.title || '';
           cmp = av.localeCompare(bv); break;
         case 'task':
-          av = a.task.text || ''; bv = b.task.text || '';
+          av = a.task.title || a.task.text || ''; bv = b.task.title || b.task.text || '';
           cmp = av.localeCompare(bv); break;
         case 'status':
-          av = stOrd[a.task.status || 'todo']; bv = stOrd[b.task.status || 'todo'];
+          av = stOrd[a.task.status || 'not_started']; bv = stOrd[b.task.status || 'not_started'];
           cmp = av - bv; break;
         case 'priority':
           av = priOrd[a.task.priority || '']; bv = priOrd[b.task.priority || ''];
@@ -3157,11 +3256,11 @@ function renderTableView(board) {
   table.appendChild(thead);
 
   var tbody = document.createElement('tbody');
-  var statusLabel = { todo:'To Do', inprogress:'In Progress', done:'Done' };
+  var statusLabel = { not_started:'Not Started', todo:'Not Started', in_progress:'In Progress', inprogress:'In Progress', blocked:'Blocked', done:'Done' };
 
   rows.forEach(function(row) {
     var sec = row.sec, t = row.task, groupName = row.groupName;
-    var st = t.status || 'todo';
+    var st = t.status || 'not_started';
 
     var priHtml = t.priority
       ? '<span class="tv-pb ' + t.priority + '">' + t.priority.charAt(0).toUpperCase() + t.priority.slice(1) + '</span>'
@@ -3188,7 +3287,7 @@ function renderTableView(board) {
     tr.innerHTML =
       '<td class="tv-group">'   + escHtml(groupName)  + '</td>' +
       '<td class="tv-section">' + escHtml(sec.title)  + '</td>' +
-      '<td class="tv-task">'    + escHtml(t.text)     + '</td>' +
+      '<td class="tv-task">'    + escHtml(t.title || t.text || '')     + '</td>' +
       '<td><span class="tv-sb ' + st + '">' + (statusLabel[st] || st) + '</span></td>' +
       '<td>' + priHtml  + '</td>' +
       '<td>' + dueHtml  + '</td>' +
@@ -3353,8 +3452,8 @@ function renderMyDayCompactView(board) {
   /* Header with count */
   var hdr = document.createElement('div');
   hdr.style.cssText = 'text-align:center;margin-bottom:20px;padding:12px;background:linear-gradient(135deg,#fff9f0,var(--card-bg));border-radius:12px;';
-  var count = mdTasks.filter(function(t) { return t.task.status !== 'inprogress'; }).length;
-  var inProgress = mdTasks.filter(function(t) { return t.task.status === 'inprogress'; }).length;
+  var count = mdTasks.filter(function(t) { return t.task.status !== 'in_progress' && t.task.status !== 'inprogress'; }).length;
+  var inProgress = mdTasks.filter(function(t) { return t.task.status === 'in_progress' || t.task.status === 'inprogress'; }).length;
   hdr.innerHTML = '<div style="font-size:2.2rem;margin-bottom:8px;">☀️</div>' +
     '<div style="font-size:1.8rem;font-weight:700;color:var(--accent);margin-bottom:6px;">' + count + ' tasks</div>' +
     '<div style="font-size:.85rem;color:var(--text-sec);">Focus on your day. ' + (inProgress > 0 ? inProgress + ' in progress.' : 'Get started!') + '</div>';
@@ -3392,12 +3491,12 @@ function renderMyDayCompactView(board) {
       var t = item.task;
       var taskDiv = document.createElement('div');
       taskDiv.style.cssText = 'background:var(--card-bg);border-radius:10px;padding:12px 14px;border-left:4px solid ' +
-        (t.status === 'inprogress' ? 'var(--accent)' : '#ddd') + ';';
+        (t.status === 'in_progress' || t.status === 'inprogress' ? 'var(--accent)' : '#ddd') + ';';
 
       /* Status button (compact) */
       var statusBtn = document.createElement('button');
       statusBtn.className = 'status-btn';
-      statusBtn.setAttribute('data-status', t.status || 'todo');
+      statusBtn.setAttribute('data-status', t.status || 'not_started');
       statusBtn.style.cssText = 'margin-right:8px;margin-top:2px;float:left;';
       (function(sid, tid) {
         statusBtn.addEventListener('click', function(e) {
@@ -3411,7 +3510,7 @@ function renderMyDayCompactView(board) {
       content.style.cssText = 'margin-left:32px;';
       var label = document.createElement('label');
       label.style.cssText = 'display:block;cursor:pointer;color:var(--text);margin-bottom:4px;line-height:1.4;font-weight:500;';
-      label.textContent = t.text;
+      label.textContent = t.title || t.text;
       content.appendChild(label);
 
       /* Priority + Due */
@@ -3454,7 +3553,7 @@ function render() {
   if (isDragging) return;
 
   renderViewBar();
-  renderGroupBar();
+  renderProjectBar();
   renderFilterBar();
 
   var board = document.getElementById('board');
@@ -3536,7 +3635,7 @@ function render() {
       mdTasks.forEach(function(item) {
         var task = item.task;
         var secId = item.secId;
-        var status = task.status || (task.done ? 'done' : 'todo');
+        var status = task.status || (task.done ? 'done' : 'not_started');
 
         var row = document.createElement('div');
         row.className = 'task status-' + status;
@@ -3548,7 +3647,7 @@ function render() {
         statusBtn.className = 'status-btn';
         statusBtn.dataset.status = status;
         statusBtn.title = 'Click to cycle status';
-        statusBtn.innerHTML = status === 'done' ? '&#10003;' : status === 'inprogress' ? '&#9680;' : '';
+        statusBtn.innerHTML = status === 'done' ? '&#10003;' : (status === 'in_progress' || status === 'inprogress') ? '&#9680;' : '';
         (function(sid, tid) {
           statusBtn.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -3562,7 +3661,7 @@ function render() {
         content.className = 'task-content';
 
         var lb = document.createElement('label');
-        lb.textContent = task.text;
+        lb.textContent = task.title || task.text;
         content.appendChild(lb);
 
         /* Due chip */
@@ -3643,7 +3742,7 @@ function render() {
         row.className = 'my-day-sugg-item';
         var txt = document.createElement('span');
         txt.className = 'my-day-sugg-text';
-        txt.textContent = item.task.text;
+        txt.textContent = item.task.title || item.task.text;
         var sec = document.createElement('span');
         sec.className = 'my-day-sugg-sec';
         sec.textContent = item.secTitle;
@@ -3686,7 +3785,7 @@ function render() {
     var mdAddSel = document.createElement('select');
     mdAddSel.className = 'my-day-add-sel';
     mdAddSel.title = 'Section to add task into';
-    var mdMailbox = getMailboxSec();
+    var mdMailbox = getInboxSec();
     if (mdMailbox) {
       var mbSelOpt = document.createElement('option');
       mbSelOpt.value = mdMailbox.id;
@@ -3694,7 +3793,7 @@ function render() {
       mdAddSel.appendChild(mbSelOpt);
     }
     (appData.sections || []).forEach(function(s) {
-      if (s.isMailbox) return;
+      if (s.isInbox || s.isMailbox) return;
       var opt = document.createElement('option');
       opt.value = s.id;
       opt.textContent = (s.icon ? s.icon + ' ' : '') + s.title;
@@ -3717,7 +3816,7 @@ function render() {
       var secId = mdAddSel.value;
       var sec = findSec(secId);
       if (!sec) return;
-      sec.tasks.push({ id: uid(), text: text, done: false, tags: [], myDay: true });
+      sec.tasks.push({ id: uid(), title: text, text: text, done: false, tags: [], myDay: true, status: 'not_started', description: '', notes: '', priority: null, dueDate: null, startDate: null, completedDate: null, subtasks: [] });
       mdAddInp.value = '';
       mdAddInp.focus();
       save();
@@ -3747,7 +3846,7 @@ function render() {
     /* ── Per-column sort ── */
     var sortMode = sectionSort[sec.id] || 'manual';
     if (sortMode !== 'manual') {
-      var priOrder = { high: 0, medium: 1, low: 2 };
+      var priOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
       tasks = tasks.slice().sort(function(a, b) {
         if (sortMode === 'priority') {
           return (priOrder[a.priority] !== undefined ? priOrder[a.priority] : 3) -
@@ -3759,7 +3858,7 @@ function render() {
           return da - db;
         }
         if (sortMode === 'alpha') {
-          return (a.text || '').toLowerCase().localeCompare((b.text || '').toLowerCase());
+          return (a.title || a.text || '').toLowerCase().localeCompare((b.title || b.text || '').toLowerCase());
         }
         if (sortMode === 'created') {
           return (a.id || '').localeCompare(b.id || '');
@@ -3786,8 +3885,8 @@ function render() {
     var hd = document.createElement('div');
     hd.className = 'card-hd';
 
-    /* Column drag handle (not shown for mailbox) */
-    if (!sec.isMailbox) {
+    /* Column drag handle (not shown for inbox) */
+    if (!sec.isInbox && !sec.isMailbox) {
       var colGrip = document.createElement('span');
       colGrip.className = 'col-drag-handle';
       colGrip.innerHTML = '&#8942;';
@@ -3930,7 +4029,7 @@ function render() {
     badge.textContent = done + '/' + tasks.length;
     actions.appendChild(badge);
 
-    if (!sec.isMailbox) {
+    if (!sec.isInbox && !sec.isMailbox) {
       var delBtn = document.createElement('button');
       delBtn.className = 'sec-del';
       delBtn.innerHTML = '&times;';
@@ -3946,11 +4045,11 @@ function render() {
 
     hd.appendChild(actions);
 
-    /* Group pill — only shown when at least one group exists (not for mailbox) */
-    if (!sec.isMailbox && (appData.groups || []).length > 0) {
+    /* Group pill — only shown when at least one project exists (not for inbox) */
+    if (!sec.isInbox && !sec.isMailbox && (appData.projects || []).length > 0) {
       var grpPill = document.createElement('button');
       grpPill.className = 'sec-group-pill';
-      var curGrp = sec.groupId ? findGroup(sec.groupId) : null;
+      var curGrp = (sec.projectId || sec.groupId) ? findProject(sec.projectId || sec.groupId) : null;
       grpPill.textContent = curGrp ? curGrp.name : 'Group\u2026';
       (function(sid, currentGroupId) {
         grpPill.addEventListener('click', function(e) {
@@ -3962,15 +4061,15 @@ function render() {
           var noneBtn = document.createElement('button');
           noneBtn.textContent = '\u2014 None \u2014';
           if (!currentGroupId) noneBtn.classList.add('active');
-          noneBtn.addEventListener('click', function(e2) { e2.stopPropagation(); assignSectionToGroup(sid, null); menu.remove(); });
+          noneBtn.addEventListener('click', function(e2) { e2.stopPropagation(); assignSectionToProject(sid, null); menu.remove(); });
           menu.appendChild(noneBtn);
           var sep1 = document.createElement('div'); sep1.className = 'group-assign-sep'; menu.appendChild(sep1);
-          /* Existing groups */
-          (appData.groups || []).forEach(function(g) {
+          /* Existing projects */
+          (appData.projects || []).forEach(function(g) {
             var gb = document.createElement('button');
             gb.textContent = g.name;
             if (currentGroupId === g.id) gb.classList.add('active');
-            gb.addEventListener('click', function(e2) { e2.stopPropagation(); assignSectionToGroup(sid, g.id); menu.remove(); });
+            gb.addEventListener('click', function(e2) { e2.stopPropagation(); assignSectionToProject(sid, g.id); menu.remove(); });
             menu.appendChild(gb);
           });
           var sep2 = document.createElement('div'); sep2.className = 'group-assign-sep'; menu.appendChild(sep2);
@@ -3981,8 +4080,8 @@ function render() {
             e2.stopPropagation();
             var gname = prompt('New group name:');
             if (gname && gname.trim()) {
-              var g2 = addGroup(gname.trim());
-              assignSectionToGroup(sid, g2.id);
+              var g2 = addProject(gname.trim());
+              assignSectionToProject(sid, g2.id);
             }
             menu.remove();
           });
@@ -3995,7 +4094,7 @@ function render() {
             });
           }, 0);
         });
-      })(sec.id, sec.groupId);
+      })(sec.id, sec.projectId || sec.groupId);
       hd.appendChild(grpPill);
     }
 
@@ -4027,7 +4126,7 @@ function render() {
     }
 
     tasks.forEach(function(task) {
-      var status = task.status || (task.done ? 'done' : 'todo');
+      var status = task.status || (task.done ? 'done' : 'not_started');
 
       /* Overdue urgency check */
       var isOverdueUrgent = false;
@@ -4055,7 +4154,7 @@ function render() {
       statusBtn.className = 'status-btn';
       statusBtn.dataset.status = status;
       statusBtn.title = 'Click to cycle status';
-      statusBtn.innerHTML = status === 'done' ? '&#10003;' : status === 'inprogress' ? '&#9680;' : '';
+      statusBtn.innerHTML = status === 'done' ? '&#10003;' : (status === 'in_progress' || status === 'inprogress') ? '&#9680;' : '';
       (function(sid, tid) {
         statusBtn.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -4069,7 +4168,7 @@ function render() {
       content.className = 'task-content';
 
       var lb = document.createElement('label');
-      lb.textContent = task.text;
+      lb.textContent = task.title || task.text;
       lb.title = 'Double-click to edit';
       (function(sid, tid, lbl) {
         lbl.addEventListener('dblclick', function(e) {
@@ -4087,7 +4186,7 @@ function render() {
               var s2 = findSec(sid);
               if (s2) {
                 var t2 = (s2.tasks || []).filter(function(t) { return t.id === tid; })[0];
-                if (t2) { t2.text = v; save(); return; }
+                if (t2) { t2.title = v; t2.text = v; save(); return; }
               }
             }
             inp.remove(); lbl.style.display = '';
@@ -4176,7 +4275,7 @@ function render() {
           })(sec.id, task.id, sub.id);
 
           var slb = document.createElement('label');
-          slb.textContent = sub.text;
+          slb.textContent = sub.title || sub.text;
           slb.title = 'Double-click to edit';
           (function(sid2, tid2, subid2, slabel) {
             slabel.addEventListener('dblclick', function(e) {
@@ -4196,7 +4295,7 @@ function render() {
                     var t2 = (s2.tasks||[]).filter(function(t){return t.id===tid2;})[0];
                     if (t2) {
                       var sub2 = (t2.subtasks||[]).filter(function(s){return s.id===subid2;})[0];
-                      if (sub2) { sub2.text = v; save(); return; }
+                      if (sub2) { sub2.title = v; sub2.text = v; save(); return; }
                     }
                   }
                 }
@@ -4343,33 +4442,34 @@ function render() {
     return card;
   } /* end buildSectionCard */
 
-  /* ── Mailbox column (fixed position: right after My Day) ── */
-  var mbSec = getMailboxSec();
+  /* ── Inbox column (fixed position: right after My Day) ── */
+  var mbSec = getInboxSec();
   if (mbSec) {
     var mbCard = buildSectionCard(mbSec);
-    mbCard.classList.add('mailbox-col');
+    mbCard.classList.add('inbox-col');
     board.appendChild(mbCard);
   }
 
   /* ── Grouped rendering loop ── */
-  var groupedSections = {};   /* groupId → [filtSec, ...] */
+  var groupedSections = {};   /* projectId → [filtSec, ...] */
   var ungrouped = [];
   filteredSecs.forEach(function(fs) {
-    if (fs.groupId && findGroup(fs.groupId)) {
-      if (!groupedSections[fs.groupId]) groupedSections[fs.groupId] = [];
-      groupedSections[fs.groupId].push(fs);
+    var pid = fs.projectId || fs.groupId;
+    if (pid && findProject(pid)) {
+      if (!groupedSections[pid]) groupedSections[pid] = [];
+      groupedSections[pid].push(fs);
     } else {
       ungrouped.push(fs);
     }
   });
 
-  /* Named groups — each wrapped in a draggable container */
-  (appData.groups || []).forEach(function(g) {
+  /* Named projects — each wrapped in a draggable container */
+  (appData.projects || []).forEach(function(g) {
     var members = groupedSections[g.id] || [];
     var wrapper = document.createElement('div');
     wrapper.className = 'group-wrapper';
     wrapper.dataset.groupId = g.id;
-    wrapper.appendChild(buildGroupHeader(g, members.length));
+    wrapper.appendChild(buildProjectHeader(g, members.length));
     if (!collapsedGroups[g.id]) {
       members.forEach(function(fs) { wrapper.appendChild(buildSectionCard(fs)); });
     }
@@ -4385,7 +4485,7 @@ function render() {
   addGrpBtn.textContent = '\u002b Add Group';
   addGrpBtn.addEventListener('click', function() {
     var gname = prompt('Group name:');
-    if (gname && gname.trim()) { addGroup(gname.trim()); }
+    if (gname && gname.trim()) { addProject(gname.trim()); }
   });
   board.appendChild(addGrpBtn);
 
@@ -4491,7 +4591,8 @@ function renderTagPicker() {
   var box = document.getElementById('tpBox');
   var tags = appData.tags || [];
   var taskTags = task.tags || [];
-  var html = '<div class="tp-title">Tags for: ' + escHtml(task.text.slice(0, 40)) + (task.text.length > 40 ? '\u2026' : '') + '</div>';
+  var taskTitle = task.title || task.text || '';
+  var html = '<div class="tp-title">Tags for: ' + escHtml(taskTitle.slice(0, 40)) + (taskTitle.length > 40 ? '\u2026' : '') + '</div>';
 
   if (!tags.length) {
     html += '<div class="tp-empty">No tags yet. Create tags from the filter bar.</div>';
@@ -4679,18 +4780,18 @@ function initSortables() {
     boardEl.querySelectorAll('.group-wrapper[data-group-id]').forEach(function(wrapper) {
       var gid = wrapper.dataset.groupId;
       Array.prototype.slice.call(wrapper.children).forEach(function(el) {
-        if (el.dataset.secId && !el.classList.contains('mailbox-col')) {
+        if (el.dataset.secId && !el.classList.contains('inbox-col') && !el.classList.contains('mailbox-col')) {
           var s = secMap[el.dataset.secId];
-          if (s) { s.groupId = gid; newIds.push(s.id); }
+          if (s) { s.projectId = gid; s.groupId = gid; newIds.push(s.id); }
         }
       });
     });
 
     /* Ungrouped sections — direct .card children of board (not wrappers, not fixed) */
     Array.prototype.slice.call(boardEl.children).forEach(function(el) {
-      if (el.dataset.secId && !el.classList.contains('mailbox-col')) {
+      if (el.dataset.secId && !el.classList.contains('inbox-col') && !el.classList.contains('mailbox-col')) {
         var s = secMap[el.dataset.secId];
-        if (s) { s.groupId = null; newIds.push(s.id); }
+        if (s) { s.projectId = null; s.groupId = null; newIds.push(s.id); }
       }
     });
 
@@ -4714,8 +4815,8 @@ function initSortables() {
         if (el.dataset.groupId) newOrder.push(el.dataset.groupId);
       });
       var grpMap = {};
-      (appData.groups || []).forEach(function(g) { grpMap[g.id] = g; });
-      appData.groups = newOrder.map(function(id) { return grpMap[id]; }).filter(Boolean);
+      (appData.projects || []).forEach(function(g) { grpMap[g.id] = g; });
+      appData.projects = newOrder.map(function(id) { return grpMap[id]; }).filter(Boolean);
       save();
     }
   });
@@ -4739,11 +4840,11 @@ function initSortables() {
     handle: '.col-drag-handle',
     animation: 180,
     ghostClass: 'col-ghost',
-    draggable: '.card[data-sec-id]:not(.mailbox-col)',
+    draggable: '.card[data-sec-id]:not(.inbox-col):not(.mailbox-col)',
     onStart: function() { isDragging = true; },
     onMove: function(evt) {
       var rel = evt.related;
-      if (rel && (rel.id === 'myDayCard' || rel.classList.contains('mailbox-col'))) return false;
+      if (rel && (rel.id === 'myDayCard' || rel.classList.contains('inbox-col') || rel.classList.contains('mailbox-col'))) return false;
       return true;
     },
     onEnd: commitSectionOrder
@@ -4904,7 +5005,7 @@ loadLS();
 if (!appData.sections || !appData.sections.length) {
   appData = buildInitialData();
 }
-appData = ensureArrays(appData);   /* ensure groups[] and groupId fields exist */
+appData = ensureArrays(appData);   /* ensure projects[] and projectId fields exist */
 render();
 initFB();
 
@@ -4912,11 +5013,11 @@ initFB();
 (function() {
   var p = readShortcutParams();
   if (p && p.cleanup) {
-    if (markShortcutSeen(p) && cleanupMailboxByText(p.cleanup)) {
+    if (markShortcutSeen(p) && cleanupInboxByText(p.cleanup)) {
       clearShortcutParams();
     }
   } else if (p && p.text) {
-    if (markShortcutSeen(p) && addMailboxTaskFromShortcut(p.text)) {
+    if (markShortcutSeen(p) && addInboxTaskFromShortcut(p.text)) {
       clearShortcutParams();
     }
   }
@@ -4952,13 +5053,14 @@ document.getElementById('ntCreate').addEventListener('click', function() {
   if (!title) { document.getElementById('ntTitle').focus(); return; }
   var secId = document.getElementById('ntSection').value;
   var data = {
-    text:     title,
-    desc:     document.getElementById('ntDesc').value,
-    notes:    document.getElementById('ntNotes').value,
-    status:   document.getElementById('ntStatus').value,
-    priority: document.getElementById('ntPriority').value || null,
-    dueDate:  document.getElementById('ntDueDate').value  || null,
-    subtasks: ntPendingSubtasks.slice()
+    title:       title,
+    description: document.getElementById('ntDesc').value,
+    notes:       document.getElementById('ntNotes').value,
+    status:      document.getElementById('ntStatus').value,
+    priority:    document.getElementById('ntPriority').value || null,
+    dueDate:     document.getElementById('ntDueDate').value  || null,
+    startDate:   document.getElementById('ntStartDate').value || null,
+    subtasks:    ntPendingSubtasks.slice()
   };
   if (ntEditMode) {
     updateTask(ntEditSecId, ntEditTaskId, secId, data);
@@ -4973,7 +5075,7 @@ document.getElementById('ntSubAdd').addEventListener('click', function() {
   var inp = document.getElementById('ntSubInput');
   var v   = inp.value.trim();
   if (v) {
-    ntPendingSubtasks.push({ text: v, done: false });
+    ntPendingSubtasks.push({ title: v, text: v, done: false });
     renderNtSubtasks();
     inp.value = '';
     inp.focus();
@@ -5272,8 +5374,8 @@ setTimeout(function() {
       hl.style.width = r.width + 'px';
       hl.style.height = r.height + 'px';
     }
-    var mb = el ? !!el.closest('.mailbox-col') : false;
-    panel.textContent = (e.type + ': ') + fmtEl(el) + (mb ? '  [mailbox]' : '');
+    var mb = el ? (!!el.closest('.inbox-col') || !!el.closest('.mailbox-col')) : false;
+    panel.textContent = (e.type + ': ') + fmtEl(el) + (mb ? '  [inbox]' : '');
   }
 
   document.addEventListener('touchstart', update, { capture: true, passive: true });

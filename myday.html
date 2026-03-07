@@ -114,7 +114,7 @@
     main {
       max-width: 600px;
       margin: 0 auto;
-      padding: 20px 12px calc(40px + var(--safe-bottom));
+      padding: 20px 12px calc(100px + var(--safe-bottom));
     }
 
     /* ── Count bar ── */
@@ -428,10 +428,99 @@
       font-size: .85rem;
     }
 
+    /* ── Add Task bar ── */
+    #addBar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      z-index: 150;
+      padding: 0 0 var(--safe-bottom);
+    }
+    #addTrigger {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    #addTrigger:active { opacity: .6; }
+    .add-plus {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 300;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .add-trigger-label {
+      font-size: 1rem;
+      color: var(--text-sec);
+    }
+    #addForm {
+      display: none;
+      flex-direction: column;
+      gap: 0;
+    }
+    #addForm.open { display: flex; }
+    #addInput {
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--text);
+      background: transparent;
+      padding: 14px 20px 8px;
+      width: 100%;
+    }
+    #addInput::placeholder { color: var(--text-muted); }
+    .add-form-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 14px 10px;
+      gap: 8px;
+    }
+    #addSecSel {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: .82rem;
+      font-family: inherit;
+      color: var(--text-sec);
+      background: var(--bg);
+      outline: none;
+      cursor: pointer;
+      max-width: 220px;
+    }
+    #addSecSel:focus { border-color: var(--accent); }
+    .add-submit {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: .9rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .add-submit:active { opacity: .8; }
+    .add-submit:disabled { opacity: .4; cursor: default; }
+
     /* ── Toast ── */
     #toast {
       position: fixed;
-      bottom: calc(24px + var(--safe-bottom));
+      bottom: calc(80px + var(--safe-bottom));
       left: 50%;
       transform: translateX(-50%) translateY(20px);
       background: #333;
@@ -479,6 +568,21 @@
   </div>
   <div class="task-list" id="doneList"></div>
 </main>
+
+<!-- Add Task bar -->
+<div id="addBar">
+  <div id="addTrigger">
+    <div class="add-plus">+</div>
+    <span class="add-trigger-label">Add a Task</span>
+  </div>
+  <div id="addForm">
+    <input id="addInput" type="text" placeholder="Task name" autocomplete="off" autocorrect="on">
+    <div class="add-form-row">
+      <select id="addSecSel"></select>
+      <button class="add-submit" id="addSubmit" disabled>Add</button>
+    </div>
+  </div>
+</div>
 
 <!-- Suggestions sheet -->
 <div class="sheet-backdrop" id="backdrop"></div>
@@ -622,6 +726,77 @@ function addToMyDay(secId, taskId) {
   save();
   renderSheet();
 }
+
+/* ================================================================
+   ADD TASK
+   ================================================================ */
+function uid() {
+  return 't' + Date.now() + Math.random().toString(36).slice(2, 7);
+}
+
+function populateSecPicker() {
+  var sel = document.getElementById('addSecSel');
+  var prev = sel.value;
+  sel.innerHTML = '';
+  (appData.sections || []).forEach(function(sec) {
+    if (sec.id === '__mailbox__') return;
+    var opt = document.createElement('option');
+    opt.value = sec.id;
+    opt.textContent = (sec.icon ? sec.icon + ' ' : '') + sec.title;
+    sel.appendChild(opt);
+  });
+  if (prev) sel.value = prev;
+}
+
+function openAddForm() {
+  document.getElementById('addTrigger').style.display = 'none';
+  var form = document.getElementById('addForm');
+  form.classList.add('open');
+  populateSecPicker();
+  document.getElementById('addInput').focus();
+}
+
+function closeAddForm() {
+  document.getElementById('addInput').value = '';
+  document.getElementById('addSubmit').disabled = true;
+  document.getElementById('addForm').classList.remove('open');
+  document.getElementById('addTrigger').style.display = 'flex';
+}
+
+function submitTask() {
+  var text = document.getElementById('addInput').value.trim();
+  var secId = document.getElementById('addSecSel').value;
+  if (!text || !secId) return;
+  var sec = findSec(secId);
+  if (!sec) return;
+  sec.tasks.push({
+    id: uid(), text: text, desc: '', notes: '',
+    status: 'todo', done: false, priority: null,
+    dueDate: null, myDay: true, subtasks: [], tags: []
+  });
+  showToast('Task added ☀️');
+  closeAddForm();
+  save();
+}
+
+document.getElementById('addTrigger').addEventListener('click', openAddForm);
+
+document.getElementById('addInput').addEventListener('input', function() {
+  document.getElementById('addSubmit').disabled = !this.value.trim();
+});
+
+document.getElementById('addInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') submitTask();
+  if (e.key === 'Escape') closeAddForm();
+});
+
+document.getElementById('addSubmit').addEventListener('click', submitTask);
+
+/* Close form when tapping outside */
+document.addEventListener('click', function(e) {
+  var bar = document.getElementById('addBar');
+  if (!bar.contains(e.target)) closeAddForm();
+}, true);
 
 /* ================================================================
    SWIPE TO COMPLETE

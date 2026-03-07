@@ -152,10 +152,8 @@
     .swipe-reveal {
       position: absolute;
       inset: 0;
-      background: #4CAF50;
       display: flex;
       align-items: center;
-      padding-left: 20px;
       color: #fff;
       font-size: 1rem;
       font-weight: 700;
@@ -163,10 +161,13 @@
       border-radius: 12px;
       opacity: 0;
     }
-    .swipe-reveal.undo {
-      background: #888;
+    .swipe-reveal.reveal-done {
+      background: #4CAF50;
+      padding-left: 20px;
+    }
+    .swipe-reveal.reveal-remove {
+      background: #F57C00;
       justify-content: flex-end;
-      padding-left: 0;
       padding-right: 20px;
     }
     .swipe-card {
@@ -176,6 +177,42 @@
       will-change: transform;
     }
     .swipe-card.dragging { transition: none; }
+
+    /* ── Drag to reorder ── */
+    .drag-handle {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 3px;
+      opacity: .28;
+      cursor: grab;
+      touch-action: none;
+      padding: 4px 6px 4px 0;
+      align-self: stretch;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .drag-handle:active { opacity: .6; }
+    .drag-handle span {
+      display: block;
+      width: 14px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 1px;
+    }
+    .drag-ghost {
+      box-shadow: 0 8px 24px rgba(0,0,0,.18) !important;
+      border-radius: 12px;
+      transform: scale(1.02);
+    }
+    .drag-placeholder {
+      border-radius: 12px;
+      background: rgba(217,119,87,.08);
+      border: 2px dashed rgba(217,119,87,.4);
+      box-sizing: border-box;
+    }
 
     .task-row {
       background: var(--card-bg);
@@ -727,6 +764,55 @@ function addToMyDay(secId, taskId) {
   renderSheet();
 }
 
+function removeFromMyDay(secId, taskId) {
+  var sec = findSec(secId);
+  if (!sec) return;
+  for (var i = 0; i < sec.tasks.length; i++) {
+    if (sec.tasks[i].id === taskId) {
+      sec.tasks[i].myDay = false;
+      showToast('Removed from My Day');
+      break;
+    }
+  }
+  if (Array.isArray(appData.myDayOrder)) {
+    var key = secId + ':' + taskId;
+    appData.myDayOrder = appData.myDayOrder.filter(function(k) { return k !== key; });
+  }
+  save();
+}
+
+function markDone(secId, taskId) {
+  var sec = findSec(secId);
+  if (!sec) return;
+  for (var i = 0; i < sec.tasks.length; i++) {
+    if (sec.tasks[i].id === taskId) {
+      sec.tasks[i].status = 'done';
+      sec.tasks[i].done = true;
+      showToast('Task done! ✓');
+      break;
+    }
+  }
+  save();
+}
+
+function getOrderedActive(active) {
+  var order = appData.myDayOrder;
+  if (!Array.isArray(order) || !order.length) return active;
+  var keyMap = {};
+  active.forEach(function(item) {
+    keyMap[item.secId + ':' + item.task.id] = item;
+  });
+  var ordered = [], seen = {};
+  order.forEach(function(key) {
+    if (keyMap[key] && !seen[key]) { ordered.push(keyMap[key]); seen[key] = true; }
+  });
+  active.forEach(function(item) {
+    var key = item.secId + ':' + item.task.id;
+    if (!seen[key]) ordered.push(item);
+  });
+  return ordered;
+}
+
 /* ================================================================
    ADD TASK
    ================================================================ */
@@ -799,13 +885,14 @@ document.addEventListener('click', function(e) {
 }, true);
 
 /* ================================================================
-   SWIPE TO COMPLETE
+   SWIPE GESTURES  (right = done, left = remove from My Day)
    ================================================================ */
-function attachSwipe(wrap, card, reveal, secId, taskId) {
+function attachSwipe(wrap, card, revealDone, revealRemove, secId, taskId) {
   var startX = 0, startY = 0, curX = 0, swiping = false, locked = false;
   var THRESHOLD = 80;
 
   card.addEventListener('touchstart', function(e) {
+    if (wrap._dragMode) return;
     var t = e.touches[0];
     startX = t.clientX; startY = t.clientY;
     curX = 0; swiping = false; locked = false;
@@ -813,6 +900,7 @@ function attachSwipe(wrap, card, reveal, secId, taskId) {
   }, { passive: true });
 
   card.addEventListener('touchmove', function(e) {
+    if (wrap._dragMode) return;
     var t = e.touches[0];
     var dx = t.clientX - startX;
     var dy = t.clientY - startY;
@@ -823,26 +911,114 @@ function attachSwipe(wrap, card, reveal, secId, taskId) {
     if (!swiping) return;
     e.preventDefault();
     curX = dx;
-    var clamped = Math.max(-THRESHOLD * 0.6, Math.min(THRESHOLD * 1.4, curX));
+    var clamped = Math.max(-THRESHOLD * 1.4, Math.min(THRESHOLD * 1.4, curX));
     card.classList.add('dragging');
     card.style.transform = 'translateX(' + clamped + 'px)';
-    reveal.style.opacity = Math.min(1, Math.abs(clamped) / THRESHOLD) * 0.9;
-    reveal.classList.toggle('undo', curX < 0);
-    reveal.textContent = curX >= 0 ? '✓ Done' : '↩ Undo';
+    if (curX > 0) {
+      revealDone.style.opacity = Math.min(1, curX / THRESHOLD) * 0.9;
+      revealRemove.style.opacity = 0;
+    } else {
+      revealRemove.style.opacity = Math.min(1, -curX / THRESHOLD) * 0.9;
+      revealDone.style.opacity = 0;
+    }
   }, { passive: false });
 
   card.addEventListener('touchend', function() {
     if (!swiping) return;
     card.classList.remove('dragging');
-    if (Math.abs(curX) > THRESHOLD) {
-      card.style.transform = 'translateX(' + (curX > 0 ? '110%' : '-110%') + ')';
-      setTimeout(function() { cycleStatus(secId, taskId); }, 180);
+    if (curX > THRESHOLD) {
+      card.style.transform = 'translateX(110%)';
+      setTimeout(function() { markDone(secId, taskId); }, 180);
+    } else if (curX < -THRESHOLD) {
+      card.style.transform = 'translateX(-110%)';
+      setTimeout(function() { removeFromMyDay(secId, taskId); }, 180);
     } else {
       card.style.transform = '';
-      reveal.style.opacity = 0;
+      revealDone.style.opacity = 0;
+      revealRemove.style.opacity = 0;
     }
     swiping = false;
   });
+}
+
+/* ================================================================
+   DRAG TO REORDER
+   ================================================================ */
+function attachDrag(wrap, secId, taskId) {
+  var handle = wrap.querySelector('.drag-handle');
+  if (!handle) return;
+  var isDragging = false;
+  var startY = 0, ghostEl, placeholderEl, origRect;
+  var listEl = document.getElementById('taskList');
+
+  handle.addEventListener('touchstart', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    isDragging = true;
+    wrap._dragMode = true;
+    startY = e.touches[0].clientY;
+    origRect = wrap.getBoundingClientRect();
+
+    /* Placeholder keeps the space while dragging */
+    placeholderEl = document.createElement('div');
+    placeholderEl.className = 'drag-placeholder';
+    placeholderEl.style.height = origRect.height + 'px';
+    listEl.insertBefore(placeholderEl, wrap);
+
+    /* Ghost follows the finger */
+    ghostEl = wrap.cloneNode(true);
+    ghostEl.classList.add('drag-ghost');
+    ghostEl.style.cssText += ';position:fixed;width:' + origRect.width + 'px;'
+      + 'left:' + origRect.left + 'px;top:' + origRect.top + 'px;'
+      + 'z-index:1000;pointer-events:none;margin:0;overflow:hidden;';
+    document.body.appendChild(ghostEl);
+
+    wrap.style.visibility = 'hidden';
+    wrap.style.position = 'absolute';
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd, { passive: true });
+  }, { passive: false });
+
+  function onMove(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    var y = e.touches[0].clientY;
+    ghostEl.style.top = (origRect.top + (y - startY)) + 'px';
+
+    /* Find the right insertion point */
+    var items = Array.from(listEl.children).filter(function(el) {
+      return el !== wrap && el !== placeholderEl;
+    });
+    var insertBefore = null;
+    for (var i = 0; i < items.length; i++) {
+      var r = items[i].getBoundingClientRect();
+      if (y < r.top + r.height / 2) { insertBefore = items[i]; break; }
+    }
+    if (insertBefore) listEl.insertBefore(placeholderEl, insertBefore);
+    else listEl.appendChild(placeholderEl);
+  }
+
+  function onEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+
+    /* Restore wrap at the placeholder's position */
+    wrap.style.visibility = '';
+    wrap.style.position = '';
+    listEl.insertBefore(wrap, placeholderEl);
+    placeholderEl.remove();
+    ghostEl.remove();
+    wrap._dragMode = false;
+
+    /* Persist new order */
+    var newOrder = Array.from(listEl.querySelectorAll('.swipe-wrap[data-sec-id]')).map(function(el) {
+      return el.dataset.secId + ':' + el.dataset.taskId;
+    });
+    appData.myDayOrder = newOrder;
+    save();
+  }
 }
 
 /* ================================================================
@@ -851,14 +1027,21 @@ function attachSwipe(wrap, card, reveal, secId, taskId) {
 function buildTaskRow(item) {
   var t = item.task;
   var status = t.status || (t.done ? 'done' : 'todo');
+  var isActive = status !== 'done';
 
   /* Swipe wrapper */
   var wrap = document.createElement('div');
   wrap.className = 'swipe-wrap';
+  wrap.dataset.secId = item.secId;
+  wrap.dataset.taskId = t.id;
 
-  var reveal = document.createElement('div');
-  reveal.className = 'swipe-reveal';
-  reveal.textContent = '✓ Done';
+  var revealDone = document.createElement('div');
+  revealDone.className = 'swipe-reveal reveal-done';
+  revealDone.textContent = '✓ Done';
+
+  var revealRemove = document.createElement('div');
+  revealRemove.className = 'swipe-reveal reveal-remove';
+  revealRemove.textContent = '☀️ Remove';
 
   var card = document.createElement('div');
   card.className = 'swipe-card';
@@ -866,7 +1049,16 @@ function buildTaskRow(item) {
   var row = document.createElement('div');
   row.className = 'task-row status-' + status;
 
-  /* Circle */
+  /* Drag handle (active tasks only) */
+  if (isActive) {
+    var handle = document.createElement('div');
+    handle.className = 'drag-handle';
+    handle.title = 'Drag to reorder';
+    handle.innerHTML = '<span></span><span></span><span></span>';
+    row.appendChild(handle);
+  }
+
+  /* Status circle */
   var btn = document.createElement('button');
   btn.className = 'status-btn';
   btn.setAttribute('data-status', status);
@@ -915,10 +1107,12 @@ function buildTaskRow(item) {
   row.appendChild(content);
 
   card.appendChild(row);
-  wrap.appendChild(reveal);
+  wrap.appendChild(revealDone);
+  wrap.appendChild(revealRemove);
   wrap.appendChild(card);
 
-  attachSwipe(wrap, card, reveal, item.secId, t.id);
+  attachSwipe(wrap, card, revealDone, revealRemove, item.secId, t.id);
+  if (isActive) attachDrag(wrap, item.secId, t.id);
 
   return wrap;
 }
@@ -960,7 +1154,7 @@ function render() {
     empty.innerHTML = '<div class="empty-icon">☀️</div>No tasks in My Day.<br>Tap 💡 to add from suggestions,<br>or tap ☀️ on a task in the full app.';
     list.appendChild(empty);
   } else {
-    active.forEach(function(item) { list.appendChild(buildTaskRow(item)); });
+    getOrderedActive(active).forEach(function(item) { list.appendChild(buildTaskRow(item)); });
   }
 
   /* Completed */

@@ -227,6 +227,7 @@
       -webkit-user-select: none;
       user-select: none;
     }
+    .task-row.status-in_progress { border-left-color: var(--accent); }
     .task-row.status-inprogress { border-left-color: var(--accent); }
     .task-row.status-done {
       border-left-color: #ccc;
@@ -254,6 +255,11 @@
       color: #888;
     }
     .status-btn:active { transform: scale(.88); }
+    .status-btn[data-status="in_progress"] {
+      border-color: var(--accent);
+      background: rgba(217,119,87,.1);
+      color: var(--accent);
+    }
     .status-btn[data-status="inprogress"] {
       border-color: var(--accent);
       background: rgba(217,119,87,.1);
@@ -703,13 +709,18 @@ function findSec(id) {
 }
 
 function ensureArrays(d) {
-  if (!d) return { sections: [], tags: [], groups: [] };
+  if (!d) return { sections: [], tags: [], projects: [] };
   if (!Array.isArray(d.sections)) {
     var arr = [];
     Object.keys(d.sections || {}).forEach(function(k) { arr.push(d.sections[k]); });
     d.sections = arr;
   }
+  /* Projects array (migrated from groups) */
+  if (!d.projects) d.projects = d.groups ? (Array.isArray(d.groups) ? d.groups : Object.values(d.groups)) : [];
+  if (!Array.isArray(d.projects)) d.projects = [];
   (d.sections || []).forEach(function(sec) {
+    if (sec.projectId === undefined) sec.projectId = (sec.groupId !== undefined ? sec.groupId : null);
+    if (sec.isInbox === undefined) sec.isInbox = !!sec.isMailbox;
     if (!Array.isArray(sec.tasks)) {
       var ta = [];
       Object.keys(sec.tasks || {}).forEach(function(k) { ta.push(sec.tasks[k]); });
@@ -718,10 +729,18 @@ function ensureArrays(d) {
     (sec.tasks || []).forEach(function(t) {
       if (!Array.isArray(t.subtasks)) t.subtasks = [];
       if (!Array.isArray(t.tags)) t.tags = [];
+      if (!t.title && t.text) t.title = t.text;
+      if (!t.title) t.title = '';
+      t.text = t.title;
+      if (!t.description && t.desc !== undefined) t.description = t.desc;
+      if (t.description === undefined) t.description = '';
+      if (!t.status) t.status = t.done ? 'done' : 'not_started';
+      if (t.status === 'todo') t.status = 'not_started';
+      if (t.status === 'inprogress') t.status = 'in_progress';
+      t.done = (t.status === 'done');
     });
   });
   if (!Array.isArray(d.tags)) d.tags = [];
-  if (!Array.isArray(d.groups)) d.groups = [];
   return d;
 }
 
@@ -740,13 +759,16 @@ function ensureArrays(d) {
    ================================================================ */
 function loadLS() {
   try {
-    var s = localStorage.getItem('bozzone-app-v2');
-    if (s) appData = ensureArrays(JSON.parse(s));
+    var s = localStorage.getItem('bozzone-app-v3');
+    if (s) { appData = ensureArrays(JSON.parse(s)); return; }
+    /* Fallback: migrate from v2 */
+    var s2 = localStorage.getItem('bozzone-app-v2');
+    if (s2) appData = ensureArrays(JSON.parse(s2));
   } catch (e) {}
 }
 
 function saveLS() {
-  try { localStorage.setItem('bozzone-app-v2', JSON.stringify(appData)); } catch (e) {}
+  try { localStorage.setItem('bozzone-app-v3', JSON.stringify(appData)); } catch (e) {}
 }
 
 function save() {
@@ -763,11 +785,14 @@ function cycleStatus(secId, taskId) {
   if (!sec) return;
   for (var i = 0; i < sec.tasks.length; i++) {
     if (sec.tasks[i].id === taskId) {
-      var cur = sec.tasks[i].status || 'todo';
-      var next = cur === 'todo' ? 'done' : cur === 'done' ? 'todo' : 'done';
+      var cur = sec.tasks[i].status || 'not_started';
+      if (cur === 'todo') cur = 'not_started';
+      if (cur === 'inprogress') cur = 'in_progress';
+      var next = cur === 'not_started' ? 'done' : cur === 'done' ? 'not_started' : 'done';
       sec.tasks[i].status = next;
       sec.tasks[i].done   = (next === 'done');
-      showToast(next === 'done' ? 'Task done! ✓' : 'Marked to do');
+      if (next === 'done') sec.tasks[i].completedDate = new Date().toISOString().slice(0, 10);
+      showToast(next === 'done' ? 'Task done! ✓' : 'Marked not started');
       break;
     }
   }
@@ -849,7 +874,7 @@ function populateSecPicker() {
   var prev = sel.value;
   sel.innerHTML = '';
   (appData.sections || []).forEach(function(sec) {
-    if (sec.id === '__mailbox__') return;
+    if (sec.isInbox || sec.isMailbox || sec.id === '__mailbox__') return;
     var opt = document.createElement('option');
     opt.value = sec.id;
     opt.textContent = (sec.icon ? sec.icon + ' ' : '') + sec.title;
@@ -880,9 +905,10 @@ function submitTask() {
   var sec = findSec(secId);
   if (!sec) return;
   sec.tasks.push({
-    id: uid(), text: text, desc: '', notes: '',
-    status: 'todo', done: false, priority: null,
-    dueDate: null, myDay: true, subtasks: [], tags: []
+    id: uid(), title: text, text: text, description: '', notes: '',
+    status: 'not_started', done: false, priority: null,
+    dueDate: null, startDate: null, completedDate: null,
+    myDay: true, subtasks: [], tags: []
   });
   showToast('Task added ☀️');
   closeAddForm();
@@ -1050,7 +1076,7 @@ function attachDrag(wrap, secId, taskId) {
    ================================================================ */
 function buildTaskRow(item) {
   var t = item.task;
-  var status = t.status || (t.done ? 'done' : 'todo');
+  var status = t.status || (t.done ? 'done' : 'not_started');
   var isActive = status !== 'done';
 
   /* Swipe wrapper */
@@ -1087,7 +1113,7 @@ function buildTaskRow(item) {
   btn.className = 'status-btn';
   btn.setAttribute('data-status', status);
   if (status === 'done') btn.innerHTML = '&#10003;';
-  else if (status === 'inprogress') btn.innerHTML = '&#9680;';
+  else if (status === 'in_progress' || status === 'inprogress') btn.innerHTML = '&#9680;';
   (function(sid, tid) {
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
@@ -1102,7 +1128,7 @@ function buildTaskRow(item) {
 
   var label = document.createElement('span');
   label.className = 'task-label';
-  label.textContent = t.text;
+  label.textContent = t.title || t.text;
   content.appendChild(label);
 
   var meta = document.createElement('div');
@@ -1150,7 +1176,7 @@ function render() {
   (appData.sections || []).forEach(function(sec) {
     (sec.tasks || []).forEach(function(task) {
       if (!task.myDay) return;
-      var status = task.status || (task.done ? 'done' : 'todo');
+      var status = task.status || (task.done ? 'done' : 'not_started');
       var item = { task: task, secId: sec.id, secTitle: sec.title };
       if (status === 'done') done.push(item);
       else active.push(item);
@@ -1210,7 +1236,7 @@ function renderSheet() {
   (appData.sections || []).forEach(function(sec) {
     (sec.tasks || []).forEach(function(task) {
       if (task.myDay) return;
-      var status = task.status || (task.done ? 'done' : 'todo');
+      var status = task.status || (task.done ? 'done' : 'not_started');
       if (status === 'done') return;
       candidates.push({ task: task, secId: sec.id, secTitle: sec.title });
     });
@@ -1249,7 +1275,7 @@ function renderSheet() {
 
     var txt = document.createElement('div');
     txt.className = 'sugg-text';
-    txt.textContent = t.text;
+    txt.textContent = t.title || t.text;
 
     var metaParts = [item.secTitle];
     if (t.dueDate) {
@@ -1358,7 +1384,7 @@ fbReady = true;
 
 if (syncKey) {
   setDot('yellow');
-  dbRef = firebase.database().ref('dashboards/' + syncKey + '/v2');
+  dbRef = firebase.database().ref('dashboards/' + syncKey + '/v3');
 
   firebase.database().ref('.info/connected').on('value', function(s) {
     setDot(s.val() ? 'green' : 'yellow');

@@ -603,6 +603,144 @@
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
+
+    /* ── Background image ── */
+    body.has-bg-image {
+      background-attachment: fixed;
+      background-size: cover;
+      background-position: center;
+    }
+    body.has-bg-image header {
+      background: rgba(var(--bg-rgb, 250,249,245), .88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    body.has-bg-image #addBar {
+      background: rgba(var(--bg-rgb, 250,249,245), .92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    body.has-bg-image .task-row {
+      background: rgba(var(--card-rgb, 255,255,255), .82);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    body.has-bg-image .quote-block {
+      background: rgba(var(--card-rgb, 255,255,255), .82);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    /* ── Style picker sheet ── */
+    .style-sheet {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--card-bg);
+      border-radius: 20px 20px 0 0;
+      z-index: 210;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.32,0,.67,0);
+      padding-bottom: var(--safe-bottom);
+      box-shadow: 0 -4px 24px rgba(0,0,0,.15);
+    }
+    .style-sheet.open {
+      transform: translateY(0);
+      transition: transform .3s cubic-bezier(.33,1,.68,1);
+    }
+    .style-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .style-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .style-close-btn {
+      background: none;
+      border: none;
+      font-size: .95rem;
+      font-weight: 600;
+      color: #2196F3;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .style-close-btn:active { opacity: .6; }
+    .style-body {
+      padding: 16px 20px 20px;
+    }
+    .style-section-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .color-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .color-swatch {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: transform .12s, border-color .12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .color-swatch:active { transform: scale(.88); }
+    .color-swatch.active {
+      border-color: var(--text);
+      transform: scale(1.12);
+    }
+    .bg-photo-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0 4px;
+      border-top: 1px solid var(--border);
+    }
+    .bg-photo-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 16px;
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text-sec);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color .15s, color .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bg-photo-btn:active { opacity: .7; }
+    .bg-photo-btn.has-image {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .bg-remove-btn {
+      background: none;
+      border: none;
+      font-size: .82rem;
+      color: #e53935;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-family: inherit;
+      display: none;
+    }
+    .bg-remove-btn.visible { display: block; }
+    .bg-remove-btn:active { opacity: .6; }
   </style>
 </head>
 <body>
@@ -614,6 +752,7 @@
     <div class="hdr-date" id="hdrDate"></div>
   </div>
   <div class="hdr-right">
+    <button class="bulb-btn" id="styleBtn" title="Style">🎨</button>
     <button class="bulb-btn" id="bulbBtn" title="Suggestions">💡</button>
     <div class="sync-dot" id="dot" title="Sync status"></div>
   </div>
@@ -663,6 +802,25 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- Style picker sheet -->
+<div class="sheet-backdrop" id="styleBackdrop"></div>
+<div class="style-sheet" id="styleSheet">
+  <div class="sheet-handle"></div>
+  <div class="style-hdr">
+    <span class="style-title">Style</span>
+    <button class="style-close-btn" id="styleCloseBtn">Done</button>
+  </div>
+  <div class="style-body">
+    <div class="style-section-label">Theme Color</div>
+    <div class="color-swatches" id="colorSwatches"></div>
+    <div class="bg-photo-row">
+      <button class="bg-photo-btn" id="bgPhotoBtn">🖼 Choose Photo</button>
+      <button class="bg-remove-btn" id="bgRemoveBtn">Remove Photo</button>
+      <input type="file" id="bgFileInput" accept="image/*" style="display:none">
+    </div>
+  </div>
+</div>
 
 <script>
 /* ================================================================
@@ -791,7 +949,10 @@ function cycleStatus(secId, taskId) {
       var next = cur === 'not_started' ? 'done' : cur === 'done' ? 'not_started' : 'done';
       sec.tasks[i].status = next;
       sec.tasks[i].done   = (next === 'done');
-      if (next === 'done') sec.tasks[i].completedDate = new Date().toISOString().slice(0, 10);
+      if (next === 'done') {
+        sec.tasks[i].completedDate = new Date().toISOString().slice(0, 10);
+        playDoneChime();
+      }
       showToast(next === 'done' ? 'Task done! ✓' : 'Marked not started');
       break;
     }
@@ -978,9 +1139,11 @@ function attachSwipe(wrap, card, revealDone, revealRemove, secId, taskId) {
     card.classList.remove('dragging');
     if (curX > THRESHOLD) {
       card.style.transform = 'translateX(110%)';
+      playDoneChime();
       setTimeout(function() { markDone(secId, taskId); }, 180);
     } else if (curX < -THRESHOLD) {
       card.style.transform = 'translateX(-110%)';
+      playRemoveSound();
       setTimeout(function() { removeFromMyDay(secId, taskId); }, 180);
     } else {
       card.style.transform = '';
@@ -1329,6 +1492,175 @@ document.getElementById('doneToggle').addEventListener('click', function() {
   var dl = document.getElementById('doneList');
   var caret = document.getElementById('doneCaret');
   caret.classList.toggle('open', dl.classList.toggle('open'));
+});
+
+/* ================================================================
+   SOUND  (Web Audio API — works on mobile when triggered by user tap)
+   ================================================================ */
+var audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+  }
+  /* iOS requires resume after user gesture */
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playDoneChime() {
+  var ctx = getAudioCtx();
+  if (!ctx) return;
+  /* A pleasant two-note chime: C5 then E5 */
+  var notes = [523.25, 659.25];
+  notes.forEach(function(freq, i) {
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    var t = ctx.currentTime + i * 0.18;
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.22, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+    osc.start(t);
+    osc.stop(t + 0.56);
+  });
+}
+
+function playRemoveSound() {
+  var ctx = getAudioCtx();
+  if (!ctx) return;
+  var osc = ctx.createOscillator();
+  var gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(440, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.22);
+  gain.gain.setValueAtTime(0.18, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.26);
+}
+
+/* ================================================================
+   STYLE — COLORS & BACKGROUND IMAGE
+   ================================================================ */
+var THEME_COLORS = [
+  { name: 'Terracotta', value: '#D97757' },
+  { name: 'Purple',     value: '#7C6FCD' },
+  { name: 'Pink',       value: '#E91E8C' },
+  { name: 'Rose',       value: '#E57373' },
+  { name: 'Green',      value: '#4CAF50' },
+  { name: 'Teal',       value: '#26A69A' },
+  { name: 'Slate',      value: '#78909C' },
+  { name: 'Sky',        value: '#42A5F5' },
+  { name: 'Lavender',   value: '#CE93D8' },
+  { name: 'Peach',      value: '#FFA07A' },
+  { name: 'Mint',       value: '#80CBC4' },
+  { name: 'Sand',       value: '#BCAAA4' }
+];
+
+function applyAccentColor(hex) {
+  document.documentElement.style.setProperty('--accent', hex);
+  /* Update theme-color meta */
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', hex);
+}
+
+function applyBackgroundImage(dataUrl) {
+  if (dataUrl) {
+    document.body.style.backgroundImage = 'url(' + dataUrl + ')';
+    document.body.classList.add('has-bg-image');
+  } else {
+    document.body.style.backgroundImage = '';
+    document.body.classList.remove('has-bg-image');
+  }
+}
+
+function loadStyle() {
+  var accent = localStorage.getItem('myday-accent');
+  if (accent) applyAccentColor(accent);
+  var bgImg = localStorage.getItem('myday-bg-image');
+  if (bgImg) applyBackgroundImage(bgImg);
+}
+loadStyle();
+
+function buildColorSwatches() {
+  var container = document.getElementById('colorSwatches');
+  var current = localStorage.getItem('myday-accent') || '#D97757';
+  container.innerHTML = '';
+  THEME_COLORS.forEach(function(c) {
+    var sw = document.createElement('div');
+    sw.className = 'color-swatch' + (c.value === current ? ' active' : '');
+    sw.style.background = c.value;
+    sw.title = c.name;
+    sw.addEventListener('click', function() {
+      container.querySelectorAll('.color-swatch').forEach(function(el) { el.classList.remove('active'); });
+      sw.classList.add('active');
+      applyAccentColor(c.value);
+      localStorage.setItem('myday-accent', c.value);
+    });
+    container.appendChild(sw);
+  });
+}
+
+function openStyleSheet() {
+  buildColorSwatches();
+  var hasBg = !!localStorage.getItem('myday-bg-image');
+  document.getElementById('bgPhotoBtn').classList.toggle('has-image', hasBg);
+  document.getElementById('bgRemoveBtn').classList.toggle('visible', hasBg);
+  document.getElementById('styleBackdrop').classList.add('open');
+  document.getElementById('styleSheet').classList.add('open');
+}
+
+function closeStyleSheet() {
+  document.getElementById('styleBackdrop').classList.remove('open');
+  document.getElementById('styleSheet').classList.remove('open');
+}
+
+document.getElementById('styleBtn').addEventListener('click', openStyleSheet);
+document.getElementById('styleCloseBtn').addEventListener('click', closeStyleSheet);
+document.getElementById('styleBackdrop').addEventListener('click', closeStyleSheet);
+
+/* Background photo picker */
+document.getElementById('bgPhotoBtn').addEventListener('click', function() {
+  document.getElementById('bgFileInput').click();
+});
+
+document.getElementById('bgFileInput').addEventListener('change', function(e) {
+  var file = e.target.files && e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var dataUrl = ev.target.result;
+    /* Store compressed: if image is large, store as-is (localStorage ~5MB) */
+    try {
+      localStorage.setItem('myday-bg-image', dataUrl);
+    } catch (err) {
+      showToast('Image too large, try a smaller one');
+      return;
+    }
+    applyBackgroundImage(dataUrl);
+    document.getElementById('bgPhotoBtn').classList.add('has-image');
+    document.getElementById('bgRemoveBtn').classList.add('visible');
+    showToast('Background set!');
+  };
+  reader.readAsDataURL(file);
+  /* Reset so same file can be re-picked */
+  this.value = '';
+});
+
+document.getElementById('bgRemoveBtn').addEventListener('click', function() {
+  localStorage.removeItem('myday-bg-image');
+  applyBackgroundImage(null);
+  document.getElementById('bgPhotoBtn').classList.remove('has-image');
+  document.getElementById('bgRemoveBtn').classList.remove('visible');
+  showToast('Background removed');
 });
 
 /* ================================================================

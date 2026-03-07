@@ -554,6 +554,28 @@
     .add-submit:active { opacity: .8; }
     .add-submit:disabled { opacity: .4; cursor: default; }
 
+    /* ── Quote block ── */
+    .quote-block {
+      background: var(--card-bg);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      line-height: 1.55;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    .quote-text {
+      font-style: italic;
+      font-size: .9rem;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .quote-attr {
+      font-size: .75rem;
+      color: var(--text-sec);
+      text-align: right;
+    }
+
     /* ── Toast ── */
     #toast {
       position: fixed;
@@ -596,6 +618,8 @@
     <span class="count-num" id="countNum">0</span>
     <span class="count-label" id="countLabel">tasks remaining</span>
   </div>
+
+  <div id="quoteBlock"></div>
 
   <div class="task-list" id="taskList"></div>
 
@@ -1280,6 +1304,51 @@ document.getElementById('doneToggle').addEventListener('click', function() {
   var caret = document.getElementById('doneCaret');
   caret.classList.toggle('open', dl.classList.toggle('open'));
 });
+
+/* ================================================================
+   DAILY QUOTE
+   ================================================================ */
+var quotesCache = null;
+
+function loadQuotes() {
+  if (quotesCache) return Promise.resolve(quotesCache);
+  return fetch('quotes.txt')
+    .then(function(r) { return r.text(); })
+    .then(function(text) { quotesCache = parseQuotes(text); return quotesCache; })
+    .catch(function() { quotesCache = []; return []; });
+}
+
+function parseQuotes(text) {
+  var quotes = [], currentText = '', currentAttr = '';
+  text.split('\n').forEach(function(line) {
+    if (/^[0-9]+\./.test(line)) {
+      if (currentText && currentAttr) quotes.push({ text: currentText, attr: currentAttr });
+      currentText = line.replace(/^[0-9]+\.\s*/, '').trim();
+      currentAttr = '';
+    } else if (/^—/.test(line.trim())) {
+      currentAttr = line.trim().replace(/^—\s*/, '');
+    } else if (currentText && line.trim() && !line.trim().startsWith('#')) {
+      currentText += ' ' + line.trim();
+    }
+  });
+  if (currentText && currentAttr) quotes.push({ text: currentText, attr: currentAttr });
+  return quotes;
+}
+
+function showQuote() {
+  loadQuotes().then(function(quotes) {
+    if (!quotes.length) return;
+    var q = quotes[Math.floor(Math.random() * quotes.length)];
+    var el = document.getElementById('quoteBlock');
+    if (!el) return;
+    el.className = 'quote-block';
+    el.innerHTML =
+      '<div class="quote-text">\u201c' + q.text + '\u201d</div>' +
+      '<div class="quote-attr">\u2014 ' + q.attr + '</div>';
+  });
+}
+
+showQuote();
 
 /* ================================================================
    FIREBASE

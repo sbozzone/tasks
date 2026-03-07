@@ -1620,7 +1620,18 @@ var configured = firebaseConfig.apiKey !== 'YOUR_API_KEY';
    CONSTANTS
    ================================================================ */
 var TAG_COLORS = ['#4A90D9','#5CC1A9','#D97757','#9B59B6','#E74C3C','#F39C12','#1ABC9C','#34495E'];
-var APP_VERSION = '2026-03-05.2';
+var APP_VERSION = (function() {
+  var d = new Date();
+  var dateStr = d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+  var stored = JSON.parse(localStorage.getItem('bozzone-ver-info') || 'null');
+  var n = (stored && stored.date === dateStr) ? stored.n : 1;
+  if (!stored || stored.date !== dateStr) {
+    localStorage.setItem('bozzone-ver-info', JSON.stringify({ date: dateStr, n: 1 }));
+  }
+  return dateStr + '.' + n;
+})();
 
 /* Stamp version into settings label ASAP */
 setTimeout(function() {

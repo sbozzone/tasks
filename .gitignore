@@ -1,2 +1,8 @@
 # Claude Code worktrees — never commit these as submodules
 .claude/worktrees/
+
+Finances/bank_stmt.csv
+Finances/.~lock.Financial_Plan_Stephen.xlsx#
+Finances/Financial_Plan_Stephen.xlsx
+Shop/MSS_Garage_Studio_Budget.xlsx
+PA/mobile-dashboard/Git_tasks

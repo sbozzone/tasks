@@ -1245,14 +1245,30 @@ function populateSecPicker() {
   var sel = document.getElementById('addSecSel');
   var prev = sel.value;
   sel.innerHTML = '';
+
+  var mailboxSec = null;
+  var others = [];
   (appData.sections || []).forEach(function(sec) {
-    if (sec.isInbox || sec.isMailbox || sec.id === '__mailbox__') return;
+    if (sec.isInbox || sec.isMailbox || sec.id === '__mailbox__') { mailboxSec = sec; }
+    else others.push(sec);
+  });
+
+  /* Mailbox first (preferred default) */
+  if (mailboxSec) {
+    var mOpt = document.createElement('option');
+    mOpt.value = mailboxSec.id;
+    mOpt.textContent = (mailboxSec.icon ? mailboxSec.icon + ' ' : '📬 ') + mailboxSec.title;
+    sel.appendChild(mOpt);
+  }
+  others.forEach(function(sec) {
     var opt = document.createElement('option');
     opt.value = sec.id;
     opt.textContent = (sec.icon ? sec.icon + ' ' : '') + sec.title;
     sel.appendChild(opt);
   });
-  if (prev) sel.value = prev;
+
+  /* Restore previous pick only if it still exists; otherwise keep Mailbox default */
+  if (prev && sel.querySelector('option[value="' + prev + '"]')) sel.value = prev;
 }
 
 function openAddForm() {
@@ -1605,6 +1621,10 @@ function render() {
     doneLabel.textContent = 'Completed (' + done.length + ')';
     doneList.innerHTML = '';
     done.forEach(function(item) { doneList.appendChild(buildTaskRow(item)); });
+    /* Restore persisted open/closed state */
+    var doneWasOpen = localStorage.getItem('bozzone-myday-done-open') === '1';
+    doneList.classList.toggle('open', doneWasOpen);
+    document.getElementById('doneCaret').classList.toggle('open', doneWasOpen);
   } else {
     doneToggle.style.display = 'none';
     doneList.innerHTML = '';
@@ -1773,7 +1793,9 @@ document.getElementById('backdrop').addEventListener('click', closeSheet);
 document.getElementById('doneToggle').addEventListener('click', function() {
   var dl = document.getElementById('doneList');
   var caret = document.getElementById('doneCaret');
-  caret.classList.toggle('open', dl.classList.toggle('open'));
+  var isOpen = dl.classList.toggle('open');
+  caret.classList.toggle('open', isOpen);
+  localStorage.setItem('bozzone-myday-done-open', isOpen ? '1' : '0');
 });
 
 /* ================================================================

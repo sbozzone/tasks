@@ -2074,17 +2074,14 @@ var configured = firebaseConfig.apiKey !== 'YOUR_API_KEY';
    CONSTANTS
    ================================================================ */
 var TAG_COLORS = ['#4A90D9','#5CC1A9','#D97757','#9B59B6','#E74C3C','#F39C12','#1ABC9C','#34495E'];
+/* Increment PATCH with each intra-day deployment */
+var APP_VERSION_PATCH = 2;
 var APP_VERSION = (function() {
   var d = new Date();
   var dateStr = d.getFullYear() + '-' +
     String(d.getMonth() + 1).padStart(2, '0') + '-' +
     String(d.getDate()).padStart(2, '0');
-  var stored = JSON.parse(localStorage.getItem('bozzone-ver-info') || 'null');
-  var n = (stored && stored.date === dateStr) ? stored.n : 1;
-  if (!stored || stored.date !== dateStr) {
-    localStorage.setItem('bozzone-ver-info', JSON.stringify({ date: dateStr, n: 1 }));
-  }
-  return dateStr + '.' + n;
+  return dateStr + '.' + APP_VERSION_PATCH;
 })();
 
 /* Stamp version into settings label ASAP */
@@ -4116,6 +4113,26 @@ function renderMyDayCompactView(board) {
       mdTasks.push({ task: task, secId: sec.id, secTitle: sec.title, icon: sec.icon });
     });
   });
+
+  /* Apply saved My Day sort order (maintained by myday.html drag-to-reorder) */
+  var mdOrder = appData.myDayOrder;
+  if (Array.isArray(mdOrder) && mdOrder.length) {
+    var mdKeyMap = {};
+    mdTasks.forEach(function(item) { mdKeyMap[item.secId + ':' + item.task.id] = item; });
+    var mdOrdered = [], mdSeen = {};
+    mdOrder.forEach(function(key) {
+      if (mdKeyMap[key] && !mdSeen[key]) { mdOrdered.push(mdKeyMap[key]); mdSeen[key] = true; }
+    });
+    /* Append any tasks not yet in the saved order, sorted by priority */
+    var priorityRank = { urgent: 0, high: 1, medium: 2, low: 3 };
+    var mdRemaining = mdTasks.filter(function(item) { return !mdSeen[item.secId + ':' + item.task.id]; });
+    mdRemaining.sort(function(a, b) {
+      var ap = priorityRank[a.task.priority] !== undefined ? priorityRank[a.task.priority] : 4;
+      var bp = priorityRank[b.task.priority] !== undefined ? priorityRank[b.task.priority] : 4;
+      return ap - bp;
+    });
+    mdTasks = mdOrdered.concat(mdRemaining);
+  }
 
   var wrap = document.createElement('div');
   wrap.style.cssText = 'max-width:600px;margin:0 auto;padding:0 8px;';

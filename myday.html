@@ -310,6 +310,50 @@
     .priority-dot.high   { background: #e53935; }
     .priority-dot.medium { background: #FB8C00; }
     .priority-dot.low    { background: #43A047; }
+    .priority-dot.urgent { background: #8B0000; }
+
+    /* ── Priority Icon ── */
+    .priority-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 500;
+      font-size: .74rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .priority-icon.urgent {
+      background: rgba(139, 0, 0, 0.12);
+      color: #8B0000;
+    }
+    .priority-icon.high {
+      background: rgba(229, 57, 53, 0.12);
+      color: #e53935;
+    }
+    .priority-icon.medium {
+      background: rgba(251, 140, 0, 0.12);
+      color: #FB8C00;
+    }
+    .priority-icon.low {
+      background: rgba(67, 160, 71, 0.12);
+      color: #43A047;
+    }
+
+    /* ── Task Row Priority Styling ── */
+    .task-row.priority-urgent {
+      border-left-color: #8B0000;
+    }
+    .task-row.priority-urgent .task-label {
+      color: #8B0000;
+      font-weight: 600;
+    }
+    .task-row.priority-high {
+      border-left-color: #e53935;
+    }
+    .task-row.priority-high .task-label {
+      color: #e53935;
+      font-weight: 600;
+    }
 
     /* ── Completed section ── */
     .done-toggle {
@@ -470,6 +514,122 @@
       color: var(--text-muted);
       font-size: .85rem;
     }
+
+    /* ── Edit Task Modal ── */
+    .edit-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.35);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+    }
+    .edit-modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .edit-modal {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--card-bg);
+      border-radius: 20px 20px 0 0;
+      z-index: 201;
+      max-height: 75vh;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.32,0,.67,0);
+      padding-bottom: var(--safe-bottom);
+    }
+    .edit-modal.open {
+      transform: translateY(0);
+      transition: transform .3s cubic-bezier(.33,1,.68,1);
+    }
+    .edit-modal-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px 10px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .edit-modal-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .edit-modal-close {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      color: var(--text-sec);
+      border-radius: 6px;
+    }
+    .edit-modal-close:active { opacity: .6; }
+    .edit-modal-body {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      flex: 1;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .edit-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .edit-form-label {
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--text-sec);
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .edit-form-input, .edit-form-select {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: .95rem;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--card-bg);
+      outline: none;
+    }
+    .edit-form-input:focus, .edit-form-select:focus {
+      border-color: var(--accent);
+    }
+    .edit-modal-footer {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px;
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+    }
+    .edit-btn-save, .edit-btn-delete {
+      flex: 1;
+      padding: 11px 16px;
+      border-radius: 8px;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity .15s;
+    }
+    .edit-btn-save {
+      background: var(--accent);
+      color: #fff;
+    }
+    .edit-btn-save:active { opacity: .85; }
+    .edit-btn-delete {
+      background: #ff6b6b;
+      color: #fff;
+    }
+    .edit-btn-delete:active { opacity: .85; }
 
     /* ── Add Task bar ── */
     #addBar {
@@ -803,6 +963,39 @@
 
 <div id="toast"></div>
 
+<!-- Edit Task Modal -->
+<div class="edit-modal-backdrop" id="editModalBackdrop"></div>
+<div class="edit-modal" id="editModal">
+  <div class="sheet-handle"></div>
+  <div class="edit-modal-hdr">
+    <span class="edit-modal-title">Edit Task</span>
+    <button class="edit-modal-close" id="editModalClose">✕</button>
+  </div>
+  <div class="edit-modal-body">
+    <div class="edit-form-group">
+      <label class="edit-form-label">Task Title</label>
+      <input type="text" id="editTaskTitle" class="edit-form-input" placeholder="Task title">
+    </div>
+    <div class="edit-form-group">
+      <label class="edit-form-label">Priority</label>
+      <select id="editTaskPriority" class="edit-form-select">
+        <option value="">No Priority</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+        <option value="urgent">Urgent</option>
+      </select>
+    </div>
+    <div class="edit-form-group">
+      <label class="edit-form-label">Due Date</label>
+      <input type="date" id="editTaskDueDate" class="edit-form-input">
+    </div>
+  </div>
+  <div class="edit-modal-footer">
+    <button class="edit-btn-save" id="editBtnSave">Save</button>
+  </div>
+</div>
+
 <!-- Style picker sheet -->
 <div class="sheet-backdrop" id="styleBackdrop"></div>
 <div class="style-sheet" id="styleSheet">
@@ -1007,20 +1200,38 @@ function markDone(secId, taskId) {
 
 function getOrderedActive(active) {
   var order = appData.myDayOrder;
-  if (!Array.isArray(order) || !order.length) return active;
   var keyMap = {};
+  var priorityMap = { 'urgent': 0, 'high': 1, 'medium': 2, 'low': 3 };
+
   active.forEach(function(item) {
     keyMap[item.secId + ':' + item.task.id] = item;
   });
+
+  // Separate items with custom order vs new items
   var ordered = [], seen = {};
-  order.forEach(function(key) {
-    if (keyMap[key] && !seen[key]) { ordered.push(keyMap[key]); seen[key] = true; }
-  });
+  if (Array.isArray(order) && order.length) {
+    order.forEach(function(key) {
+      if (keyMap[key] && !seen[key]) {
+        ordered.push(keyMap[key]);
+        seen[key] = true;
+      }
+    });
+  }
+
+  // Add remaining items, sorted by priority (urgent first)
+  var remaining = [];
   active.forEach(function(item) {
     var key = item.secId + ':' + item.task.id;
-    if (!seen[key]) ordered.push(item);
+    if (!seen[key]) remaining.push(item);
   });
-  return ordered;
+
+  remaining.sort(function(a, b) {
+    var aPri = priorityMap[a.task.priority] !== undefined ? priorityMap[a.task.priority] : 4;
+    var bPri = priorityMap[b.task.priority] !== undefined ? priorityMap[b.task.priority] : 4;
+    return aPri - bPri;
+  });
+
+  return ordered.concat(remaining);
 }
 
 /* ================================================================
@@ -1034,14 +1245,30 @@ function populateSecPicker() {
   var sel = document.getElementById('addSecSel');
   var prev = sel.value;
   sel.innerHTML = '';
+
+  var mailboxSec = null;
+  var others = [];
   (appData.sections || []).forEach(function(sec) {
-    if (sec.isInbox || sec.isMailbox || sec.id === '__mailbox__') return;
+    if (sec.isInbox || sec.isMailbox || sec.id === '__mailbox__') { mailboxSec = sec; }
+    else others.push(sec);
+  });
+
+  /* Mailbox first (preferred default) */
+  if (mailboxSec) {
+    var mOpt = document.createElement('option');
+    mOpt.value = mailboxSec.id;
+    mOpt.textContent = (mailboxSec.icon ? mailboxSec.icon + ' ' : '📬 ') + mailboxSec.title;
+    sel.appendChild(mOpt);
+  }
+  others.forEach(function(sec) {
     var opt = document.createElement('option');
     opt.value = sec.id;
     opt.textContent = (sec.icon ? sec.icon + ' ' : '') + sec.title;
     sel.appendChild(opt);
   });
-  if (prev) sel.value = prev;
+
+  /* Restore previous pick only if it still exists; otherwise keep Mailbox default */
+  if (prev && sel.querySelector('option[value="' + prev + '"]')) sel.value = prev;
 }
 
 function openAddForm() {
@@ -1241,6 +1468,7 @@ function buildTaskRow(item) {
   var t = item.task;
   var status = t.status || (t.done ? 'done' : 'not_started');
   var isActive = status !== 'done';
+  var priority = t.priority || '';
 
   /* Swipe wrapper */
   var wrap = document.createElement('div');
@@ -1260,7 +1488,9 @@ function buildTaskRow(item) {
   card.className = 'swipe-card';
 
   var row = document.createElement('div');
-  row.className = 'task-row status-' + status;
+  var rowClasses = 'task-row status-' + status;
+  if (priority) rowClasses += ' priority-' + priority;
+  row.className = rowClasses;
 
   /* Drag handle (active tasks only) */
   if (isActive) {
@@ -1298,13 +1528,17 @@ function buildTaskRow(item) {
   meta.className = 'task-meta';
 
   if (t.priority) {
-    var pd = document.createElement('span');
-    pd.className = 'priority-dot ' + t.priority;
-    pd.title = t.priority;
-    meta.appendChild(pd);
-    var pt = document.createElement('span');
-    pt.textContent = t.priority.charAt(0).toUpperCase() + t.priority.slice(1);
-    meta.appendChild(pt);
+    var priorityIcons = {
+      'urgent': '🔴',
+      'high': '🟠',
+      'medium': '🟡',
+      'low': '🟢'
+    };
+    var piEl = document.createElement('span');
+    piEl.className = 'priority-icon ' + t.priority;
+    piEl.innerHTML = priorityIcons[t.priority] || '⊙';
+    piEl.textContent = priorityIcons[t.priority] + ' ' + (t.priority.charAt(0).toUpperCase() + t.priority.slice(1));
+    meta.appendChild(piEl);
   }
 
   if (t.dueDate) {
@@ -1318,6 +1552,14 @@ function buildTaskRow(item) {
 
   if (meta.children.length) content.appendChild(meta);
   row.appendChild(content);
+
+  /* Click to edit (but not on status button) */
+  (function(sid, tid) {
+    row.addEventListener('click', function(e) {
+      if (e.target.closest('.status-btn')) return;
+      openEditModal(sid, tid);
+    });
+  })(item.secId, t.id);
 
   card.appendChild(row);
   wrap.appendChild(revealDone);
@@ -1379,6 +1621,10 @@ function render() {
     doneLabel.textContent = 'Completed (' + done.length + ')';
     doneList.innerHTML = '';
     done.forEach(function(item) { doneList.appendChild(buildTaskRow(item)); });
+    /* Restore persisted open/closed state */
+    var doneWasOpen = localStorage.getItem('bozzone-myday-done-open') === '1';
+    doneList.classList.toggle('open', doneWasOpen);
+    document.getElementById('doneCaret').classList.toggle('open', doneWasOpen);
   } else {
     doneToggle.style.display = 'none';
     doneList.innerHTML = '';
@@ -1481,6 +1727,62 @@ function closeSheet() {
   document.getElementById('sheet').classList.remove('open');
 }
 
+/* ================================================================
+   EDIT TASK MODAL
+   ================================================================ */
+var currentEditItem = null;
+
+function openEditModal(secId, taskId) {
+  var sec = findSec(secId);
+  if (!sec) return;
+  var task = null;
+  for (var i = 0; i < sec.tasks.length; i++) {
+    if (sec.tasks[i].id === taskId) {
+      task = sec.tasks[i];
+      break;
+    }
+  }
+  if (!task) return;
+
+  currentEditItem = { secId: secId, task: task, index: i };
+
+  document.getElementById('editTaskTitle').value = task.title || task.text || '';
+  document.getElementById('editTaskPriority').value = task.priority || '';
+  document.getElementById('editTaskDueDate').value = task.dueDate || '';
+
+  document.getElementById('editModalBackdrop').classList.add('open');
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModalBackdrop').classList.remove('open');
+  document.getElementById('editModal').classList.remove('open');
+  currentEditItem = null;
+}
+
+function saveTaskEdit() {
+  if (!currentEditItem) return;
+
+  var title = document.getElementById('editTaskTitle').value.trim();
+  var priority = document.getElementById('editTaskPriority').value;
+  var dueDate = document.getElementById('editTaskDueDate').value;
+
+  if (!title) {
+    showToast('Title cannot be empty');
+    return;
+  }
+
+  currentEditItem.task.title = title;
+  currentEditItem.task.text = title;
+  currentEditItem.task.priority = priority || null;
+  currentEditItem.task.dueDate = dueDate || null;
+
+  save();
+  render();
+  closeEditModal();
+  showToast('Task updated ✓');
+}
+
 document.getElementById('bulbBtn').addEventListener('click', openSheet);
 document.getElementById('sheetDoneBtn').addEventListener('click', closeSheet);
 document.getElementById('backdrop').addEventListener('click', closeSheet);
@@ -1491,7 +1793,20 @@ document.getElementById('backdrop').addEventListener('click', closeSheet);
 document.getElementById('doneToggle').addEventListener('click', function() {
   var dl = document.getElementById('doneList');
   var caret = document.getElementById('doneCaret');
-  caret.classList.toggle('open', dl.classList.toggle('open'));
+  var isOpen = dl.classList.toggle('open');
+  caret.classList.toggle('open', isOpen);
+  localStorage.setItem('bozzone-myday-done-open', isOpen ? '1' : '0');
+});
+
+/* ================================================================
+   EDIT MODAL EVENT LISTENERS
+   ================================================================ */
+document.getElementById('editModalClose').addEventListener('click', closeEditModal);
+document.getElementById('editModalBackdrop').addEventListener('click', closeEditModal);
+document.getElementById('editBtnSave').addEventListener('click', saveTaskEdit);
+
+document.getElementById('editTaskTitle').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') saveTaskEdit();
 });
 
 /* ================================================================

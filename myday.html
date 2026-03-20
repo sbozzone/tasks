@@ -13,6 +13,11 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <!-- Shared utilities (must load before the inline <script> block below) -->
+  <script src="lib/firebase-config.js"></script>
+  <script src="lib/storage.js"></script>
+  <script src="lib/data-utils.js"></script>
+  <script src="lib/audio.js"></script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1018,28 +1023,24 @@
 <script>
 /* ================================================================
    CONFIG
+   firebaseConfig is defined in lib/firebase-config.js.
    ================================================================ */
-var firebaseConfig = {
-  apiKey: "AIzaSyCmZWuIQ6NzvS2Lhzo725Wf6Cnro6NKWzI",
-  authDomain: "todomyway-185c9.firebaseapp.com",
-  databaseURL: "https://todomyway-185c9-default-rtdb.firebaseio.com",
-  projectId: "todomyway-185c9",
-  storageBucket: "todomyway-185c9.firebasestorage.app",
-  messagingSenderId: "213165358695",
-  appId: "1:213165358695:web:f166a7cc6772f8a54a1ec2"
-};
 
 /* ================================================================
    STATE
+   syncKey is read via STORAGE_KEYS (defined in lib/storage.js).
    ================================================================ */
 var appData = { sections: [], tags: [] };
-var syncKey = localStorage.getItem('bozzone-sync-key');
+var syncKey = storageGet(STORAGE_KEYS.SYNC_KEY);
 var dbRef   = null;
 var fbReady = false;
 
 /* ================================================================
    HELPERS
+   setDot, findSec, ensureArrays, uid — defined in lib/data-utils.js.
    ================================================================ */
+
+/** Update the sync-status indicator dot in the header. */
 function setDot(cls) {
   document.getElementById('dot').className = 'sync-dot ' + cls;
 }
@@ -1049,50 +1050,6 @@ function showToast(msg) {
   el.textContent = msg;
   el.classList.add('show');
   setTimeout(function() { el.classList.remove('show'); }, 2000);
-}
-
-function findSec(id) {
-  var secs = appData.sections || [];
-  for (var i = 0; i < secs.length; i++) {
-    if (secs[i].id === id) return secs[i];
-  }
-  return null;
-}
-
-function ensureArrays(d) {
-  if (!d) return { sections: [], tags: [], projects: [] };
-  if (!Array.isArray(d.sections)) {
-    var arr = [];
-    Object.keys(d.sections || {}).forEach(function(k) { arr.push(d.sections[k]); });
-    d.sections = arr;
-  }
-  /* Projects array (migrated from groups) */
-  if (!d.projects) d.projects = d.groups ? (Array.isArray(d.groups) ? d.groups : Object.values(d.groups)) : [];
-  if (!Array.isArray(d.projects)) d.projects = [];
-  (d.sections || []).forEach(function(sec) {
-    if (sec.projectId === undefined) sec.projectId = (sec.groupId !== undefined ? sec.groupId : null);
-    if (sec.isInbox === undefined) sec.isInbox = !!sec.isMailbox;
-    if (!Array.isArray(sec.tasks)) {
-      var ta = [];
-      Object.keys(sec.tasks || {}).forEach(function(k) { ta.push(sec.tasks[k]); });
-      sec.tasks = ta;
-    }
-    (sec.tasks || []).forEach(function(t) {
-      if (!Array.isArray(t.subtasks)) t.subtasks = [];
-      if (!Array.isArray(t.tags)) t.tags = [];
-      if (!t.title && t.text) t.title = t.text;
-      if (!t.title) t.title = '';
-      t.text = t.title;
-      if (!t.description && t.desc !== undefined) t.description = t.desc;
-      if (t.description === undefined) t.description = '';
-      if (!t.status) t.status = t.done ? 'done' : 'not_started';
-      if (t.status === 'todo') t.status = 'not_started';
-      if (t.status === 'inprogress') t.status = 'in_progress';
-      t.done = (t.status === 'done');
-    });
-  });
-  if (!Array.isArray(d.tags)) d.tags = [];
-  return d;
 }
 
 /* ================================================================
@@ -1107,19 +1064,16 @@ function ensureArrays(d) {
 
 /* ================================================================
    STORAGE
+   storageLoadRawData() / storageSaveData() from lib/storage.js.
    ================================================================ */
 function loadLS() {
-  try {
-    var s = localStorage.getItem('bozzone-app-v3');
-    if (s) { appData = ensureArrays(JSON.parse(s)); return; }
-    /* Fallback: migrate from v2 */
-    var s2 = localStorage.getItem('bozzone-app-v2');
-    if (s2) appData = ensureArrays(JSON.parse(s2));
-  } catch (e) {}
+  /* storageLoadRawData() handles v3 → v2 fallback internally */
+  var raw = storageLoadRawData();
+  if (raw) appData = ensureArrays(raw);
 }
 
 function saveLS() {
-  try { localStorage.setItem('bozzone-app-v3', JSON.stringify(appData)); } catch (e) {}
+  storageSaveData(appData);
 }
 
 function save() {
@@ -1236,10 +1190,8 @@ function getOrderedActive(active) {
 
 /* ================================================================
    ADD TASK
+   uid() is defined in lib/data-utils.js.
    ================================================================ */
-function uid() {
-  return 't' + Date.now() + Math.random().toString(36).slice(2, 7);
-}
 
 function populateSecPicker() {
   var sel = document.getElementById('addSecSel');
@@ -1622,7 +1574,7 @@ function render() {
     doneList.innerHTML = '';
     done.forEach(function(item) { doneList.appendChild(buildTaskRow(item)); });
     /* Restore persisted open/closed state */
-    var doneWasOpen = localStorage.getItem('bozzone-myday-done-open') === '1';
+    var doneWasOpen = storageGetBool(STORAGE_KEYS.MYDAY_DONE_OPEN);
     doneList.classList.toggle('open', doneWasOpen);
     document.getElementById('doneCaret').classList.toggle('open', doneWasOpen);
   } else {
@@ -1795,7 +1747,7 @@ document.getElementById('doneToggle').addEventListener('click', function() {
   var caret = document.getElementById('doneCaret');
   var isOpen = dl.classList.toggle('open');
   caret.classList.toggle('open', isOpen);
-  localStorage.setItem('bozzone-myday-done-open', isOpen ? '1' : '0');
+  storageSetBool(STORAGE_KEYS.MYDAY_DONE_OPEN, isOpen);
 });
 
 /* ================================================================
@@ -1810,57 +1762,10 @@ document.getElementById('editTaskTitle').addEventListener('keypress', function(e
 });
 
 /* ================================================================
-   SOUND  (Web Audio API — works on mobile when triggered by user tap)
+   SOUND
+   getAudioCtx(), playDoneChime(), playRemoveSound() are defined in
+   lib/audio.js and shared with index.html.
    ================================================================ */
-var audioCtx = null;
-
-function getAudioCtx() {
-  if (!audioCtx) {
-    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
-  }
-  /* iOS requires resume after user gesture */
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
-  return audioCtx;
-}
-
-function playDoneChime() {
-  var ctx = getAudioCtx();
-  if (!ctx) return;
-  /* A pleasant two-note chime: C5 then E5 */
-  var notes = [523.25, 659.25];
-  notes.forEach(function(freq, i) {
-    var osc = ctx.createOscillator();
-    var gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    var t = ctx.currentTime + i * 0.18;
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(0.22, t + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
-    osc.start(t);
-    osc.stop(t + 0.56);
-  });
-}
-
-function playRemoveSound() {
-  var ctx = getAudioCtx();
-  if (!ctx) return;
-  var osc = ctx.createOscillator();
-  var gain = ctx.createGain();
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(440, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.22);
-  gain.gain.setValueAtTime(0.18, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-  osc.start(ctx.currentTime);
-  osc.stop(ctx.currentTime + 0.26);
-}
 
 /* ================================================================
    STYLE — COLORS & BACKGROUND IMAGE
@@ -1898,16 +1803,17 @@ function applyBackgroundImage(dataUrl) {
 }
 
 function loadStyle() {
-  var accent = localStorage.getItem('myday-accent');
+  /* Read persisted accent colour and background image via STORAGE_KEYS */
+  var accent = storageGet(STORAGE_KEYS.MYDAY_ACCENT);
   if (accent) applyAccentColor(accent);
-  var bgImg = localStorage.getItem('myday-bg-image');
+  var bgImg = storageGet(STORAGE_KEYS.MYDAY_BG_IMAGE);
   if (bgImg) applyBackgroundImage(bgImg);
 }
 loadStyle();
 
 function buildColorSwatches() {
   var container = document.getElementById('colorSwatches');
-  var current = localStorage.getItem('myday-accent') || '#D97757';
+  var current = storageGet(STORAGE_KEYS.MYDAY_ACCENT) || '#D97757';
   container.innerHTML = '';
   THEME_COLORS.forEach(function(c) {
     var sw = document.createElement('div');
@@ -1918,7 +1824,7 @@ function buildColorSwatches() {
       container.querySelectorAll('.color-swatch').forEach(function(el) { el.classList.remove('active'); });
       sw.classList.add('active');
       applyAccentColor(c.value);
-      localStorage.setItem('myday-accent', c.value);
+      storageSet(STORAGE_KEYS.MYDAY_ACCENT, c.value);
     });
     container.appendChild(sw);
   });
@@ -1926,7 +1832,7 @@ function buildColorSwatches() {
 
 function openStyleSheet() {
   buildColorSwatches();
-  var hasBg = !!localStorage.getItem('myday-bg-image');
+  var hasBg = !!storageGet(STORAGE_KEYS.MYDAY_BG_IMAGE);
   document.getElementById('bgPhotoBtn').classList.toggle('has-image', hasBg);
   document.getElementById('bgRemoveBtn').classList.toggle('visible', hasBg);
   document.getElementById('styleBackdrop').classList.add('open');
@@ -1955,7 +1861,7 @@ document.getElementById('bgFileInput').addEventListener('change', function(e) {
     var dataUrl = ev.target.result;
     /* Store compressed: if image is large, store as-is (localStorage ~5MB) */
     try {
-      localStorage.setItem('myday-bg-image', dataUrl);
+      storageSet(STORAGE_KEYS.MYDAY_BG_IMAGE, dataUrl);
     } catch (err) {
       showToast('Image too large, try a smaller one');
       return;
@@ -1971,7 +1877,7 @@ document.getElementById('bgFileInput').addEventListener('change', function(e) {
 });
 
 document.getElementById('bgRemoveBtn').addEventListener('click', function() {
-  localStorage.removeItem('myday-bg-image');
+  storageRemove(STORAGE_KEYS.MYDAY_BG_IMAGE);
   applyBackgroundImage(null);
   document.getElementById('bgPhotoBtn').classList.remove('has-image');
   document.getElementById('bgRemoveBtn').classList.remove('visible');

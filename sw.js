@@ -1,5 +1,19 @@
-var CACHE = 'bozzone-tasks-v4';
-var SHELL = ['./', './index.html', './manifest.json', './icon.svg'];
+var CACHE = 'bozzone-tasks-v5';
+
+/* App shell — all files needed for offline use.
+   lib/ files are listed explicitly so they are cached on install.  */
+var SHELL = [
+  './',
+  './index.html',
+  './myday.html',
+  './manifest.json',
+  './icon.svg',
+  './lib/firebase-config.js',
+  './lib/storage.js',
+  './lib/data-utils.js',
+  './lib/audio.js',
+  './lib/date-utils.js'
+];
 
 /* Install — cache app shell */
 self.addEventListener('install', function (e) {

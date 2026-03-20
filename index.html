@@ -16,6 +16,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <!-- SortableJS — touch-friendly drag & drop -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
+  <!-- Shared utilities (must load before the inline <script> block below) -->
+  <script src="lib/firebase-config.js"></script>
+  <script src="lib/storage.js"></script>
+  <script src="lib/data-utils.js"></script>
+  <script src="lib/audio.js"></script>
+  <script src="lib/date-utils.js"></script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1822,6 +1828,202 @@
       font-size: .83rem;
     }
 
+
+    /* ══════════════════════════════════════════════
+       MOBILE-FIRST POLISH  ·  UX DELIGHT
+       Covers: responsive layout, bottom tab bar,
+       touch targets, animations, empty states,
+       confetti, footer, smooth transitions.
+       ══════════════════════════════════════════════ */
+
+    /* ── Global smooth transitions ─────────────── */
+    .card  { transition: box-shadow .2s ease, transform .15s ease; }
+    .card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.11); }
+    .filter-btn, .view-chip, .grp-pill { transition: all .18s ease; }
+    .task { transition: opacity .2s ease, background .15s; }
+
+    /* ── Task done — fade with crossthrough ──────── */
+    .task.status-done { transition: opacity .3s ease; }
+
+    /* ── Button tap / hover feedback ────────────── */
+    button { -webkit-tap-highlight-color: transparent; }
+    .add-btn:active, .btn-create:active,
+    .nt-create:active, .tm-add-btn:active { transform: scale(.94); transition: transform .1s; }
+    .add-task-btn { transition: opacity .15s, transform .12s; }
+    .add-task-btn:active { transform: scale(.92); }
+    .gear:active, .dark-toggle:active { transform: scale(.85); transition: transform .1s; }
+    .filter-btn:active, .grp-pill:active { transform: scale(.94); }
+
+    /* ── Status-button done "pop" ────────────────── */
+    @keyframes statusPop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.28); }
+      70%  { transform: scale(.92); }
+      100% { transform: scale(1); }
+    }
+    .status-btn[data-status="done"] { animation: statusPop .32s ease-out; }
+
+    /* ── New-task modal: slide-up bottom sheet ───── */
+    .nt-ov { align-items: flex-end !important; padding: 0 !important; }
+    .nt-box {
+      border-radius: 22px 22px 0 0;
+      max-width: 560px; width: 100%;
+      padding-bottom: calc(22px + var(--safe-bottom));
+      box-shadow: 0 -4px 32px rgba(0,0,0,.18);
+    }
+
+    /* ── Empty state: icon + friendlier message ──── */
+    .task-empty {
+      padding: 28px 12px;
+      text-align: center;
+      font-size: .82rem;
+      color: var(--text-muted);
+      font-style: normal;
+      line-height: 1.9;
+    }
+    .task-empty::before {
+      content: '📋';
+      display: block;
+      font-size: 1.7rem;
+      opacity: .38;
+      margin-bottom: 5px;
+    }
+
+    /* ── My Day: today's date badge ──────────────── */
+    .my-day-today-date {
+      font-size: .7rem;
+      font-weight: 600;
+      color: #F5A623;
+      background: rgba(245,166,35,.13);
+      border-radius: 8px;
+      padding: 1px 7px;
+      flex-shrink: 0;
+      margin-left: 2px;
+    }
+
+    /* ── Confetti canvas (above everything) ──────── */
+    #confettiCanvas {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── Footer ──────────────────────────────────── */
+    .app-footer {
+      text-align: center;
+      padding: 32px 16px;
+      padding-bottom: calc(32px + var(--safe-bottom));
+      font-size: .74rem;
+      color: var(--text-muted);
+      letter-spacing: .05em;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .app-footer strong { color: var(--text-sec); font-weight: 700; }
+    [data-theme="dark"] .app-footer { color: var(--text-muted); }
+
+    /* ══════════════════════════════════════════════
+       MOBILE  ≤ 699 px
+       ══════════════════════════════════════════════ */
+    @media (max-width: 699px) {
+
+      /* Body: extra bottom clearance for tab bar */
+      body { padding-bottom: calc(68px + var(--safe-bottom)) !important; }
+
+      /* ── Bottom tab bar ───────────────────────── */
+      #viewBar {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        z-index: 200;
+        background: var(--bg);
+        border-top: 1.5px solid var(--border);
+        padding: 5px 6px calc(5px + var(--safe-bottom));
+        margin: 0;
+        gap: 2px;
+        justify-content: space-around;
+        -webkit-backdrop-filter: saturate(1.8) blur(20px);
+        backdrop-filter: saturate(1.8) blur(20px);
+      }
+      .view-chip {
+        flex: 1; flex-shrink: 1;
+        flex-direction: column;
+        padding: 4px 2px;
+        font-size: .59rem;
+        gap: 2px;
+        min-height: 44px;
+        border-radius: 10px;
+        justify-content: center;
+        border-color: transparent;
+        background: none;
+        color: var(--text-muted);
+        letter-spacing: 0;
+      }
+      .view-chip.active {
+        background: var(--accent-light) !important;
+        border-color: transparent !important;
+        color: var(--accent) !important;
+      }
+      .view-chip.active.vc-myday    { color: #F5A623 !important; background: rgba(245,166,35,.13) !important; }
+      .view-chip.active.vc-overdue  { color: #c0392b !important; background: rgba(192,57,43,.1)  !important; }
+      .view-chip.active.vc-high     { color: #e74c3c !important; background: rgba(231,76,60,.1)  !important; }
+      .view-chip.active.vc-progress { color: var(--accent) !important; background: var(--accent-light) !important; }
+      .view-chip.active.vc-week     { color: #27AE60 !important; background: rgba(39,174,96,.1)  !important; }
+      .view-chip.active.vc-table    { color: #2980B9 !important; background: rgba(41,128,185,.1) !important; }
+
+      /* ── Header: de-clutter ───────────────────── */
+      .kbd-btn   { display: none; }
+      .key-label { display: none; }
+
+      /* ── Touch targets ────────────────────────── */
+      .gear, .dark-toggle {
+        min-width: 38px; min-height: 38px;
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+      .add-btn   { width: 44px; height: 44px; }
+      .status-btn { width: 28px; height: 28px; }
+      .del-btn   { min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; }
+      .tag-btn   { min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; }
+      .add-input { padding: 10px 12px; font-size: .9rem; }
+      .filter-btn { padding: 7px 14px; font-size: .8rem; min-height: 36px; }
+      .grp-pill   { padding: 7px 14px; font-size: .8rem; min-height: 36px; }
+      .hide-done-btn { padding: 7px 10px; font-size: .76rem; min-height: 36px; }
+      .add-task-btn  { padding: 6px 4px; font-size: .88rem; min-height: 40px; }
+
+      /* ── Typography ───────────────────────────── */
+      .task    { font-size: .9rem; padding: 10px 0; }
+      .card-hd { font-size: .9rem; padding: 12px 14px; }
+
+      /* ── Card body breathing room ─────────────── */
+      .card-bd { padding: 10px 12px; }
+
+      /* ── New-task modal: full width ───────────── */
+      .nt-box {
+        border-radius: 22px 22px 0 0;
+        max-width: 100%;
+        padding-bottom: calc(24px + var(--safe-bottom));
+      }
+
+      /* ── Modals: full width on small screens ──── */
+      .tm-box { max-width: 100%; border-radius: 22px 22px 0 0; }
+
+      /* ── Notification panel: full width ──────── */
+      .notif-panel { left: 8px; right: 8px; width: auto; }
+
+      /* ── Table view: drop less important columns  */
+      .tv-table { font-size: .8rem; }
+      .tv-table th, .tv-table td { padding: 7px 8px; }
+      .tv-group, .tv-section { display: none; }
+
+      /* ── Settings: full width ─────────────────── */
+      .settings-box { max-width: 100%; }
+    }
+
+    /* ── Dark mode tab bar ────────────────────── */
+    [data-theme="dark"] #viewBar {
+      background: rgba(26,25,24,.94);
+      border-color: var(--border);
+    }
+
   </style>
 </head>
 <body>
@@ -1886,6 +2088,9 @@
   <div><kbd>Ctrl</kbd><kbd>Y</kbd> Redo</div>
   <div><kbd>Esc</kbd> Close / cancel</div>
 </div>
+
+<!-- Confetti canvas (z-index 9999, pointer-events none) -->
+<canvas id="confettiCanvas"></canvas>
 
 <!-- Undo toast -->
 <div class="toast" id="toast">
@@ -2027,6 +2232,11 @@
           <span class="sw-slider"></span>
         </label>
       </div>
+      <!-- Export row: downloads all task data as a JSON backup file -->
+      <div class="settings-row">
+        <span class="settings-row-label">Export Data</span>
+        <button id="exportBtn" style="font-size:.82rem;padding:5px 12px;border-radius:8px;border:1.5px solid var(--accent);background:none;color:var(--accent);cursor:pointer;font-weight:600;">Export JSON</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2055,20 +2265,9 @@
 
 <script>
 /* ================================================================
-   FIREBASE CONFIG — Replace with YOUR values (see SETUP.md)
+   FIREBASE CONFIG — loaded from lib/firebase-config.js
+   firebaseConfig and `configured` are defined there.
    ================================================================ */
-
-var firebaseConfig = {
-  apiKey: "AIzaSyCmZWuIQ6NzvS2Lhzo725Wf6Cnro6NKWzI",
-  authDomain: "todomyway-185c9.firebaseapp.com",
-  databaseURL: "https://todomyway-185c9-default-rtdb.firebaseio.com",
-  projectId: "todomyway-185c9",
-  storageBucket: "todomyway-185c9.firebasestorage.app",
-  messagingSenderId: "213165358695",
-  appId: "1:213165358695:web:f166a7cc6772f8a54a1ec2"
-};
-
-var configured = firebaseConfig.apiKey !== 'YOUR_API_KEY';
 
 /* ================================================================
    CONSTANTS
@@ -2094,18 +2293,27 @@ setTimeout(function() {
 
 /* ================================================================
    SETTINGS
+   Booleans are persisted via storageSetBool (lib/storage.js).
+   STORAGE_KEYS constants keep key strings in one place.
    ================================================================ */
 var appSettings = {
-  addTop:          localStorage.getItem('bozzone-add-top')           === '1',
-  completionSound: localStorage.getItem('bozzone-completion-sound')  === '1',
-  parseDates:      localStorage.getItem('bozzone-parse-dates')       === '1',
-  notifications:   localStorage.getItem('bozzone-notifications')     === '1'
+  addTop:          storageGetBool(STORAGE_KEYS.ADD_TOP),
+  completionSound: storageGetBool(STORAGE_KEYS.COMPLETION_SOUND),
+  parseDates:      storageGetBool(STORAGE_KEYS.PARSE_DATES),
+  notifications:   storageGetBool(STORAGE_KEYS.NOTIFICATIONS)
+};
+
+/** Maps appSettings property names → STORAGE_KEYS for saveSetting() */
+var SETTING_KEY_MAP = {
+  addTop:          STORAGE_KEYS.ADD_TOP,
+  completionSound: STORAGE_KEYS.COMPLETION_SOUND,
+  parseDates:      STORAGE_KEYS.PARSE_DATES,
+  notifications:   STORAGE_KEYS.NOTIFICATIONS
 };
 
 function saveSetting(key, val) {
   appSettings[key] = val;
-  var lsMap = { addTop: 'bozzone-add-top', completionSound: 'bozzone-completion-sound', parseDates: 'bozzone-parse-dates', notifications: 'bozzone-notifications' };
-  if (lsMap[key]) localStorage.setItem(lsMap[key], val ? '1' : '0');
+  if (SETTING_KEY_MAP[key]) storageSetBool(SETTING_KEY_MAP[key], val);
 }
 
 function showSettings() {
@@ -2120,87 +2328,9 @@ function closeSettings() {
   document.getElementById('settingsOv').style.display = 'none';
 }
 
-/* Play a pleasant two-tone chime using Web Audio API */
-function playCompletionSound() {
-  try {
-    var ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [[523.25, 0, 0.12], [783.99, 0.1, 0.18]].forEach(function(note) {
-      var osc  = ctx.createOscillator();
-      var gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.value = note[0];
-      gain.gain.setValueAtTime(0, ctx.currentTime + note[1]);
-      gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + note[1] + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + note[1] + note[2]);
-      osc.start(ctx.currentTime + note[1]);
-      osc.stop(ctx.currentTime + note[1] + note[2] + 0.05);
-    });
-  } catch(e) {}
-}
-
-/* Parse a date string from task title text. Returns 'YYYY-MM-DD' or null. */
-function parseDateFromTitle(text) {
-  if (!text) return null;
-  var t = text.toLowerCase();
-  var now = new Date(); now.setHours(0,0,0,0);
-
-  function fmt(d) {
-    return d.getFullYear() + '-' +
-      String(d.getMonth()+1).padStart(2,'0') + '-' +
-      String(d.getDate()).padStart(2,'0');
-  }
-  function addDays(d, n) { var r = new Date(d); r.setDate(r.getDate() + n); return r; }
-
-  /* "today" / "tomorrow" */
-  if (/\btoday\b/.test(t))    return fmt(now);
-  if (/\btomorrow\b/.test(t)) return fmt(addDays(now, 1));
-
-  /* "in N days/weeks" */
-  var m = t.match(/\bin\s+(\d+)\s+(day|days)\b/);
-  if (m) return fmt(addDays(now, parseInt(m[1])));
-  m = t.match(/\bin\s+(\d+)\s+(week|weeks)\b/);
-  if (m) return fmt(addDays(now, parseInt(m[1]) * 7));
-
-  /* "next week" */
-  if (/\bnext\s+week\b/.test(t)) return fmt(addDays(now, 7));
-
-  /* Day names: "monday", "(next) tuesday", etc. */
-  var days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-  var nextPfx = /\bnext\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/.exec(t);
-  var dayPfx  = /\b(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/.exec(t);
-  var match   = nextPfx || dayPfx;
-  if (match) {
-    var target = days.indexOf(match[1]);
-    var diff   = target - now.getDay();
-    if (diff <= 0 || nextPfx) diff += 7;
-    return fmt(addDays(now, diff));
-  }
-
-  /* Month name + day: "jan 15", "january 15th" */
-  var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
-  var fullMo = ['january','february','march','april','may','june','july','august','september','october','november','december'];
-  for (var i = 0; i < 12; i++) {
-    var re = new RegExp('\\b(' + months[i] + '|' + fullMo[i] + ')\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b');
-    var mo = re.exec(t);
-    if (mo) {
-      var day = parseInt(mo[2]);
-      var yr  = now.getFullYear();
-      var d   = new Date(yr, i, day);
-      if (d < now) d.setFullYear(yr + 1);
-      return fmt(d);
-    }
-  }
-
-  return null;
-}
-
-var DEFAULT_TAGS = [
-  { id: 'tag-work',     name: 'Work',     color: '#4A90D9' },
-  { id: 'tag-shop',     name: 'Shop',     color: '#5CC1A9' },
-  { id: 'tag-business', name: 'Business', color: '#D97757' }
-];
+/* playCompletionSound — defined in lib/audio.js (alias for playDoneChime) */
+/* parseDateFromTitle  — defined in lib/date-utils.js */
+/* DEFAULT_TAGS        — defined in lib/data-utils.js */
 
 var EMOJIS = ['\ud83d\udccb','\ud83c\udfaf','\ud83d\udcf1','\ud83d\uded2','\ud83d\udcfa','\ud83c\udfd7\ufe0f','\ud83d\udcb0','\ud83d\udd27','\u2b50','\ud83c\udfe0','\ud83d\ude97','\ud83d\udca1','\ud83c\udfa8','\ud83d\udcdd','\ud83d\udee0\ufe0f','\ud83d\udce6'];
 
@@ -2302,7 +2432,8 @@ var SEED = [
    STATE
    ================================================================ */
 var appData      = { sections: [], tags: [] };
-var syncKey      = localStorage.getItem('bozzone-sync-key');
+/* syncKey is read via STORAGE_KEYS (defined in lib/storage.js) */
+var syncKey      = storageGet(STORAGE_KEYS.SYNC_KEY);
 var dbRef        = null;
 var fbReady      = false;
 var isDragging   = false;
@@ -2320,29 +2451,12 @@ var activeGroupFilter = null;  /* null = All groups, or groupId */
 
 /* ================================================================
    HELPERS
+   uid(), findSec(), findTag() are defined in lib/data-utils.js.
    ================================================================ */
-function uid() {
-  return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
 
+/** Update the sync-status indicator dot. */
 function dot(cls) {
   document.getElementById('dot').className = 'sync-dot ' + cls;
-}
-
-function findSec(id) {
-  var secs = appData.sections || [];
-  for (var i = 0; i < secs.length; i++) {
-    if (secs[i].id === id) return secs[i];
-  }
-  return null;
-}
-
-function findTag(id) {
-  var tags = appData.tags || [];
-  for (var i = 0; i < tags.length; i++) {
-    if (tags[i].id === id) return tags[i];
-  }
-  return null;
 }
 
 /* ── Project CRUD helpers ── */
@@ -2403,59 +2517,7 @@ function assignSectionToProject(secId, groupId) {
 /* Keep old name as alias */
 var assignSectionToGroup = assignSectionToProject;
 
-/* Firebase can turn arrays into objects — normalize on read */
-function ensureArrays(data) {
-  if (!data) return { sections: [], tags: DEFAULT_TAGS.slice(), projects: [] };
-  if (!data.sections) data.sections = [];
-  if (!Array.isArray(data.sections)) data.sections = Object.values(data.sections);
-  /* Seed default tags if tags never set */
-  if (!data.tags) data.tags = DEFAULT_TAGS.map(function(t) { return {id:t.id, name:t.name, color:t.color}; });
-  if (!Array.isArray(data.tags)) data.tags = Object.values(data.tags);
-  /* Projects array (migrated from groups) */
-  if (!data.projects) data.projects = data.groups ? (Array.isArray(data.groups) ? data.groups : Object.values(data.groups)) : [];
-  if (!Array.isArray(data.projects)) data.projects = Object.values(data.projects);
-  data.sections.forEach(function(sec) {
-    /* Migrate groupId → projectId */
-    if (sec.projectId === undefined) sec.projectId = (sec.groupId !== undefined ? sec.groupId : null);
-    /* Migrate isMailbox → isInbox */
-    if (sec.isInbox === undefined) sec.isInbox = !!sec.isMailbox;
-  });
-  data.sections.forEach(function(sec) {
-    if (!sec.tasks) sec.tasks = [];
-    if (!Array.isArray(sec.tasks)) sec.tasks = Object.values(sec.tasks);
-    sec.tasks.forEach(function(task) {
-      if (!task.tags) task.tags = [];
-      if (!Array.isArray(task.tags)) task.tags = Object.values(task.tags);
-      /* ── Field migrations ── */
-      /* text → title */
-      if (!task.title && task.text) task.title = task.text;
-      if (!task.title) task.title = '';
-      task.text = task.title;
-      /* desc → description */
-      if (!task.description && task.desc !== undefined) task.description = task.desc;
-      if (task.description === undefined) task.description = '';
-      /* Status migration */
-      if (!task.status) task.status = task.done ? 'done' : 'not_started';
-      if (task.status === 'todo') task.status = 'not_started';
-      if (task.status === 'inprogress') task.status = 'in_progress';
-      task.done = (task.status === 'done');
-      /* New optional fields */
-      if (!task.subtasks) task.subtasks = [];
-      if (!Array.isArray(task.subtasks)) task.subtasks = [];
-      task.subtasks.forEach(function(sub) {
-        if (!sub.title && sub.text) sub.title = sub.text;
-        if (!sub.title) sub.title = '';
-      });
-      if (task.priority === undefined)      task.priority     = null;
-      if (task.dueDate  === undefined)      task.dueDate      = null;
-      if (task.startDate === undefined)     task.startDate    = null;
-      if (task.completedDate === undefined) task.completedDate = null;
-      if (task.notes    === undefined)      task.notes        = '';
-      if (task.recurrence === undefined)    task.recurrence   = null;
-    });
-  });
-  return data;
-}
+/* ensureArrays() — defined in lib/data-utils.js */
 
 /* ================================================================
    DATA MODEL — build initial data from SEED + old checkbox states
@@ -2591,22 +2653,54 @@ function save() {
 
 /* ================================================================
    LOCAL STORAGE (backup / offline fallback)
+   storageLoadRawData() and storageSaveData() are in lib/storage.js.
    ================================================================ */
 function loadLS() {
+  /* storageLoadRawData() handles the v3 → v2 fallback internally */
+  var raw = storageLoadRawData();
+  if (raw) { appData = ensureArrays(raw); return; }
+  /* Legacy: bozzone-states used a flat checkbox-state object (pre-v2) */
   try {
-    var s = localStorage.getItem('bozzone-app-v3');
-    if (s) { appData = ensureArrays(JSON.parse(s)); return; }
-    /* Fallback: migrate from v2 */
-    var s2 = localStorage.getItem('bozzone-app-v2');
-    if (s2) { appData = ensureArrays(JSON.parse(s2)); return; }
-    var old = localStorage.getItem('bozzone-states');
+    var old = localStorage.getItem(STORAGE_KEYS.APP_DATA_LEGACY);
     if (old) appData = buildInitialData(JSON.parse(old));
   } catch (e) {}
 }
 
 function saveLS() {
-  try { localStorage.setItem('bozzone-app-v3', JSON.stringify(appData)); } catch (e) {}
+  storageSaveData(appData);
 }
+
+/* ================================================================
+   EXPORT
+   Serialises appData to a pretty-printed JSON file and triggers a
+   browser download.  No data leaves the device — it is written
+   directly to a Blob URL.
+   ================================================================ */
+function exportData() {
+  var taskCount = (appData.sections || []).reduce(function(n, s) { return n + (s.tasks || []).length; }, 0);
+  var now = new Date();
+  /* Filename: bozzone-tasks-YYYY-MM-DD.json */
+  var dateStr = now.getFullYear() + '-' +
+    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+    String(now.getDate()).padStart(2, '0');
+  var filename = 'bozzone-tasks-' + dateStr + '.json';
+
+  var blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  /* Release the object URL after a tick so the download can start */
+  setTimeout(function() { URL.revokeObjectURL(url); }, 100);
+  showToast('Exported ' + taskCount + ' task' + (taskCount === 1 ? '' : 's') + ' \u2193');
+}
+
+document.getElementById('exportBtn').addEventListener('click', function() {
+  exportData();
+});
 
 /* ================================================================
    INBOX
@@ -2669,7 +2763,7 @@ function markShortcutSeen(p) {
   try {
     var key = p.token ? ('t:' + p.token) : ('q:' + p.raw);
     var now = Date.now();
-    var list = JSON.parse(localStorage.getItem('bozzone-shortcut-seen') || '[]');
+    var list = JSON.parse(storageGet(STORAGE_KEYS.SHORTCUT_SEEN) || '[]');
     if (!Array.isArray(list)) list = [];
 
     /* prune old entries (keep 50, and keep only last 7 days) */
@@ -2682,14 +2776,14 @@ function markShortcutSeen(p) {
       /* If no token, allow repeat after 10 minutes */
       if (!p.token && (now - found.ts) > (10 * 60 * 1000)) {
         found.ts = now;
-        localStorage.setItem('bozzone-shortcut-seen', JSON.stringify(list.slice(-50)));
+        storageSet(STORAGE_KEYS.SHORTCUT_SEEN, JSON.stringify(list.slice(-50)));
         return true;
       }
       return false;
     }
 
     list.push({ k: key, ts: now });
-    localStorage.setItem('bozzone-shortcut-seen', JSON.stringify(list.slice(-50)));
+    storageSet(STORAGE_KEYS.SHORTCUT_SEEN, JSON.stringify(list.slice(-50)));
     return true;
   } catch (e) {
     return true; /* fail open */
@@ -2704,9 +2798,9 @@ function addInboxTaskFromShortcut(text) {
   if (lower === '[provided input]' || lower === 'provided input') return false;
   /* Basic dedupe: ignore same task within 5 seconds */
   try {
-    var last = JSON.parse(localStorage.getItem('bozzone-shortcut-last') || 'null');
+    var last = JSON.parse(storageGet(STORAGE_KEYS.SHORTCUT_LAST) || 'null');
     if (last && last.text === t && (Date.now() - last.ts) < 5000) return false;
-    localStorage.setItem('bozzone-shortcut-last', JSON.stringify({ text: t, ts: Date.now() }));
+    storageSet(STORAGE_KEYS.SHORTCUT_LAST, JSON.stringify({ text: t, ts: Date.now() }));
   } catch (e) {}
 
   if (fbReady && syncKey && window.firebase && firebase.database) {
@@ -2830,8 +2924,74 @@ function cycleStatus(secId, taskId) {
     }
   }
   if (completed && appSettings.completionSound) playCompletionSound();
+  if (completed && typeof launchConfetti === 'function') launchConfetti();
   save();
 }
+
+/* ================================================================
+   CONFETTI  — lightweight canvas burst on task completion
+   ================================================================ */
+(function() {
+  var canvas  = document.getElementById('confettiCanvas');
+  var ctx     = canvas.getContext('2d');
+  var particles = [];
+  var raf;
+
+  var COLORS = ['#D97757','#F5A623','#27AE60','#2980B9','#9B59B6','#E74C3C','#1ABC9C','#F39C12'];
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function Particle(x, y) {
+    this.x  = x; this.y = y;
+    this.vx = (Math.random() - .5) * 7;
+    this.vy = -(Math.random() * 6 + 4);
+    this.ay = .28;
+    this.w  = Math.random() * 7 + 4;
+    this.h  = Math.random() * 4 + 3;
+    this.rot  = Math.random() * Math.PI * 2;
+    this.drot = (Math.random() - .5) * .18;
+    this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    this.alpha = 1;
+    this.life  = Math.random() * 60 + 60;
+    this.age   = 0;
+  }
+
+  function step() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles = particles.filter(function(p) { return p.age < p.life; });
+    particles.forEach(function(p) {
+      p.vx += (Math.random() - .5) * .3;
+      p.vy += p.ay;
+      p.x  += p.vx;
+      p.y  += p.vy;
+      p.rot += p.drot;
+      p.age++;
+      p.alpha = Math.max(0, 1 - p.age / p.life);
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (particles.length) raf = requestAnimationFrame(step);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  window.launchConfetti = function(x, y) {
+    if (typeof x === 'undefined') { x = canvas.width  / 2; }
+    if (typeof y === 'undefined') { y = canvas.height / 3; }
+    for (var i = 0; i < 55; i++) particles.push(new Particle(x, y));
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(step);
+  };
+})();
 
 /* ================================================================
    RECURRENCE HELPER
@@ -3132,10 +3292,24 @@ function deleteSection(secId) {
     if (secs[i].id === secId) { idx = i; break; }
   }
   if (idx === -1) return;
-  var removed = secs.splice(idx, 1)[0];
+  var sec = secs[idx];
+
+  /* Require confirmation when the column contains tasks — a misclick
+     on a populated column would otherwise delete all of them silently. */
+  var taskCount = (sec.tasks || []).length;
+  if (taskCount > 0) {
+    var ok = window.confirm(
+      'Delete "' + sec.title + '"?\n' +
+      'This column contains ' + taskCount + ' task' + (taskCount === 1 ? '' : 's') + '. ' +
+      'You can undo via the toast that appears after deletion.'
+    );
+    if (!ok) return;
+  }
+
+  var removed  = secs.splice(idx, 1)[0];
   var savedIdx = idx;
   save();
-  var msg = 'Column deleted' + (removed.tasks.length ? ' (' + removed.tasks.length + ' tasks)' : '');
+  var msg = 'Column deleted' + (taskCount ? ' (' + taskCount + ' tasks)' : '');
   showToast(msg, function() {
     appData.sections.splice(savedIdx, 0, removed);
     save();
@@ -4281,9 +4455,15 @@ function render() {
     var hdBadge = document.createElement('span');
     hdBadge.className = 'badge';
     hdBadge.textContent = '0/' + mdTasks.length;
+    /* Today's date badge, e.g. "Mon 20 Mar" */
+    var hdDate = document.createElement('span');
+    hdDate.className = 'my-day-today-date';
+    var _nd = new Date();
+    hdDate.textContent = _nd.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
     hdLeft.appendChild(hdIcon);
     hdLeft.appendChild(hdTitle);
     hdLeft.appendChild(hdBadge);
+    hdLeft.appendChild(hdDate);
     hd.appendChild(hdLeft);
 
     /* Header right: collapse + lightbulb suggestions toggle */
@@ -5659,7 +5839,7 @@ document.getElementById('keyGo').addEventListener('click', function() {
   var v = document.getElementById('keyIn').value.trim().toLowerCase().replace(/[^a-z0-9\-]/g, '');
   if (!v) { document.getElementById('keyIn').style.borderColor = '#F44336'; return; }
   syncKey = v;
-  localStorage.setItem('bozzone-sync-key', syncKey);
+  storageSet(STORAGE_KEYS.SYNC_KEY, syncKey);
   hideOv();
   if (fbReady) startSync();
   else document.getElementById('keyLbl').textContent = syncKey;
@@ -5861,7 +6041,12 @@ document.getElementById('setNotifications').addEventListener('change', function(
 if (!syncKey) showOv();
 
 loadLS();
-if (!appData.sections || !appData.sections.length) {
+/* Seed default sections only in pure-offline mode (no sync key).
+   When a sync key is set, startSync() waits for Firebase to confirm
+   the remote store is also empty before seeding — this prevents the
+   SEED from being written to Firebase and overwriting real data on
+   devices that have no local cache yet (e.g. first load on a new browser). */
+if ((!appData.sections || !appData.sections.length) && !syncKey) {
   appData = buildInitialData();
 }
 appData = ensureArrays(appData);   /* ensure projects[] and projectId fields exist */
@@ -6069,11 +6254,11 @@ document.getElementById('ntTitle').addEventListener('keydown', function(e) {
    DARK MODE
    ================================================================ */
 (function() {
-  var isDark = localStorage.getItem('bozzone-dark') === '1';
+  var isDark = storageGetBool(STORAGE_KEYS.DARK_MODE);
   function applyDark(d) {
     document.documentElement.setAttribute('data-theme', d ? 'dark' : '');
     document.getElementById('darkToggle').textContent = d ? '☀️' : '🌙';
-    localStorage.setItem('bozzone-dark', d ? '1' : '0');
+    storageSetBool(STORAGE_KEYS.DARK_MODE, d);
     isDark = d;
   }
   applyDark(isDark);
@@ -6211,7 +6396,7 @@ setTimeout(function() {
    ================================================================ */
 (function() {
   var enable = location.search.indexOf('touchdebug=1') !== -1 ||
-               localStorage.getItem('bozzone-touch-debug') === '1';
+               storageGetBool(STORAGE_KEYS.TOUCH_DEBUG);
   if (!enable) return;
 
   function ensureBox(id, cssText) {
@@ -6259,5 +6444,8 @@ setTimeout(function() {
 })();
 
 </script>
+
+<footer class="app-footer">Built by <strong>Stephen</strong></footer>
+
 </body>
 </html>

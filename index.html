@@ -16,6 +16,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <!-- SortableJS — touch-friendly drag & drop -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
+  <!-- Shared utilities (must load before the inline <script> block below) -->
+  <script src="lib/firebase-config.js"></script>
+  <script src="lib/storage.js"></script>
+  <script src="lib/data-utils.js"></script>
+  <script src="lib/audio.js"></script>
+  <script src="lib/date-utils.js"></script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2055,20 +2061,9 @@
 
 <script>
 /* ================================================================
-   FIREBASE CONFIG — Replace with YOUR values (see SETUP.md)
+   FIREBASE CONFIG — loaded from lib/firebase-config.js
+   firebaseConfig and `configured` are defined there.
    ================================================================ */
-
-var firebaseConfig = {
-  apiKey: "AIzaSyCmZWuIQ6NzvS2Lhzo725Wf6Cnro6NKWzI",
-  authDomain: "todomyway-185c9.firebaseapp.com",
-  databaseURL: "https://todomyway-185c9-default-rtdb.firebaseio.com",
-  projectId: "todomyway-185c9",
-  storageBucket: "todomyway-185c9.firebasestorage.app",
-  messagingSenderId: "213165358695",
-  appId: "1:213165358695:web:f166a7cc6772f8a54a1ec2"
-};
-
-var configured = firebaseConfig.apiKey !== 'YOUR_API_KEY';
 
 /* ================================================================
    CONSTANTS
@@ -2094,18 +2089,27 @@ setTimeout(function() {
 
 /* ================================================================
    SETTINGS
+   Booleans are persisted via storageSetBool (lib/storage.js).
+   STORAGE_KEYS constants keep key strings in one place.
    ================================================================ */
 var appSettings = {
-  addTop:          localStorage.getItem('bozzone-add-top')           === '1',
-  completionSound: localStorage.getItem('bozzone-completion-sound')  === '1',
-  parseDates:      localStorage.getItem('bozzone-parse-dates')       === '1',
-  notifications:   localStorage.getItem('bozzone-notifications')     === '1'
+  addTop:          storageGetBool(STORAGE_KEYS.ADD_TOP),
+  completionSound: storageGetBool(STORAGE_KEYS.COMPLETION_SOUND),
+  parseDates:      storageGetBool(STORAGE_KEYS.PARSE_DATES),
+  notifications:   storageGetBool(STORAGE_KEYS.NOTIFICATIONS)
+};
+
+/** Maps appSettings property names → STORAGE_KEYS for saveSetting() */
+var SETTING_KEY_MAP = {
+  addTop:          STORAGE_KEYS.ADD_TOP,
+  completionSound: STORAGE_KEYS.COMPLETION_SOUND,
+  parseDates:      STORAGE_KEYS.PARSE_DATES,
+  notifications:   STORAGE_KEYS.NOTIFICATIONS
 };
 
 function saveSetting(key, val) {
   appSettings[key] = val;
-  var lsMap = { addTop: 'bozzone-add-top', completionSound: 'bozzone-completion-sound', parseDates: 'bozzone-parse-dates', notifications: 'bozzone-notifications' };
-  if (lsMap[key]) localStorage.setItem(lsMap[key], val ? '1' : '0');
+  if (SETTING_KEY_MAP[key]) storageSetBool(SETTING_KEY_MAP[key], val);
 }
 
 function showSettings() {
@@ -2120,87 +2124,9 @@ function closeSettings() {
   document.getElementById('settingsOv').style.display = 'none';
 }
 
-/* Play a pleasant two-tone chime using Web Audio API */
-function playCompletionSound() {
-  try {
-    var ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [[523.25, 0, 0.12], [783.99, 0.1, 0.18]].forEach(function(note) {
-      var osc  = ctx.createOscillator();
-      var gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.value = note[0];
-      gain.gain.setValueAtTime(0, ctx.currentTime + note[1]);
-      gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + note[1] + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + note[1] + note[2]);
-      osc.start(ctx.currentTime + note[1]);
-      osc.stop(ctx.currentTime + note[1] + note[2] + 0.05);
-    });
-  } catch(e) {}
-}
-
-/* Parse a date string from task title text. Returns 'YYYY-MM-DD' or null. */
-function parseDateFromTitle(text) {
-  if (!text) return null;
-  var t = text.toLowerCase();
-  var now = new Date(); now.setHours(0,0,0,0);
-
-  function fmt(d) {
-    return d.getFullYear() + '-' +
-      String(d.getMonth()+1).padStart(2,'0') + '-' +
-      String(d.getDate()).padStart(2,'0');
-  }
-  function addDays(d, n) { var r = new Date(d); r.setDate(r.getDate() + n); return r; }
-
-  /* "today" / "tomorrow" */
-  if (/\btoday\b/.test(t))    return fmt(now);
-  if (/\btomorrow\b/.test(t)) return fmt(addDays(now, 1));
-
-  /* "in N days/weeks" */
-  var m = t.match(/\bin\s+(\d+)\s+(day|days)\b/);
-  if (m) return fmt(addDays(now, parseInt(m[1])));
-  m = t.match(/\bin\s+(\d+)\s+(week|weeks)\b/);
-  if (m) return fmt(addDays(now, parseInt(m[1]) * 7));
-
-  /* "next week" */
-  if (/\bnext\s+week\b/.test(t)) return fmt(addDays(now, 7));
-
-  /* Day names: "monday", "(next) tuesday", etc. */
-  var days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-  var nextPfx = /\bnext\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/.exec(t);
-  var dayPfx  = /\b(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/.exec(t);
-  var match   = nextPfx || dayPfx;
-  if (match) {
-    var target = days.indexOf(match[1]);
-    var diff   = target - now.getDay();
-    if (diff <= 0 || nextPfx) diff += 7;
-    return fmt(addDays(now, diff));
-  }
-
-  /* Month name + day: "jan 15", "january 15th" */
-  var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
-  var fullMo = ['january','february','march','april','may','june','july','august','september','october','november','december'];
-  for (var i = 0; i < 12; i++) {
-    var re = new RegExp('\\b(' + months[i] + '|' + fullMo[i] + ')\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b');
-    var mo = re.exec(t);
-    if (mo) {
-      var day = parseInt(mo[2]);
-      var yr  = now.getFullYear();
-      var d   = new Date(yr, i, day);
-      if (d < now) d.setFullYear(yr + 1);
-      return fmt(d);
-    }
-  }
-
-  return null;
-}
-
-var DEFAULT_TAGS = [
-  { id: 'tag-work',     name: 'Work',     color: '#4A90D9' },
-  { id: 'tag-shop',     name: 'Shop',     color: '#5CC1A9' },
-  { id: 'tag-business', name: 'Business', color: '#D97757' }
-];
+/* playCompletionSound — defined in lib/audio.js (alias for playDoneChime) */
+/* parseDateFromTitle  — defined in lib/date-utils.js */
+/* DEFAULT_TAGS        — defined in lib/data-utils.js */
 
 var EMOJIS = ['\ud83d\udccb','\ud83c\udfaf','\ud83d\udcf1','\ud83d\uded2','\ud83d\udcfa','\ud83c\udfd7\ufe0f','\ud83d\udcb0','\ud83d\udd27','\u2b50','\ud83c\udfe0','\ud83d\ude97','\ud83d\udca1','\ud83c\udfa8','\ud83d\udcdd','\ud83d\udee0\ufe0f','\ud83d\udce6'];
 
@@ -2302,7 +2228,8 @@ var SEED = [
    STATE
    ================================================================ */
 var appData      = { sections: [], tags: [] };
-var syncKey      = localStorage.getItem('bozzone-sync-key');
+/* syncKey is read via STORAGE_KEYS (defined in lib/storage.js) */
+var syncKey      = storageGet(STORAGE_KEYS.SYNC_KEY);
 var dbRef        = null;
 var fbReady      = false;
 var isDragging   = false;
@@ -2320,29 +2247,12 @@ var activeGroupFilter = null;  /* null = All groups, or groupId */
 
 /* ================================================================
    HELPERS
+   uid(), findSec(), findTag() are defined in lib/data-utils.js.
    ================================================================ */
-function uid() {
-  return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
 
+/** Update the sync-status indicator dot. */
 function dot(cls) {
   document.getElementById('dot').className = 'sync-dot ' + cls;
-}
-
-function findSec(id) {
-  var secs = appData.sections || [];
-  for (var i = 0; i < secs.length; i++) {
-    if (secs[i].id === id) return secs[i];
-  }
-  return null;
-}
-
-function findTag(id) {
-  var tags = appData.tags || [];
-  for (var i = 0; i < tags.length; i++) {
-    if (tags[i].id === id) return tags[i];
-  }
-  return null;
 }
 
 /* ── Project CRUD helpers ── */
@@ -2403,59 +2313,7 @@ function assignSectionToProject(secId, groupId) {
 /* Keep old name as alias */
 var assignSectionToGroup = assignSectionToProject;
 
-/* Firebase can turn arrays into objects — normalize on read */
-function ensureArrays(data) {
-  if (!data) return { sections: [], tags: DEFAULT_TAGS.slice(), projects: [] };
-  if (!data.sections) data.sections = [];
-  if (!Array.isArray(data.sections)) data.sections = Object.values(data.sections);
-  /* Seed default tags if tags never set */
-  if (!data.tags) data.tags = DEFAULT_TAGS.map(function(t) { return {id:t.id, name:t.name, color:t.color}; });
-  if (!Array.isArray(data.tags)) data.tags = Object.values(data.tags);
-  /* Projects array (migrated from groups) */
-  if (!data.projects) data.projects = data.groups ? (Array.isArray(data.groups) ? data.groups : Object.values(data.groups)) : [];
-  if (!Array.isArray(data.projects)) data.projects = Object.values(data.projects);
-  data.sections.forEach(function(sec) {
-    /* Migrate groupId → projectId */
-    if (sec.projectId === undefined) sec.projectId = (sec.groupId !== undefined ? sec.groupId : null);
-    /* Migrate isMailbox → isInbox */
-    if (sec.isInbox === undefined) sec.isInbox = !!sec.isMailbox;
-  });
-  data.sections.forEach(function(sec) {
-    if (!sec.tasks) sec.tasks = [];
-    if (!Array.isArray(sec.tasks)) sec.tasks = Object.values(sec.tasks);
-    sec.tasks.forEach(function(task) {
-      if (!task.tags) task.tags = [];
-      if (!Array.isArray(task.tags)) task.tags = Object.values(task.tags);
-      /* ── Field migrations ── */
-      /* text → title */
-      if (!task.title && task.text) task.title = task.text;
-      if (!task.title) task.title = '';
-      task.text = task.title;
-      /* desc → description */
-      if (!task.description && task.desc !== undefined) task.description = task.desc;
-      if (task.description === undefined) task.description = '';
-      /* Status migration */
-      if (!task.status) task.status = task.done ? 'done' : 'not_started';
-      if (task.status === 'todo') task.status = 'not_started';
-      if (task.status === 'inprogress') task.status = 'in_progress';
-      task.done = (task.status === 'done');
-      /* New optional fields */
-      if (!task.subtasks) task.subtasks = [];
-      if (!Array.isArray(task.subtasks)) task.subtasks = [];
-      task.subtasks.forEach(function(sub) {
-        if (!sub.title && sub.text) sub.title = sub.text;
-        if (!sub.title) sub.title = '';
-      });
-      if (task.priority === undefined)      task.priority     = null;
-      if (task.dueDate  === undefined)      task.dueDate      = null;
-      if (task.startDate === undefined)     task.startDate    = null;
-      if (task.completedDate === undefined) task.completedDate = null;
-      if (task.notes    === undefined)      task.notes        = '';
-      if (task.recurrence === undefined)    task.recurrence   = null;
-    });
-  });
-  return data;
-}
+/* ensureArrays() — defined in lib/data-utils.js */
 
 /* ================================================================
    DATA MODEL — build initial data from SEED + old checkbox states
@@ -2591,21 +2449,21 @@ function save() {
 
 /* ================================================================
    LOCAL STORAGE (backup / offline fallback)
+   storageLoadRawData() and storageSaveData() are in lib/storage.js.
    ================================================================ */
 function loadLS() {
+  /* storageLoadRawData() handles the v3 → v2 fallback internally */
+  var raw = storageLoadRawData();
+  if (raw) { appData = ensureArrays(raw); return; }
+  /* Legacy: bozzone-states used a flat checkbox-state object (pre-v2) */
   try {
-    var s = localStorage.getItem('bozzone-app-v3');
-    if (s) { appData = ensureArrays(JSON.parse(s)); return; }
-    /* Fallback: migrate from v2 */
-    var s2 = localStorage.getItem('bozzone-app-v2');
-    if (s2) { appData = ensureArrays(JSON.parse(s2)); return; }
-    var old = localStorage.getItem('bozzone-states');
+    var old = localStorage.getItem(STORAGE_KEYS.APP_DATA_LEGACY);
     if (old) appData = buildInitialData(JSON.parse(old));
   } catch (e) {}
 }
 
 function saveLS() {
-  try { localStorage.setItem('bozzone-app-v3', JSON.stringify(appData)); } catch (e) {}
+  storageSaveData(appData);
 }
 
 /* ================================================================
@@ -2669,7 +2527,7 @@ function markShortcutSeen(p) {
   try {
     var key = p.token ? ('t:' + p.token) : ('q:' + p.raw);
     var now = Date.now();
-    var list = JSON.parse(localStorage.getItem('bozzone-shortcut-seen') || '[]');
+    var list = JSON.parse(storageGet(STORAGE_KEYS.SHORTCUT_SEEN) || '[]');
     if (!Array.isArray(list)) list = [];
 
     /* prune old entries (keep 50, and keep only last 7 days) */
@@ -2682,14 +2540,14 @@ function markShortcutSeen(p) {
       /* If no token, allow repeat after 10 minutes */
       if (!p.token && (now - found.ts) > (10 * 60 * 1000)) {
         found.ts = now;
-        localStorage.setItem('bozzone-shortcut-seen', JSON.stringify(list.slice(-50)));
+        storageSet(STORAGE_KEYS.SHORTCUT_SEEN, JSON.stringify(list.slice(-50)));
         return true;
       }
       return false;
     }
 
     list.push({ k: key, ts: now });
-    localStorage.setItem('bozzone-shortcut-seen', JSON.stringify(list.slice(-50)));
+    storageSet(STORAGE_KEYS.SHORTCUT_SEEN, JSON.stringify(list.slice(-50)));
     return true;
   } catch (e) {
     return true; /* fail open */
@@ -2704,9 +2562,9 @@ function addInboxTaskFromShortcut(text) {
   if (lower === '[provided input]' || lower === 'provided input') return false;
   /* Basic dedupe: ignore same task within 5 seconds */
   try {
-    var last = JSON.parse(localStorage.getItem('bozzone-shortcut-last') || 'null');
+    var last = JSON.parse(storageGet(STORAGE_KEYS.SHORTCUT_LAST) || 'null');
     if (last && last.text === t && (Date.now() - last.ts) < 5000) return false;
-    localStorage.setItem('bozzone-shortcut-last', JSON.stringify({ text: t, ts: Date.now() }));
+    storageSet(STORAGE_KEYS.SHORTCUT_LAST, JSON.stringify({ text: t, ts: Date.now() }));
   } catch (e) {}
 
   if (fbReady && syncKey && window.firebase && firebase.database) {
@@ -5659,7 +5517,7 @@ document.getElementById('keyGo').addEventListener('click', function() {
   var v = document.getElementById('keyIn').value.trim().toLowerCase().replace(/[^a-z0-9\-]/g, '');
   if (!v) { document.getElementById('keyIn').style.borderColor = '#F44336'; return; }
   syncKey = v;
-  localStorage.setItem('bozzone-sync-key', syncKey);
+  storageSet(STORAGE_KEYS.SYNC_KEY, syncKey);
   hideOv();
   if (fbReady) startSync();
   else document.getElementById('keyLbl').textContent = syncKey;
@@ -6069,11 +5927,11 @@ document.getElementById('ntTitle').addEventListener('keydown', function(e) {
    DARK MODE
    ================================================================ */
 (function() {
-  var isDark = localStorage.getItem('bozzone-dark') === '1';
+  var isDark = storageGetBool(STORAGE_KEYS.DARK_MODE);
   function applyDark(d) {
     document.documentElement.setAttribute('data-theme', d ? 'dark' : '');
     document.getElementById('darkToggle').textContent = d ? '☀️' : '🌙';
-    localStorage.setItem('bozzone-dark', d ? '1' : '0');
+    storageSetBool(STORAGE_KEYS.DARK_MODE, d);
     isDark = d;
   }
   applyDark(isDark);
@@ -6211,7 +6069,7 @@ setTimeout(function() {
    ================================================================ */
 (function() {
   var enable = location.search.indexOf('touchdebug=1') !== -1 ||
-               localStorage.getItem('bozzone-touch-debug') === '1';
+               storageGetBool(STORAGE_KEYS.TOUCH_DEBUG);
   if (!enable) return;
 
   function ensureBox(id, cssText) {

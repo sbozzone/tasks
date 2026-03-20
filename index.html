@@ -1828,6 +1828,202 @@
       font-size: .83rem;
     }
 
+
+    /* ══════════════════════════════════════════════
+       MOBILE-FIRST POLISH  ·  UX DELIGHT
+       Covers: responsive layout, bottom tab bar,
+       touch targets, animations, empty states,
+       confetti, footer, smooth transitions.
+       ══════════════════════════════════════════════ */
+
+    /* ── Global smooth transitions ─────────────── */
+    .card  { transition: box-shadow .2s ease, transform .15s ease; }
+    .card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.11); }
+    .filter-btn, .view-chip, .grp-pill { transition: all .18s ease; }
+    .task { transition: opacity .2s ease, background .15s; }
+
+    /* ── Task done — fade with crossthrough ──────── */
+    .task.status-done { transition: opacity .3s ease; }
+
+    /* ── Button tap / hover feedback ────────────── */
+    button { -webkit-tap-highlight-color: transparent; }
+    .add-btn:active, .btn-create:active,
+    .nt-create:active, .tm-add-btn:active { transform: scale(.94); transition: transform .1s; }
+    .add-task-btn { transition: opacity .15s, transform .12s; }
+    .add-task-btn:active { transform: scale(.92); }
+    .gear:active, .dark-toggle:active { transform: scale(.85); transition: transform .1s; }
+    .filter-btn:active, .grp-pill:active { transform: scale(.94); }
+
+    /* ── Status-button done "pop" ────────────────── */
+    @keyframes statusPop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.28); }
+      70%  { transform: scale(.92); }
+      100% { transform: scale(1); }
+    }
+    .status-btn[data-status="done"] { animation: statusPop .32s ease-out; }
+
+    /* ── New-task modal: slide-up bottom sheet ───── */
+    .nt-ov { align-items: flex-end !important; padding: 0 !important; }
+    .nt-box {
+      border-radius: 22px 22px 0 0;
+      max-width: 560px; width: 100%;
+      padding-bottom: calc(22px + var(--safe-bottom));
+      box-shadow: 0 -4px 32px rgba(0,0,0,.18);
+    }
+
+    /* ── Empty state: icon + friendlier message ──── */
+    .task-empty {
+      padding: 28px 12px;
+      text-align: center;
+      font-size: .82rem;
+      color: var(--text-muted);
+      font-style: normal;
+      line-height: 1.9;
+    }
+    .task-empty::before {
+      content: '📋';
+      display: block;
+      font-size: 1.7rem;
+      opacity: .38;
+      margin-bottom: 5px;
+    }
+
+    /* ── My Day: today's date badge ──────────────── */
+    .my-day-today-date {
+      font-size: .7rem;
+      font-weight: 600;
+      color: #F5A623;
+      background: rgba(245,166,35,.13);
+      border-radius: 8px;
+      padding: 1px 7px;
+      flex-shrink: 0;
+      margin-left: 2px;
+    }
+
+    /* ── Confetti canvas (above everything) ──────── */
+    #confettiCanvas {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── Footer ──────────────────────────────────── */
+    .app-footer {
+      text-align: center;
+      padding: 32px 16px;
+      padding-bottom: calc(32px + var(--safe-bottom));
+      font-size: .74rem;
+      color: var(--text-muted);
+      letter-spacing: .05em;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .app-footer strong { color: var(--text-sec); font-weight: 700; }
+    [data-theme="dark"] .app-footer { color: var(--text-muted); }
+
+    /* ══════════════════════════════════════════════
+       MOBILE  ≤ 699 px
+       ══════════════════════════════════════════════ */
+    @media (max-width: 699px) {
+
+      /* Body: extra bottom clearance for tab bar */
+      body { padding-bottom: calc(68px + var(--safe-bottom)) !important; }
+
+      /* ── Bottom tab bar ───────────────────────── */
+      #viewBar {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        z-index: 200;
+        background: var(--bg);
+        border-top: 1.5px solid var(--border);
+        padding: 5px 6px calc(5px + var(--safe-bottom));
+        margin: 0;
+        gap: 2px;
+        justify-content: space-around;
+        -webkit-backdrop-filter: saturate(1.8) blur(20px);
+        backdrop-filter: saturate(1.8) blur(20px);
+      }
+      .view-chip {
+        flex: 1; flex-shrink: 1;
+        flex-direction: column;
+        padding: 4px 2px;
+        font-size: .59rem;
+        gap: 2px;
+        min-height: 44px;
+        border-radius: 10px;
+        justify-content: center;
+        border-color: transparent;
+        background: none;
+        color: var(--text-muted);
+        letter-spacing: 0;
+      }
+      .view-chip.active {
+        background: var(--accent-light) !important;
+        border-color: transparent !important;
+        color: var(--accent) !important;
+      }
+      .view-chip.active.vc-myday    { color: #F5A623 !important; background: rgba(245,166,35,.13) !important; }
+      .view-chip.active.vc-overdue  { color: #c0392b !important; background: rgba(192,57,43,.1)  !important; }
+      .view-chip.active.vc-high     { color: #e74c3c !important; background: rgba(231,76,60,.1)  !important; }
+      .view-chip.active.vc-progress { color: var(--accent) !important; background: var(--accent-light) !important; }
+      .view-chip.active.vc-week     { color: #27AE60 !important; background: rgba(39,174,96,.1)  !important; }
+      .view-chip.active.vc-table    { color: #2980B9 !important; background: rgba(41,128,185,.1) !important; }
+
+      /* ── Header: de-clutter ───────────────────── */
+      .kbd-btn   { display: none; }
+      .key-label { display: none; }
+
+      /* ── Touch targets ────────────────────────── */
+      .gear, .dark-toggle {
+        min-width: 38px; min-height: 38px;
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+      .add-btn   { width: 44px; height: 44px; }
+      .status-btn { width: 28px; height: 28px; }
+      .del-btn   { min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; }
+      .tag-btn   { min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; }
+      .add-input { padding: 10px 12px; font-size: .9rem; }
+      .filter-btn { padding: 7px 14px; font-size: .8rem; min-height: 36px; }
+      .grp-pill   { padding: 7px 14px; font-size: .8rem; min-height: 36px; }
+      .hide-done-btn { padding: 7px 10px; font-size: .76rem; min-height: 36px; }
+      .add-task-btn  { padding: 6px 4px; font-size: .88rem; min-height: 40px; }
+
+      /* ── Typography ───────────────────────────── */
+      .task    { font-size: .9rem; padding: 10px 0; }
+      .card-hd { font-size: .9rem; padding: 12px 14px; }
+
+      /* ── Card body breathing room ─────────────── */
+      .card-bd { padding: 10px 12px; }
+
+      /* ── New-task modal: full width ───────────── */
+      .nt-box {
+        border-radius: 22px 22px 0 0;
+        max-width: 100%;
+        padding-bottom: calc(24px + var(--safe-bottom));
+      }
+
+      /* ── Modals: full width on small screens ──── */
+      .tm-box { max-width: 100%; border-radius: 22px 22px 0 0; }
+
+      /* ── Notification panel: full width ──────── */
+      .notif-panel { left: 8px; right: 8px; width: auto; }
+
+      /* ── Table view: drop less important columns  */
+      .tv-table { font-size: .8rem; }
+      .tv-table th, .tv-table td { padding: 7px 8px; }
+      .tv-group, .tv-section { display: none; }
+
+      /* ── Settings: full width ─────────────────── */
+      .settings-box { max-width: 100%; }
+    }
+
+    /* ── Dark mode tab bar ────────────────────── */
+    [data-theme="dark"] #viewBar {
+      background: rgba(26,25,24,.94);
+      border-color: var(--border);
+    }
+
   </style>
 </head>
 <body>
@@ -1892,6 +2088,9 @@
   <div><kbd>Ctrl</kbd><kbd>Y</kbd> Redo</div>
   <div><kbd>Esc</kbd> Close / cancel</div>
 </div>
+
+<!-- Confetti canvas (z-index 9999, pointer-events none) -->
+<canvas id="confettiCanvas"></canvas>
 
 <!-- Undo toast -->
 <div class="toast" id="toast">
@@ -2725,8 +2924,74 @@ function cycleStatus(secId, taskId) {
     }
   }
   if (completed && appSettings.completionSound) playCompletionSound();
+  if (completed && typeof launchConfetti === 'function') launchConfetti();
   save();
 }
+
+/* ================================================================
+   CONFETTI  — lightweight canvas burst on task completion
+   ================================================================ */
+(function() {
+  var canvas  = document.getElementById('confettiCanvas');
+  var ctx     = canvas.getContext('2d');
+  var particles = [];
+  var raf;
+
+  var COLORS = ['#D97757','#F5A623','#27AE60','#2980B9','#9B59B6','#E74C3C','#1ABC9C','#F39C12'];
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function Particle(x, y) {
+    this.x  = x; this.y = y;
+    this.vx = (Math.random() - .5) * 7;
+    this.vy = -(Math.random() * 6 + 4);
+    this.ay = .28;
+    this.w  = Math.random() * 7 + 4;
+    this.h  = Math.random() * 4 + 3;
+    this.rot  = Math.random() * Math.PI * 2;
+    this.drot = (Math.random() - .5) * .18;
+    this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    this.alpha = 1;
+    this.life  = Math.random() * 60 + 60;
+    this.age   = 0;
+  }
+
+  function step() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles = particles.filter(function(p) { return p.age < p.life; });
+    particles.forEach(function(p) {
+      p.vx += (Math.random() - .5) * .3;
+      p.vy += p.ay;
+      p.x  += p.vx;
+      p.y  += p.vy;
+      p.rot += p.drot;
+      p.age++;
+      p.alpha = Math.max(0, 1 - p.age / p.life);
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (particles.length) raf = requestAnimationFrame(step);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  window.launchConfetti = function(x, y) {
+    if (typeof x === 'undefined') { x = canvas.width  / 2; }
+    if (typeof y === 'undefined') { y = canvas.height / 3; }
+    for (var i = 0; i < 55; i++) particles.push(new Particle(x, y));
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(step);
+  };
+})();
 
 /* ================================================================
    RECURRENCE HELPER
@@ -4190,9 +4455,15 @@ function render() {
     var hdBadge = document.createElement('span');
     hdBadge.className = 'badge';
     hdBadge.textContent = '0/' + mdTasks.length;
+    /* Today's date badge, e.g. "Mon 20 Mar" */
+    var hdDate = document.createElement('span');
+    hdDate.className = 'my-day-today-date';
+    var _nd = new Date();
+    hdDate.textContent = _nd.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
     hdLeft.appendChild(hdIcon);
     hdLeft.appendChild(hdTitle);
     hdLeft.appendChild(hdBadge);
+    hdLeft.appendChild(hdDate);
     hd.appendChild(hdLeft);
 
     /* Header right: collapse + lightbulb suggestions toggle */
@@ -6173,5 +6444,8 @@ setTimeout(function() {
 })();
 
 </script>
+
+<footer class="app-footer">Built by <strong>Stephen</strong></footer>
+
 </body>
 </html>

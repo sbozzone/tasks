@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Day Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="manifest" href="data:application/manifest+json,{
   %22name%22:%22Day Planner%22,
   %22short_name%22:%22Planner%22,
@@ -20,41 +23,68 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #F7F6F2;
-  --card: #FFFFFF;
-  --border: #E8E7E2;
+  --bg: #F5F0E8;
+  --card: #FDFAF4;
+  --card-bg: #FDFAF4;
+  --card-header-bg: #F0EBE0;
+  --sidebar-bg: #EDE8DE;
+  --border: #DDD8CC;
+  --border-light: #EAE5D8;
   --accent: #D97757;
-  --accent-hover: #c4663f;
-  --text: #333;
-  --text2: #888;
-  --urgent: #E53935;
-  --high: #FB8C00;
-  --medium: #1E88E5;
-  --low: #43A047;
-  --radius: 8px;
-  --shadow: 0 1px 4px rgba(0,0,0,0.06);
-  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --accent-light: #FDF0E8;
+  --accent-dark: #8B3A1A;
+  --accent-hover: #C4623E;
+  --text: #2C2416;
+  --text2: #7A6F5E;
+  --text-muted: #A89F8E;
+  --urgent: #C45242;
+  --high: #D97757;
+  --medium: #4A7FA5;
+  --low: #4A9B6F;
+  --green: #4A9B6F;
+  --green-light: #EBF5EF;
+  --blue: #4A7FA5;
+  --blue-light: #EBF3FA;
+  --gold: #C49A2A;
+  --gold-light: #FBF5E0;
+  --red: #C45242;
+  --red-light: #FAEAE8;
+  --radius: 10px;
+  --shadow: 0 2px 8px rgba(44,36,22,0.08);
+  --shadow-h: 0 6px 20px rgba(44,36,22,0.13);
+  --shadow-card: 0 1px 3px rgba(44,36,22,0.06), 0 4px 12px rgba(44,36,22,0.06);
+  --font: 'DM Sans', sans-serif;
 }
 html { font-family: var(--font); background: var(--bg); color: var(--text); }
-body { min-height: 100vh; }
+body {
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(217,119,87,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(74,127,165,0.03) 0%, transparent 60%);
+}
 
 /* NAV */
 .topnav {
   position: sticky; top: 0; z-index: 100;
-  background: var(--card); border-bottom: 1px solid var(--border);
+  background: var(--card-bg); border-bottom: 2px solid var(--border);
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px; height: 56px; max-width: 100%;
+  padding: 0 20px; height: 56px; max-width: 100%;
 }
-.topnav .brand { font-weight: 700; font-size: 18px; color: var(--accent); white-space: nowrap; }
-.tabs { display: flex; gap: 4px; }
+.topnav .brand {
+  font-family: 'Lora', serif; font-weight: 600; font-size: 1.25rem;
+  color: var(--text); white-space: nowrap; letter-spacing: -0.01em;
+}
+.tabs { display: flex; gap: 4px; background: var(--bg); padding: 4px; border-radius: 24px; }
 .tabs button {
-  background: none; border: none; padding: 8px 16px; font-size: 14px;
-  cursor: pointer; border-radius: 6px; color: var(--text2); font-weight: 500;
-  transition: all .15s;
+  background: none; border: none; padding: 7px 18px; font-size: .82rem;
+  cursor: pointer; border-radius: 20px; color: var(--text2); font-weight: 500;
+  font-family: 'DM Sans', sans-serif; transition: all .2s;
 }
-.tabs button.active { background: var(--accent); color: #fff; }
-.tabs button:hover:not(.active) { background: #f0efe9; }
-.gear-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 8px; }
+.tabs button.active { background: var(--accent); color: #fff; font-weight: 600; }
+.tabs button:hover:not(.active) { background: var(--card-header-bg); color: var(--text); }
+.gear-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 8px; color: var(--text2); }
 
 /* MAIN */
 .main { max-width: 1280px; margin: 0 auto; padding: 20px; }
@@ -63,11 +93,11 @@ body { min-height: 100vh; }
 
 /* CARDS */
 .card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius); box-shadow: var(--shadow);
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: var(--shadow-card);
   padding: 14px; transition: transform .15s, box-shadow .15s;
 }
-.card:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+.card:hover { transform: translateY(-1px); box-shadow: var(--shadow-h); }
 .card.dragging { opacity: 0.5; transform: rotate(1.5deg); }
 
 /* PRIORITY */

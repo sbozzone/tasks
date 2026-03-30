@@ -403,6 +403,30 @@ textarea { resize: vertical; min-height: 80px; }
 .sync-dot.error   { background: #aaa; }
 .sync-dot.offline { background: #aaa; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* CALENDAR EVENTS */
+.cal-event {
+  background: #e3f2fd; color: #1565c0; padding: 4px 8px; border-radius: 4px;
+  font-size: 12px; margin: 2px 0; border-left: 3px solid #1976d2;
+  display: flex; align-items: center; gap: 6px;
+}
+.cal-event .cal-icon { font-size: 11px; opacity: 0.7; }
+.cal-event .cal-time { font-size: 11px; opacity: 0.8; white-space: nowrap; }
+.cal-event .cal-title { flex: 1; }
+.cal-event.all-day {
+  background: #e8eaf6; color: #283593; border-left-color: #3f51b5;
+}
+.myday-cal-events {
+  margin-bottom: 12px;
+}
+.myday-cal-event {
+  display: flex; align-items: center; gap: 10px; padding: 8px 14px;
+  background: #e3f2fd; border: 1px solid #bbdefb; border-radius: var(--radius);
+  border-left: 3px solid #1976d2; margin-bottom: 6px;
+}
+.myday-cal-event .cal-time { font-size: 12px; color: #1565c0; font-weight: 600; min-width: 80px; }
+.myday-cal-event .cal-title { flex: 1; font-size: 14px; color: #1565c0; }
+.myday-cal-event .cal-loc { font-size: 12px; color: #64b5f6; }
 </style>
 </head>
 <body>
@@ -796,6 +820,89 @@ function taskToD1(task) {
   };
 }
 
+// ── CALENDAR MODULE ──────────────────────────────────────────────────────────
+
+async function fetchCalendarEvents() {
+  if (!SYNC_CONFIG.enabled || !syncState.online) return;
+  try {
+    const date = todayStr();
+    const res = await fetch(`${SYNC_CONFIG.workerUrl}/calendar/events?date=${date}`, {
+      headers: { 'Authorization': `Bearer ${SYNC_CONFIG.token}` }
+    });
+    if (!res.ok) return;
+    calendarEvents = await res.json();
+    renderCalendarInSchedule();
+    renderCalendarInMyDay();
+  } catch (e) {
+    console.warn('Calendar fetch failed:', e);
+  }
+}
+
+function formatCalTime(isoStr) {
+  if (!isoStr || !isoStr.includes('T')) return '';
+  const d = new Date(isoStr);
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function calEventToTimeSlot(isoStr) {
+  if (!isoStr || !isoStr.includes('T')) return null;
+  const d = new Date(isoStr);
+  const h = d.getHours();
+  const m = d.getMinutes() < 30 ? '00' : '30';
+  return `${String(h).padStart(2,'0')}:${m}`;
+}
+
+function renderCalendarInSchedule() {
+  calendarEvents.forEach(ev => {
+    if (ev.all_day) return;
+    const slot = calEventToTimeSlot(ev.start_time);
+    if (!slot) return;
+    const slotArea = document.querySelector(`.slot-area[data-time="${slot}"]`);
+    if (!slotArea) return;
+    // Remove any existing cal-event with same id
+    slotArea.querySelectorAll(`.cal-event[data-cal-id="${ev.id}"]`).forEach(el => el.remove());
+    const el = document.createElement('div');
+    el.className = 'cal-event';
+    el.dataset.calId = ev.id;
+    el.innerHTML = `<span class="cal-icon">&#128197;</span><span class="cal-title">${esc(ev.title)}</span><span class="cal-time">${formatCalTime(ev.start_time)}${ev.end_time ? ' - ' + formatCalTime(ev.end_time) : ''}</span>`;
+    slotArea.insertBefore(el, slotArea.firstChild);
+  });
+}
+
+function renderCalendarInMyDay() {
+  // Remove existing calendar section
+  const existing = document.getElementById('myday-cal-events');
+  if (existing) existing.remove();
+
+  if (!calendarEvents || calendarEvents.length === 0) return;
+
+  const container = document.createElement('div');
+  container.id = 'myday-cal-events';
+  container.className = 'myday-cal-events';
+  container.innerHTML = '<div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px;">Calendar</div>';
+
+  // All-day events first, then timed events sorted by start
+  const allDay = calendarEvents.filter(ev => ev.all_day);
+  const timed = calendarEvents.filter(ev => !ev.all_day).sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
+
+  [...allDay, ...timed].forEach(ev => {
+    const el = document.createElement('div');
+    el.className = 'myday-cal-event';
+    el.innerHTML = `
+      <span class="cal-time">${ev.all_day ? 'All day' : formatCalTime(ev.start_time)}</span>
+      <span class="cal-title">${esc(ev.title)}</span>
+      ${ev.location ? `<span class="cal-loc">${esc(ev.location)}</span>` : ''}
+    `;
+    container.appendChild(el);
+  });
+
+  // Insert before the task list
+  const taskContainer = document.getElementById('myday-tasks');
+  if (taskContainer) taskContainer.parentNode.insertBefore(container, taskContainer);
+}
+
+// ── END CALENDAR MODULE ─────────────────────────────────────────────────────
+
 // ── END SYNC MODULE ──────────────────────────────────────────────────────────
 
 // ========== CONSTANTS ==========
@@ -870,6 +977,7 @@ let tasks = [];
 let sections = [];
 let projects = [];
 let scheduleSlots = {}; // taskId -> timeSlot string
+let calendarEvents = []; // cached calendar events for today
 let currentView = 'myday';
 let currentDetailId = null;
 let selectedBulk = new Set();
@@ -1031,6 +1139,7 @@ function renderMyDay() {
   // Schedule
   renderSchedule();
   fetchWeather();
+  fetchCalendarEvents();
 }
 
 function updateClock() {

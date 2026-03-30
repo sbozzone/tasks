@@ -427,6 +427,11 @@ textarea { resize: vertical; min-height: 80px; }
 .myday-cal-event .cal-time { font-size: 12px; color: #1565c0; font-weight: 600; min-width: 80px; }
 .myday-cal-event .cal-title { flex: 1; font-size: 14px; color: #1565c0; }
 .myday-cal-event .cal-loc { font-size: 12px; color: #64b5f6; }
+.myday-cal-event.outlook { background: #fff3e0; border-color: #e65100; }
+.myday-cal-event.outlook .cal-time { color: #e65100; }
+.myday-cal-event.outlook .cal-title { color: #bf360c; }
+.cal-event.outlook { background: #fff3e0; color: #e65100; border-left-color: #e65100; }
+.cal-source { font-size: 10px; opacity: 0.6; margin-left: auto; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -864,7 +869,9 @@ function renderCalendarInSchedule() {
     const el = document.createElement('div');
     el.className = 'cal-event';
     el.dataset.calId = ev.id;
-    el.innerHTML = `<span class="cal-icon">&#128197;</span><span class="cal-title">${esc(ev.title)}</span><span class="cal-time">${formatCalTime(ev.start_time)}${ev.end_time ? ' - ' + formatCalTime(ev.end_time) : ''}</span>`;
+    const isOutlook = ev.calendar_id === 'outlook';
+    if (isOutlook) el.classList.add('outlook');
+    el.innerHTML = `<span class="cal-icon">${isOutlook ? '&#128188;' : '&#128197;'}</span><span class="cal-title">${esc(ev.title)}</span><span class="cal-time">${formatCalTime(ev.start_time)}${ev.end_time ? ' - ' + formatCalTime(ev.end_time) : ''}</span>`;
     slotArea.insertBefore(el, slotArea.firstChild);
   });
 }
@@ -887,11 +894,13 @@ function renderCalendarInMyDay() {
 
   [...allDay, ...timed].forEach(ev => {
     const el = document.createElement('div');
-    el.className = 'myday-cal-event';
+    const isOutlook = ev.calendar_id === 'outlook';
+    el.className = 'myday-cal-event' + (isOutlook ? ' outlook' : '');
     el.innerHTML = `
       <span class="cal-time">${ev.all_day ? 'All day' : formatCalTime(ev.start_time)}</span>
       <span class="cal-title">${esc(ev.title)}</span>
       ${ev.location ? `<span class="cal-loc">${esc(ev.location)}</span>` : ''}
+      <span class="cal-source">${isOutlook ? 'Work' : 'Personal'}</span>
     `;
     container.appendChild(el);
   });

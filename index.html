@@ -707,6 +707,21 @@ async function pullTasks() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const remote = await res.json();
     mergeRemoteTasks(remote);
+    // Also pull sections if we don't have them locally
+    if (!sections || sections.length === 0) {
+      try {
+        const secRes = await fetch(`${SYNC_CONFIG.workerUrl}/sections`, {
+          headers: { 'Authorization': `Bearer ${SYNC_CONFIG.token}` }
+        });
+        if (secRes.ok) {
+          const remoteSections = await secRes.json();
+          if (remoteSections.length) {
+            sections = remoteSections;
+            saveSections();
+          }
+        }
+      } catch (e) { /* ignore section pull errors */ }
+    }
     syncState.lastSyncedAt = new Date().toISOString();
     localStorage.setItem('dp_last_synced_at', syncState.lastSyncedAt);
     updateSyncIndicator('ok');
@@ -719,7 +734,7 @@ async function pullTasks() {
 }
 
 function mergeRemoteTasks(remoteTasks) {
-  if (!tasks) return;
+  if (!tasks) tasks = [];
   const localMap = new Map(tasks.map(t => [t.id, t]));
   let changed = false;
   for (const remote of remoteTasks) {
@@ -1851,7 +1866,17 @@ if (dropZone) {
 // ========== INIT ==========
 function init() {
   loadData();
-  if (tasks === null) {
+  if (tasks === null && SYNC_CONFIG.enabled) {
+    // No local data but sync is enabled — start with empty array and pull from D1
+    tasks = [];
+    sections = sections.length ? sections : [];
+    saveTasks();
+    document.getElementById('import-screen').style.display = 'none';
+    document.getElementById('fab-btn').style.display = '';
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + currentView).classList.add('active');
+    renderCurrentView();
+  } else if (tasks === null) {
     document.getElementById('import-screen').style.display = 'flex';
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById('fab-btn').style.display = 'none';

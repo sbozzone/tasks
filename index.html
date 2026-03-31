@@ -497,6 +497,195 @@ textarea { resize: vertical; min-height: 80px; }
   .schedule-col { max-height: none; }
   .quick-add-box { width: calc(100vw - 24px); margin: 0 12px 80px 0; }
   .fab { bottom: 16px; right: 16px; width: 50px; height: 50px; font-size: 24px; }
+  .intention-input { font-size: 1rem; }
+  .gratitude-input { font-size: 1rem; }
+  .notes-textarea  { font-size: 1rem; min-height: 100px; }
+}
+
+/* MORNING RITUAL */
+.morning-ritual {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.intention-wrap {
+  margin-bottom: 16px;
+}
+
+.intention-label {
+  font-family: 'DM Mono', monospace;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.intention-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.intention-input {
+  width: 100%;
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 4px 2px;
+  outline: none;
+  transition: border-color 0.2s;
+  caret-color: var(--accent);
+}
+
+.intention-input::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.intention-input:focus {
+  border-bottom-color: var(--accent);
+}
+
+.gratitude-wrap {
+  margin-bottom: 16px;
+}
+
+.gratitude-label {
+  font-family: 'DM Mono', monospace;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gratitude-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.gratitude-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gratitude-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gratitude-num {
+  font-family: 'DM Mono', monospace;
+  font-size: .72rem;
+  color: var(--text-muted);
+  width: 14px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.gratitude-input {
+  flex: 1;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  padding: 3px 2px;
+  outline: none;
+  transition: border-color 0.2s;
+  caret-color: var(--accent);
+}
+
+.gratitude-input::placeholder {
+  color: var(--border);
+}
+
+.gratitude-input:focus {
+  border-bottom-color: var(--accent);
+}
+
+.notes-wrap {
+  margin-top: 20px;
+}
+
+.notes-label {
+  font-family: 'DM Mono', monospace;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notes-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.notes-container {
+  position: relative;
+}
+
+.notes-textarea {
+  width: 100%;
+  min-height: 100px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--card-header-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px 24px 14px;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  caret-color: var(--accent);
+  box-sizing: border-box;
+}
+
+.notes-textarea::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.notes-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.1);
+}
+
+.notes-charcount {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: .62rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  display: none;
 }
 
 /* SCROLLBAR */
@@ -856,6 +1045,45 @@ textarea { resize: vertical; min-height: 80px; }
           <button class="btn btn-primary" onclick="openTaskPicker()">+ Add to My Day</button>
           <button class="btn btn-secondary" onclick="window.print()" title="Print My Day" id="printBtn">🖨️</button>
         </div>
+        <!-- Morning Ritual Block -->
+        <div class="morning-ritual">
+
+          <!-- Intention -->
+          <div class="intention-wrap">
+            <div class="intention-label">Today's Intention</div>
+            <input
+              type="text"
+              id="intention-input"
+              class="intention-input"
+              placeholder="What will you bring to this day?"
+              maxlength="140"
+              autocomplete="off"
+              spellcheck="true"
+            />
+          </div>
+
+          <!-- Gratitude -->
+          <div class="gratitude-wrap">
+            <div class="gratitude-label">I'm Grateful For</div>
+            <div class="gratitude-list">
+              <div class="gratitude-row">
+                <span class="gratitude-num">1.</span>
+                <input type="text" class="gratitude-input" placeholder="..." maxlength="100" autocomplete="off" />
+              </div>
+              <div class="gratitude-row">
+                <span class="gratitude-num">2.</span>
+                <input type="text" class="gratitude-input" placeholder="..." maxlength="100" autocomplete="off" />
+              </div>
+              <div class="gratitude-row">
+                <span class="gratitude-num">3.</span>
+                <input type="text" class="gratitude-input" placeholder="..." maxlength="100" autocomplete="off" />
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- End Morning Ritual Block -->
+
         <div id="weather-widget" class="card weather-widget" style="margin-bottom:16px;">
           <div class="weather-current">
             <span class="icon" id="w-icon"></span>
@@ -866,6 +1094,19 @@ textarea { resize: vertical; min-height: 80px; }
         </div>
         <div class="myday-tasks" id="myday-tasks"></div>
         <div class="quote-box" id="quote-box"></div>
+        <!-- Daily Notes -->
+        <div class="notes-wrap">
+          <div class="notes-label">Notes</div>
+          <div class="notes-container">
+            <textarea
+              id="notes-textarea"
+              class="notes-textarea"
+              placeholder="Capture anything from today..."
+              spellcheck="true"
+            ></textarea>
+            <span id="notes-charcount" class="notes-charcount"></span>
+          </div>
+        </div>
       </div>
       <div class="schedule-col">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -1052,6 +1293,10 @@ textarea { resize: vertical; min-height: 80px; }
         <input type="text" id="set-lon" placeholder="Longitude">
       </div>
     </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label style="display:block;font-size:12px;color:var(--text2);margin-bottom:4px;font-weight:600;">DAILY DATA</label>
+      <button class="btn btn-secondary" onclick="exportJournalData()">Export Journal Data</button>
+    </div>
     <div style="text-align:right;">
       <button class="btn btn-primary" onclick="saveSettings()">Save & Close</button>
     </div>
@@ -1059,7 +1304,7 @@ textarea { resize: vertical; min-height: 80px; }
 </div>
 
 <script>
-window.__SEED_DATA__ = {"tasks": [{"id": "tmm2tx0fkwto8o", "title": "Share article on Facebook page, Instagram, and local groups", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-1", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fkpjs5t", "title": "Update Google Business profile with fresh photos (before article drops)", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-1", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fke6y9w", "title": "Save article as PDF and screenshot for future marketing", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-1", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fkgeeoe", "title": "Add 'as featured in Community Connect News' to website and bio", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-1", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fknp09x", "title": "Reach out to local interior designers as referral partners (use article as credibility)", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-1", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fkpyqc4", "title": "Prepare response script for incoming inquiries from article readers", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-1", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fkrd1wq", "title": "Launch Facebook Ads campaign (once first commission comes in)", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-1", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fkfygtf", "title": "Make saw platform with MDF and speed braces", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-3", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fkzg1oh", "title": "Install floating brackets", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-3", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9jow6x3za85", "title": "Mark walls for brackets", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-3", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fkkfle2", "title": "Upper Cabs video", "description": null, "notes": "Check out this video on YouTube:\n\nhttps://youtu.be/eoqVDggPnSg", "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-5", "agent": null, "domain": "Retooling Retirement", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fka1hft", "title": "Plan video content calendar", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-5", "agent": null, "domain": "Retooling Retirement", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fkn380f", "title": "Create first video (pick topic from deck)", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-5", "agent": null, "domain": "Retooling Retirement", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fkwmnr6", "title": "Reach out to sponsors: Harvey Tools, Bambu Lab, xTool", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-5", "agent": null, "domain": "Retooling Retirement", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fkyb5kq", "title": "Furniture Designs", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[{\"done\": false, \"id\": \"tmm9g0ze6k1dhy\", \"text\": \"Retro Game controller\", \"title\": \"Retro Game controller\"}, {\"done\": false, \"id\": \"tmm9g27cf0fsoh\", \"text\": \"Novel functional nostalgia\", \"title\": \"Novel functional nostalgia\"}, {\"done\": false, \"id\": \"tmm9g27cfkwpvg\", \"text\": \"amoeba\", \"title\": \"amoeba\"}, {\"done\": false, \"id\": \"tmm9g27cffdi7p\", \"text\": \"Cloud\", \"title\": \"Cloud\"}, {\"done\": false, \"id\": \"tmm9g27cf85lyn\", \"text\": \"Air foil\", \"title\": \"Air foil\"}, {\"done\": false, \"id\": \"tmm9g27cfyb09h\", \"text\": \"Teardrop\", \"title\": \"Teardrop\"}, {\"done\": false, \"id\": \"tmm9g27cfy2lt0\", \"text\": \"odd sided geometric\", \"title\": \"odd sided geometric\"}]", "section_id": "sec-6", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fk0oi8m", "title": "Retro Game controller", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-6", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fk42efk", "title": "Novel functional nostalgia", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-6", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fk0j8ro", "title": "Rolling Packout shelf system", "description": null, "notes": "Plywood carcass\nCasters\nPull out shelves\nAccepts cleats\nShelves swap out\nCompatible with all brands\nSortimo\nAllows lid to open in situ\nLocking side bar\nRoom for hand truck", "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-6", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5obstwf7lu0", "title": "Reverse engineer table leg hardware", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-6", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fkt1pej", "title": "Taxes \u2014 $5,106 estimated (need approx $2,426 more)", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-7", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fk51xax", "title": "Sell tools on eBay", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-7", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9jl0v22q0i4", "title": "Hang air filter", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm4youw6x9pl0", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9jm03ddvso1", "title": "Reassemble dust collector", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm4youw6x9pl0", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9jms5scjq0s", "title": "Reassemble router table", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm4youw6x9pl0", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5o1tkhrayjv", "title": "MFT-Rail storage", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm4youw6x9pl0", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5o1dcksunji", "title": "MFT-Dog holes", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm4youw6x9pl0", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5mp61ti5kfy", "title": "16 bin rack", "description": "25 2x4s $86", "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm4youw6x9pl0", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9jjuy2m60rq", "title": "Sell vise", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm4youw6x9pl0", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm2tx0fkuozi5", "title": "Set up analog Kanban board to manage projects", "description": null, "notes": "https://www.google.com/search?aep=28&udm=50&rlz=1CDGOYI_enUS840US840&oq=&hl=en-US&sourceid=chrome-mobile&ie=UTF-8&mtid=YPDXaOToGqmy5NoPtdTPiQk&ved=2ahUKEwjq99Cjj_mPAxXpF1kFHfvaMloQoo4PegYIAAgAEAk&q=how+can+I+make+an+analog+Kanban+board+to+manage+projects&mstk=AUtExfDYXXZl_VCGaEQx2rUTzS_OSsjqd5c_0zB-oGG0rgIVLYe75ywsM7znrgfiCOelS5tuqy-jU6_-jf5cz-wBVTv4mjcIVk_8jCGstB_aAFtnxk6ALkw2Ob853n_1ZWd4I7ugLf4RqwP2dYDgKmZEms_wYxNecQGoH8tQK4frG4EFKqQkgpSG3JJrs1qQh2Q1Qft8KpRieqVZvESkZXCV8BwkSjNe1jUWzHwhuJpoT0BBo7krr-5KtOnJd-Cl_0msVXY4ubRVO17d4pNlFZ1O4VyH2zPGTDNHcElbi-5rsiPBn1AvjIxs_j7xa4rpjIt70rTIy2HXdP_JIg&csuir=1", "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm4youw6x9pl0", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5mr0jzh3hhn", "title": "Flex Packout to stack pack adapter", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5mr8rz1dhl7", "title": "Flex stack pack pivoting cord wrap", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5mrm5878dtx", "title": "Cleat system for detail bottle rack", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5mrvumbrxox", "title": "Systainer latch", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5ms4aj270wa", "title": "Systainer mount", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5msf8qife7c", "title": "Systainer dolly", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5msp2gwnhaj", "title": "Flex Stackpack center caster mount", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5mt0yfvi442", "title": "Flex Generic Corner mounts 1/4-20", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5mtcjcpo6f5", "title": "Adapter for shelves", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5mu829tk387", "title": "Flex Large crate Dividers", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5muv0abg82k", "title": "Flex Shelf for open cabinet", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5mwxbpwrfpy", "title": "Detail Polisher holder", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5mxgya8gysj", "title": "Shop miniatures for layout", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5my0flejnc7", "title": "Mater skull", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nkg9iyibjl", "title": "Meeples", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nl0z3m0hbm", "title": "Funnel, screw on, mouthwash", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nle1iv7n7k", "title": "Detail Pad dispenser", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nmdu4u3iyg", "title": "Detail Spray bottle holder", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nmqwoy85ko", "title": "License plate frame", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nn2rlfeb86", "title": "Robot lamp", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nr3utskakt", "title": "WW Table leg connector from Japan", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nrl65g2wmx", "title": "WW Featherboard", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nrweps28gg", "title": "WW Push stick", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nsbwu52riz", "title": "Bathroom bin divider", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nt2wkuk915", "title": "Passive phone speaker", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5ntl5e4ivsr", "title": "Block plane shooting board", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nvhbvebrmb", "title": "https://www.ankermake.com/blogs/printing-ideas/useful-cool-things-to-3d-print", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nvri1k260j", "title": "https://www.printables.com/model/986536-vented-threaded-funnels-for-water-or-soda-bottles", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5nw2m7abfaa", "title": "https://all3dp.com/1/useful-cool-things-3d-print-ideas-3d-printer-projects-stuff/?utm_source=newsletter&utm_medium=email&omhide=true", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5p5jyayo7ug", "title": "1/4 scale furniture models", "description": null, "notes": "End table\n\n22\u201d square top\n26\u201d tall\n\n22/4 =5.5\n26/4 =6.5", "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm5mvfvb19mzz\", \"tag-shop\"]", "subtasks": "[]", "section_id": "tmm5mqjea3zgoo", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5o7599625sq", "title": "Ivy tech", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm5o4hruh855d", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5olri9txha8", "title": "Hang artwork in my office", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm5olglg33i4u", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9rckwzeivcg", "title": "Porch Shade", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm5olglg33i4u", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9rd053w8lu0", "title": "Deck door casing", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm5olglg33i4u", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9rdc8dk31dz", "title": "Bed cover leak", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm9re11gai57r\"]", "subtasks": "[]", "section_id": "tmm5olglg33i4u", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9revumngjt0", "title": "Accord mirror", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[\"tmm9re11gai57r\"]", "subtasks": "[]", "section_id": "tmm5olglg33i4u", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9rfkcw02t9h", "title": "Mail box paint touch up", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm5olglg33i4u", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9rz45fuu5qw", "title": "Bracket for blinds", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm5olglg33i4u", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5owyq40692j", "title": "Prayer room table live edge", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm5owka3n92tr", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5ox77pz3k1g", "title": "Cherry Living set", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm5owka3n92tr", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm5oxeob76ecd", "title": "analog Kanban board to manage projects", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm5owka3n92tr", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9rt86su128l", "title": "Ray\u2019s pullout shelves", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm5owka3n92tr", "agent": null, "domain": "Woodworking", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm8k47lvjtw4j", "title": "Harvey", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm8k3by8kwhhd", "agent": null, "domain": "Retooling Retirement", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm8k4fx1gm82c", "title": "Bambu Labs", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm8k3by8kwhhd", "agent": null, "domain": "Retooling Retirement", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9fudtzcctel", "title": "Carpet back seat of truck", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm9fp9b2z5rct", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9rab2wrsm2s", "title": "Joe Ray pool", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm9r7x1ekwx8f", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmm9rhj6uxj7ac", "title": "Vacuum clamps-Grabo", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "tmm9rg4aytgvqt", "agent": null, "domain": "YourStory", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmn5ez9cg2p469", "title": "Print flip book", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "__mailbox__", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmna064u42h3d3", "title": "Shelf from basement", "description": null, "notes": null, "status": "done", "priority": null, "due_date": null, "start_date": null, "completed_date": "2026-03-28", "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "__mailbox__", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 1, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmna0gz6u1f11r", "title": "Movie", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "__mailbox__", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmnabqkd35kfks", "title": "Advil", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "__mailbox__", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmnac8wpcvv727", "title": "Amazon returns", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "__mailbox__", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmnacaqo6we4p0", "title": "Remove door hinges", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "__mailbox__", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "tmnad9ytx1mrid", "title": "Dryer vent and hoses", "description": null, "notes": null, "status": "not_started", "priority": null, "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "__mailbox__", "agent": null, "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-28T21:00:58.823775", "updated_at": "2026-03-28T21:00:58.823775", "synced_at": "2026-03-30T12:42:23.427913+00:00"}, {"id": "id-1774798381633", "title": "Jack hired \u2014 Industrial Designer & Product Developer", "description": null, "notes": "Jack joins as agent #15. Specialties: CAD (Fusion 360, SolidWorks, FreeCAD), 3D printing (FDM/SLA/SLS), DFM, mechanical engineering, fabrication technologies, product lifecycle development.", "status": "not_started", "priority": "medium", "due_date": null, "start_date": null, "completed_date": null, "recurrence": null, "tags": "[]", "subtasks": "[]", "section_id": "sec-inbox", "agent": "Jack", "domain": "Personal", "my_day": 0, "my_day_pinned": 0, "my_day_date": null, "done": 0, "deleted": 0, "created_at": "2026-03-29T15:33:01.638949", "updated_at": "2026-03-29T15:33:01.638949", "synced_at": "2026-03-30T12:42:23.427913+00:00"}], "sections": [{"id": "sec-yourstory", "title": "YourStory", "icon": "\ud83e\ude91", "priority": 0, "sort_order": 0, "created_at": "2026-03-28 20:42:07"}, {"id": "sec-woodworking", "title": "Woodworking", "icon": "\ud83e\udeb5", "priority": 0, "sort_order": 1, "created_at": "2026-03-28 20:42:07"}, {"id": "sec-personal", "title": "Personal", "icon": "\ud83c\udf3f", "priority": 0, "sort_order": 2, "created_at": "2026-03-28 20:42:07"}, {"id": "sec-shopping", "title": "Shopping List", "icon": "\ud83d\uded2", "priority": 0, "sort_order": 3, "created_at": "2026-03-28 20:42:07"}, {"id": "sec-inbox", "title": "Inbox", "icon": "\ud83d\udce5", "priority": 0, "sort_order": 4, "created_at": "2026-03-28 20:42:07"}, {"id": "tmm9rg4aytgvqt", "title": "Ideas", "icon": "\ud83d\udca1", "priority": 0, "sort_order": 10, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "sec-5", "title": "Tasks", "icon": "\ud83d\udcfa", "priority": 0, "sort_order": 11, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "sec-6", "title": "Product Ideas and Designs", "icon": "\ud83c\udfd7\ufe0f", "priority": 0, "sort_order": 12, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "sec-3", "title": "MSS \u2014 Miter Saw Station", "icon": "\ud83d\udee0\ufe0f", "priority": 0, "sort_order": 13, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "tmm8k3by8kwhhd", "title": "Sponsors", "icon": "\ud83d\udcb0", "priority": 0, "sort_order": 14, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "tmm5owka3n92tr", "title": "Shop Builds", "icon": "\ud83d\udee0\ufe0f", "priority": 0, "sort_order": 15, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "tmm5o4hruh855d", "title": "Retirement Goals", "icon": "\ud83d\udcdd", "priority": 0, "sort_order": 16, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "tmm4youw6x9pl0", "title": "Garage Organization", "icon": "\ud83d\udccb", "priority": 0, "sort_order": 17, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "__mailbox__", "title": "Mailbox", "icon": "\ud83d\udcec", "priority": 0, "sort_order": 18, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "sec-7", "title": "Financial and Admin", "icon": "\ud83d\udcb0", "priority": 0, "sort_order": 19, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "tmm5mqjea3zgoo", "title": "3D Printing", "icon": "\ud83d\udca1", "priority": 0, "sort_order": 20, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "tmm5olglg33i4u", "title": "House Stuff", "icon": "\ud83c\udfe0", "priority": 0, "sort_order": 21, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "tmm9fp9b2z5rct", "title": "Stuff", "icon": "\ud83d\udccb", "priority": 0, "sort_order": 22, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "tmm9r7x1ekwx8f", "title": "Consulting", "icon": "\ud83c\udfd7\ufe0f", "priority": 0, "sort_order": 23, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "sec-4", "title": "Shopping List", "icon": "\ud83d\uded2", "priority": 0, "sort_order": 24, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "sec-2", "title": "Social Marketing Foundation", "icon": "\ud83d\udcf1", "priority": 0, "sort_order": 25, "created_at": "2026-03-28T21:00:58.823775"}, {"id": "sec-1", "title": "YourStory \u2014 Post-Publication", "icon": "\ud83c\udfaf", "priority": 1, "sort_order": 26, "created_at": "2026-03-28T21:00:58.823775"}], "tags": [{"id": "tag-work", "name": "Work", "color": "#4A90D9"}, {"id": "tag-personal", "name": "Personal", "color": "#5CC1A9"}, {"id": "tag-urgent", "name": "Urgent", "color": "#E74C3C"}, {"id": "tag-idea", "name": "Idea", "color": "#9B59B6"}], "quotes": [{"quote": "The secret of getting ahead is getting started.", "author": "Mark Twain"}, {"quote": "It always seems impossible until it's done.", "author": "Nelson Mandela"}, {"quote": "Done is better than perfect.", "author": "Sheryl Sandberg"}, {"quote": "Small steps every day.", "author": null}, {"quote": "Focus on the work, not the worry.", "author": null}, {"quote": "One good thing at a time.", "author": null}, {"quote": "Make something today.", "author": null}, {"quote": "Measure twice, cut once.", "author": "Woodworker's proverb"}, {"quote": "The best time to plant a tree was 20 years ago. The second best time is now.", "author": "Chinese proverb"}, {"quote": "Creativity is intelligence having fun.", "author": "Albert Einstein"}]};
+window.__SEED_DATA__ = {};
 // ── SYNC MODULE ──────────────────────────────────────────────────────────────
 
 const SYNC_CONFIG = {
@@ -1521,6 +1766,108 @@ function renderCurrentView() {
   else if (currentView === 'all') renderAllTasks();
 }
 
+// ========== DAILY DATA (Morning Ritual + Notes) ==========
+function getDailyKey(dateStr) {
+  return `dp_daily_${dateStr}`;
+}
+
+function loadDailyData(dateStr) {
+  const raw = localStorage.getItem(getDailyKey(dateStr));
+  if (raw) return JSON.parse(raw);
+  return { date: dateStr, intention: '', gratitude: ['', '', ''], notes: '' };
+}
+
+function saveDailyData(dateStr, data) {
+  localStorage.setItem(getDailyKey(dateStr), JSON.stringify({ ...data, date: dateStr }));
+}
+
+function renderIntention(dateStr) {
+  const data = loadDailyData(dateStr);
+  const old = document.getElementById('intention-input');
+  if (!old) return;
+  const input = old.cloneNode(true);
+  old.replaceWith(input);
+  input.value = data.intention || '';
+  input.addEventListener('blur', () => {
+    const d = loadDailyData(dateStr);
+    d.intention = input.value.trim();
+    saveDailyData(dateStr, d);
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') input.blur();
+  });
+}
+
+function renderGratitude(dateStr) {
+  const data = loadDailyData(dateStr);
+  document.querySelectorAll('.gratitude-input').forEach((old, i) => {
+    const input = old.cloneNode(true);
+    old.replaceWith(input);
+    input.value = data.gratitude[i] || '';
+    input.addEventListener('blur', () => {
+      const d = loadDailyData(dateStr);
+      d.gratitude[i] = input.value.trim();
+      saveDailyData(dateStr, d);
+    });
+  });
+}
+
+let notesDebounceTimer = null;
+
+function renderNotes(dateStr) {
+  clearTimeout(notesDebounceTimer);
+  const data = loadDailyData(dateStr);
+  const oldArea = document.getElementById('notes-textarea');
+  if (!oldArea) return;
+  const textarea = oldArea.cloneNode(true);
+  oldArea.replaceWith(textarea);
+  const charcount = document.getElementById('notes-charcount');
+
+  textarea.value = data.notes || '';
+  updateNotesCharcount(textarea, charcount);
+
+  textarea.addEventListener('input', () => {
+    updateNotesCharcount(textarea, charcount);
+    clearTimeout(notesDebounceTimer);
+    notesDebounceTimer = setTimeout(() => {
+      const d = loadDailyData(dateStr);
+      d.notes = textarea.value;
+      saveDailyData(dateStr, d);
+    }, 2000);
+  });
+
+  textarea.addEventListener('blur', () => {
+    clearTimeout(notesDebounceTimer);
+    const d = loadDailyData(dateStr);
+    d.notes = textarea.value;
+    saveDailyData(dateStr, d);
+  });
+}
+
+function updateNotesCharcount(textarea, charcount) {
+  if (!charcount) return;
+  const len = textarea.value.length;
+  if (len > 0) {
+    charcount.textContent = `${len}`;
+    charcount.style.display = 'block';
+  } else {
+    charcount.style.display = 'none';
+  }
+}
+
+function exportJournalData() {
+  const keys = Object.keys(localStorage)
+    .filter(k => k.startsWith('dp_daily_'))
+    .sort()
+    .reverse();
+  const entries = keys.map(k => JSON.parse(localStorage.getItem(k)));
+  const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `day-planner-journal-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+}
+
 // ========== MY DAY ==========
 function renderMyDay() {
   // Date nav state
@@ -1642,6 +1989,11 @@ function renderMyDay() {
   renderSchedule();
   fetchWeather();
   fetchCalendarEvents();
+
+  // Morning ritual + notes
+  renderIntention(selDateStr);
+  renderGratitude(selDateStr);
+  renderNotes(selDateStr);
 }
 
 function updateClock() {

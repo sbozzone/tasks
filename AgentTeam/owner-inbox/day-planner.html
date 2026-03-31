@@ -86,7 +86,27 @@ body {
 .tabs button:hover:not(.active) { background: var(--card-header-bg); color: var(--text); }
 .gear-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 8px; color: var(--text2); }
 .header-btn { background: none; border: none; cursor: pointer; padding: 4px 6px; color: var(--text2); line-height: 1; }
-.print-btn { font-size: 1rem; }
+.print-day-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .78rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-sec);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.print-day-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
 
 /* MAIN */
 .main { max-width: 1280px; margin: 0 auto; padding: 20px; }
@@ -924,7 +944,7 @@ textarea { resize: vertical; min-height: 80px; }
   @page { size: landscape; margin: 0.5in 0.4in; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
   body { background: #fff; color: #000; font-size: 9pt; }
-  .print-btn { display: none; }
+  .print-day-btn { display: none; }
   body > *:not(#print-sheet) { display: none !important; }
   #print-sheet {
     display: flex;
@@ -1068,7 +1088,7 @@ textarea { resize: vertical; min-height: 80px; }
     <button data-view="week">Week</button>
     <button data-view="all">All Tasks</button>
   </div>
-  <button class="header-btn print-btn" onclick="printDaySheet()" title="Print today's sheet">🖨</button>
+  <button class="print-day-btn" onclick="printDaySheet()" title="Print today's sheet">🖨 Print</button>
   <button class="gear-btn" onclick="openSettings()" title="Settings">&#9881;</button>
 </nav>
 

@@ -726,6 +726,59 @@ textarea { resize: vertical; min-height: 80px; }
 @media (max-width: 768px) {
   .week-col { min-width: 90px; }
 }
+
+/* ── Print (My Day view) ── */
+@media print {
+  .topnav, #viewBar, #printBtn,
+  .yesterday-banner,
+  .schedule-col,
+  .weather-widget,
+  .task-actions,
+  .btn,
+  .date-nav-arrow, #date-nav-today,
+  #quote-box,
+  .modal-overlay, .modal-panel,
+  .tag-popover { display: none !important; }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+    filter: saturate(0.25);
+  }
+
+  .view { display: block !important; }
+  #view-myday { display: block !important; }
+
+  .myday-layout {
+    display: block !important;
+  }
+
+  .myday-header {
+    border-bottom: 1.5pt solid #888;
+    padding-bottom: 8pt;
+    margin-bottom: 12pt;
+  }
+
+  .myday-header h2 { font-size: 16pt !important; color: #000 !important; }
+  .clock { font-size: 10pt; color: #444; }
+
+  .myday-task {
+    background: #fff !important;
+    border-left: 3pt solid #888 !important;
+    border-radius: 4pt;
+    padding: 6pt 10pt;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+  }
+
+  .myday-task[data-priority="urgent"],
+  .myday-task[data-priority="high"] { border-left-color: #555 !important; }
+
+  .myday-task .title.done-text { text-decoration: line-through; color: #888; }
+  .myday-task .due { color: #444; }
+  .myday-task .due.overdue { color: #333; font-weight: 600; }
+}
 </style>
 </head>
 <body>
@@ -775,6 +828,7 @@ textarea { resize: vertical; min-height: 80px; }
             <div class="clock" id="myday-clock"></div>
           </div>
           <button class="btn btn-primary" onclick="openTaskPicker()">+ Add to My Day</button>
+          <button class="btn btn-secondary" onclick="window.print()" title="Print My Day" id="printBtn">🖨️</button>
         </div>
         <div id="weather-widget" class="card weather-widget" style="margin-bottom:16px;">
           <div class="weather-current">

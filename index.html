@@ -740,44 +740,68 @@ textarea { resize: vertical; min-height: 80px; }
   .modal-overlay, .modal-panel,
   .tag-popover { display: none !important; }
 
+  html { font-size: 9pt; }
+
   body {
     background: #fff !important;
     color: #000 !important;
-    font-size: 11pt;
     filter: saturate(0.25);
   }
 
   .view { display: block !important; }
   #view-myday { display: block !important; }
-
-  .myday-layout {
-    display: block !important;
-  }
+  .myday-layout { display: block !important; }
 
   .myday-header {
-    border-bottom: 1.5pt solid #888;
-    padding-bottom: 8pt;
-    margin-bottom: 12pt;
+    border-bottom: 1pt solid #999;
+    padding-bottom: 4pt;
+    margin-bottom: 8pt;
   }
+  .myday-header h2 { font-size: 13pt !important; font-weight: 700; color: #000 !important; }
+  .clock { font-size: 8pt !important; color: #666; }
 
-  .myday-header h2 { font-size: 16pt !important; color: #000 !important; }
-  .clock { font-size: 10pt; color: #444; }
+  .myday-tasks { gap: 3pt !important; }
 
   .myday-task {
     background: #fff !important;
-    border-left: 3pt solid #888 !important;
-    border-radius: 4pt;
-    padding: 6pt 10pt;
+    border: 1px solid #ddd !important;
+    border-left: 2.5pt solid #999 !important;
+    border-radius: 3pt;
+    padding: 3pt 7pt !important;
+    gap: 6pt !important;
     page-break-inside: avoid;
     box-shadow: none !important;
+    transform: none !important;
   }
-
   .myday-task[data-priority="urgent"],
   .myday-task[data-priority="high"] { border-left-color: #555 !important; }
 
+  .myday-task .title { font-size: 9pt !important; }
   .myday-task .title.done-text { text-decoration: line-through; color: #888; }
-  .myday-task .due { color: #444; }
+  .myday-task .due { font-size: 8pt !important; color: #555; }
   .myday-task .due.overdue { color: #333; font-weight: 600; }
+
+  /* Status circle */
+  .myday-task .status-circle,
+  .myday-task [class*="status"] {
+    width: 12px !important; height: 12px !important;
+    min-width: 12px !important;
+  }
+
+  /* Calendar agenda events */
+  .myday-cal-events { gap: 3pt !important; margin-bottom: 6pt !important; }
+  .myday-cal-event {
+    padding: 3pt 7pt !important;
+    border-radius: 3pt;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+  .myday-cal-event .cal-time { font-size: 8pt !important; min-width: 55pt !important; }
+  .myday-cal-event .cal-title { font-size: 9pt !important; }
+  .myday-cal-event .cal-loc { font-size: 7pt !important; }
+
+  /* Agenda label */
+  .myday-cal-events + * { margin-top: 6pt; }
 }
 </style>
 </head>

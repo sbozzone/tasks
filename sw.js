@@ -1,4 +1,4 @@
-var CACHE = 'bozzone-tasks-v5';
+var CACHE = 'bozzone-tasks-v6';
 
 /* App shell — all files needed for offline use.
    lib/ files are listed explicitly so they are cached on install.  */

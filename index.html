@@ -551,6 +551,181 @@ textarea { resize: vertical; min-height: 80px; }
 .myday-cal-event.outlook .cal-title { color: var(--accent-dark); }
 .cal-event.outlook { background: var(--accent-light); color: var(--accent-dark); border-left-color: var(--accent); }
 .cal-source { font-family: 'DM Mono', monospace; font-size: 9px; opacity: 0.5; margin-left: auto; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* DRAG REORDER - My Day */
+.myday-task.drag-over-above { border-top: 2px solid var(--accent) !important; }
+.myday-task.drag-over-below { border-bottom: 2px solid var(--accent) !important; }
+.myday-task.dragging { opacity: 0.4; }
+
+/* SCHEDULE TOGGLE */
+.schedule-toggle { display: flex; gap: 4px; }
+.schedule-toggle-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: .68rem;
+  padding: 3px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.schedule-toggle-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* WEEK COLUMNS (schedule week view) */
+.week-col {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 300px;
+}
+.week-col.today { border-color: var(--accent); background: var(--accent-light); }
+.week-col-header {
+  font-family: 'DM Mono', monospace;
+  font-size: .65rem;
+  text-align: center;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.week-col.today .week-col-header { color: var(--accent); font-weight: 600; }
+.week-col-date {
+  font-family: 'Lora', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.week-col.today .week-col-date { color: var(--accent); }
+.week-task-chip {
+  font-size: .7rem;
+  font-family: 'DM Sans', sans-serif;
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: var(--card-header-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: border-color 0.15s;
+}
+.week-task-chip:hover { border-color: var(--accent); }
+.week-weather {
+  font-family: 'DM Mono', monospace;
+  font-size: .65rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: auto;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* DATE NAVIGATION */
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.date-nav-arrow {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text2);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.date-nav-arrow:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.date-nav-today {
+  font-family: 'DM Mono', monospace;
+  font-size: .68rem;
+  padding: 3px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.date-nav-today:hover { background: var(--accent); color: #fff; }
+.date-nav-today.hidden { display: none; }
+
+/* TASK ACTIONS */
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.myday-task:hover .task-actions,
+.all-task-row:hover .task-actions,
+.kanban-card:hover .task-actions { opacity: 1; }
+.task-action-btn {
+  font-size: .85rem;
+  padding: 3px 5px;
+  border-radius: 5px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.15s, background 0.15s;
+  line-height: 1;
+}
+.task-action-btn:hover { background: var(--card-header-bg); color: var(--text); }
+.task-delete-btn:hover { color: var(--red) !important; background: var(--red-light) !important; }
+.task-sun-btn.active { color: var(--gold); }
+.task-sun-btn:hover { color: var(--gold) !important; background: var(--gold-light) !important; }
+.task-sun-btn.active:hover { color: var(--red) !important; background: var(--red-light) !important; }
+
+/* TAG POPOVER */
+.tag-popover {
+  position: fixed;
+  z-index: 9999;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: var(--shadow-h);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 160px;
+  max-width: 240px;
+}
+.tag-popover-pill {
+  font-family: 'DM Mono', monospace;
+  font-size: .68rem;
+  padding: 3px 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--card-header-bg);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tag-popover-pill.applied { background: var(--accent); color: #fff; border-color: var(--accent); }
+@media (max-width: 768px) {
+  .week-col { min-width: 90px; }
+}
 </style>
 </head>
 <body>
@@ -591,7 +766,12 @@ textarea { resize: vertical; min-height: 80px; }
       <div>
         <div class="myday-header">
           <div class="date-time">
-            <h2 id="myday-date"></h2>
+            <div class="date-nav">
+              <button class="date-nav-arrow" onclick="navigateDay(-1)" title="Previous day">&#8592;</button>
+              <button class="date-nav-today hidden" id="date-nav-today" onclick="navigateDay(0)" title="Go to today">Today</button>
+              <h2 id="myday-date" style="margin:0;font-size:1.6rem;"></h2>
+              <button class="date-nav-arrow" onclick="navigateDay(1)" title="Next day">&#8594;</button>
+            </div>
             <div class="clock" id="myday-clock"></div>
           </div>
           <button class="btn btn-primary" onclick="openTaskPicker()">+ Add to My Day</button>
@@ -608,7 +788,13 @@ textarea { resize: vertical; min-height: 80px; }
         <div class="quote-box" id="quote-box"></div>
       </div>
       <div class="schedule-col">
-        <h3>Schedule</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <h3 style="margin:0;">Schedule</h3>
+          <div class="schedule-toggle">
+            <button class="schedule-toggle-btn active" id="sched-day-btn" onclick="setScheduleMode('day')">Day</button>
+            <button class="schedule-toggle-btn" id="sched-week-btn" onclick="setScheduleMode('week')">Week</button>
+          </div>
+        </div>
         <div id="schedule-slots"></div>
         <div class="unscheduled-pile" id="unscheduled-pile">
           <h4>Unscheduled</h4>
@@ -1006,7 +1192,7 @@ function renderCalendarInMyDay() {
   const container = document.createElement('div');
   container.id = 'myday-cal-events';
   container.className = 'myday-cal-events';
-  container.innerHTML = '<div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px;">Calendar</div>';
+  container.innerHTML = '<div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px;">Agenda</div>';
 
   // All-day events first, then timed events sorted by start
   const allDay = calendarEvents.filter(ev => ev.all_day);
@@ -1113,6 +1299,15 @@ let selectedBulk = new Set();
 let weekOffset = 0;
 let kanbanProjectFilter = 'all';
 let kanbanStatusFilter = 'all';
+let activeTagPopover = null;
+let selectedDate = (() => {
+  const saved = sessionStorage.getItem('dp_selected_date');
+  const d = saved ? new Date(saved + 'T00:00:00') : new Date();
+  d.setHours(0,0,0,0);
+  return d;
+})();
+function getMyDayOrder() { return JSON.parse(localStorage.getItem('dp_myday_order') || '[]'); }
+function saveMyDayOrder(order) { localStorage.setItem('dp_myday_order', JSON.stringify(order)); }
 
 // ========== STORAGE ==========
 function loadData() {
@@ -1225,11 +1420,17 @@ function renderCurrentView() {
 
 // ========== MY DAY ==========
 function renderMyDay() {
-  // Date + Clock
-  const now = new Date();
+  // Date nav state
+  const selDateStr = selectedDate.toISOString().split('T')[0];
+  const todayDateStr = todayStr();
+  const isToday = selDateStr === todayDateStr;
+
   const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  document.getElementById('myday-date').textContent = now.toLocaleDateString('en-US', opts);
+  document.getElementById('myday-date').textContent = selectedDate.toLocaleDateString('en-US', opts);
   updateClock();
+
+  const todayBtn = document.getElementById('date-nav-today');
+  if (todayBtn) todayBtn.classList.toggle('hidden', isToday);
 
   // Quote
   const qi = Math.floor(Date.now() / 86400000) % QUOTES.length;
@@ -1237,30 +1438,98 @@ function renderMyDay() {
   document.getElementById('quote-box').innerHTML =
     `"${q.text}"<div class="author">-- ${q.author}</div>`;
 
-  // Yesterday banner
-  checkYesterday();
+  // Yesterday banner (today only)
+  if (isToday) checkYesterday();
+  else document.getElementById('yesterday-banner').style.display = 'none';
 
-  // Tasks
-  const myDayTasks = tasks.filter(t => t.myDay && !t.done);
+  // Tasks — filter by selected date
+  let myDayTasks;
+  if (isToday) {
+    myDayTasks = tasks.filter(t => t.myDay && !t.done);
+    // Sort by myDayOrder
+    const order = getMyDayOrder();
+    myDayTasks.sort((a, b) => {
+      const ia = order.indexOf(a.id);
+      const ib = order.indexOf(b.id);
+      if (ia === -1 && ib === -1) return 0;
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    });
+  } else {
+    myDayTasks = tasks.filter(t => t.dueDate === selDateStr && !t.done);
+  }
+
   const container = document.getElementById('myday-tasks');
   container.innerHTML = '';
   if (myDayTasks.length === 0) {
     container.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text2);">No tasks for today. Click "Add to My Day" to get started.</div>';
   }
+
   myDayTasks.forEach(t => {
     const el = document.createElement('div');
     el.className = 'myday-task';
     el.draggable = true;
     el.dataset.id = t.id;
     if (t.priority) el.dataset.priority = t.priority;
-    el.ondragstart = e => { e.dataTransfer.setData('text/plain', t.id); e.target.style.opacity = '0.5'; };
-    el.ondragend = e => { e.target.style.opacity = '1'; };
+
+    el.ondragstart = e => {
+      e.dataTransfer.setData('text/plain', t.id);
+      el.classList.add('dragging');
+    };
+    el.ondragend = () => {
+      el.classList.remove('dragging');
+      container.querySelectorAll('.drag-over-above,.drag-over-below').forEach(x => {
+        x.classList.remove('drag-over-above','drag-over-below');
+      });
+    };
+    el.ondragover = e => {
+      e.preventDefault();
+      container.querySelectorAll('.drag-over-above,.drag-over-below').forEach(x => {
+        x.classList.remove('drag-over-above','drag-over-below');
+      });
+      const rect = el.getBoundingClientRect();
+      if (e.clientY < rect.top + rect.height / 2) {
+        el.classList.add('drag-over-above');
+      } else {
+        el.classList.add('drag-over-below');
+      }
+    };
+    el.ondragleave = () => {
+      el.classList.remove('drag-over-above','drag-over-below');
+    };
+    el.ondrop = e => {
+      e.preventDefault();
+      e.stopPropagation();
+      el.classList.remove('drag-over-above','drag-over-below');
+      const srcId = e.dataTransfer.getData('text/plain');
+      if (!srcId || srcId === t.id) return;
+      // Only reorder if src is in this list
+      if (!container.querySelector(`[data-id="${srcId}"]`)) return;
+      const rect = el.getBoundingClientRect();
+      const insertBefore = e.clientY < rect.top + rect.height / 2;
+      const order = getMyDayOrder();
+      myDayTasks.forEach(task => { if (!order.includes(task.id)) order.push(task.id); });
+      const srcIdx = order.indexOf(srcId);
+      if (srcIdx !== -1) order.splice(srcIdx, 1);
+      const tgtIdx = order.indexOf(t.id);
+      if (insertBefore) order.splice(tgtIdx, 0, srcId);
+      else order.splice(tgtIdx + 1, 0, srcId);
+      saveMyDayOrder(order);
+      renderMyDay();
+    };
+
     const overdue = t.dueDate && t.dueDate < todayStr();
     el.innerHTML = `
       <div class="task-check ${t.done ? 'checked' : ''}" onclick="event.stopPropagation();toggleDone('${t.id}')"></div>
       <span class="title">${esc(t.title)}</span>
       ${t.priority ? `<span class="pri-badge ${t.priority}">${t.priority}</span>` : ''}
       ${t.dueDate ? `<span class="due ${overdue ? 'overdue' : ''}">${formatDate(t.dueDate)}</span>` : ''}
+      <div class="task-actions">
+        <button class="task-action-btn task-sun-btn ${t.myDay ? 'active' : ''}" data-id="${t.id}" title="${t.myDay ? 'Remove from My Day' : 'Add to My Day'}" onclick="event.stopPropagation();toggleMyDay('${t.id}')">&#9728;</button>
+        <button class="task-action-btn task-tag-btn" data-id="${t.id}" title="Tag" onclick="event.stopPropagation();openTagPopover('${t.id}',this)">&#127991;</button>
+        <button class="task-action-btn task-delete-btn" data-id="${t.id}" title="Delete task" onclick="event.stopPropagation();deleteTaskById('${t.id}')">&#128465;</button>
+      </div>
     `;
     el.onclick = () => openDetail(t.id);
     container.appendChild(el);
@@ -1305,7 +1574,105 @@ function addYesterdayTasks() {
   }
 }
 
+function setScheduleMode(mode) {
+  localStorage.setItem('dp_schedule_mode', mode);
+  renderSchedule();
+}
+
+function renderScheduleWeek() {
+  const slotsEl = document.getElementById('schedule-slots');
+  slotsEl.innerHTML = '';
+  document.getElementById('unscheduled-pile').style.display = 'none';
+
+  const d = new Date(selectedDate);
+  d.setHours(0,0,0,0);
+  const startOfWeek = new Date(d);
+  startOfWeek.setDate(d.getDate() - d.getDay());
+
+  const weatherCache = JSON.parse(localStorage.getItem('dp_weather_cache') || 'null');
+  const todayDateStr = todayStr();
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:6px;';
+
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(startOfWeek);
+    day.setDate(startOfWeek.getDate() + i);
+    const ds = day.toISOString().split('T')[0];
+    const isToday = ds === todayDateStr;
+
+    const col = document.createElement('div');
+    col.className = 'week-col' + (isToday ? ' today' : '');
+
+    const hdr = document.createElement('div');
+    hdr.className = 'week-col-header';
+    hdr.textContent = dayNames[i];
+    col.appendChild(hdr);
+
+    const dateEl = document.createElement('div');
+    dateEl.className = 'week-col-date';
+    dateEl.textContent = day.getDate();
+    col.appendChild(dateEl);
+
+    const dayTasks = tasks.filter(t => t.dueDate === ds && !t.done);
+    dayTasks.forEach(t => {
+      const chip = document.createElement('div');
+      chip.className = 'week-task-chip';
+      chip.textContent = t.title;
+      chip.onclick = () => openDetail(t.id);
+      col.appendChild(chip);
+    });
+
+    let weatherStr = '';
+    if (weatherCache && weatherCache.data && weatherCache.data.daily) {
+      const wIdx = weatherCache.data.daily.time.indexOf(ds);
+      if (wIdx >= 0) {
+        weatherStr = `${WMO_EMOJI(weatherCache.data.daily.weather_code[wIdx])} ${Math.round(weatherCache.data.daily.temperature_2m_max[wIdx])}\u00B0`;
+      }
+    }
+    if (weatherStr) {
+      const wEl = document.createElement('div');
+      wEl.className = 'week-weather';
+      wEl.textContent = weatherStr;
+      col.appendChild(wEl);
+    }
+
+    const addBtn = document.createElement('button');
+    addBtn.style.cssText = 'margin-top:4px;font-size:.7rem;padding:3px 6px;border:1px dashed var(--border);background:none;border-radius:5px;cursor:pointer;color:var(--text-muted);width:100%;';
+    addBtn.textContent = '+ Add';
+    addBtn.onclick = () => {
+      const title = prompt('Task title:');
+      if (title) {
+        const newTask = createNewTask({ title, dueDate: ds });
+        tasks.push(newTask);
+        saveTasks();
+        const d1Task = taskToD1(newTask);
+        d1Task._isNew = true;
+        pushTask(d1Task);
+        renderSchedule();
+      }
+    };
+    col.appendChild(addBtn);
+    grid.appendChild(col);
+  }
+
+  slotsEl.appendChild(grid);
+}
+
 function renderSchedule() {
+  const mode = localStorage.getItem('dp_schedule_mode') || 'day';
+  const dayBtn = document.getElementById('sched-day-btn');
+  const weekBtn = document.getElementById('sched-week-btn');
+  if (dayBtn) dayBtn.classList.toggle('active', mode === 'day');
+  if (weekBtn) weekBtn.classList.toggle('active', mode === 'week');
+
+  if (mode === 'week') {
+    renderScheduleWeek();
+    return;
+  }
+
+  document.getElementById('unscheduled-pile').style.display = '';
   const slotsEl = document.getElementById('schedule-slots');
   slotsEl.innerHTML = '';
   for (let h = 7; h <= 20; h++) {
@@ -1541,6 +1908,11 @@ function createKanbanCard(t) {
       ${t.dueDate ? `<span class="kc-due ${overdue ? 'overdue' : ''}">${formatDate(t.dueDate)}</span>` : ''}
       ${subtasksTotal > 0 ? `<span class="kc-subtasks">${subtasksDone}/${subtasksTotal}</span>` : ''}
       <span class="proj-badge">${esc(getSection(t.sectionId)?.title || '')}</span>
+      <div class="task-actions" style="margin-left:auto;">
+        <button class="task-action-btn task-sun-btn ${t.myDay ? 'active' : ''}" data-id="${t.id}" title="${t.myDay ? 'Remove from My Day' : 'Add to My Day'}" onclick="event.stopPropagation();toggleMyDay('${t.id}')">&#9728;</button>
+        <button class="task-action-btn task-tag-btn" data-id="${t.id}" title="Tag" onclick="event.stopPropagation();openTagPopover('${t.id}',this)">&#127991;</button>
+        <button class="task-action-btn task-delete-btn" data-id="${t.id}" title="Delete task" onclick="event.stopPropagation();deleteTaskById('${t.id}')">&#128465;</button>
+      </div>
     </div>
   `;
   return card;
@@ -1738,6 +2110,11 @@ function createTaskRow(t) {
     ${t.priority ? `<span class="pri-dot ${t.priority}"></span>` : ''}
     ${t.dueDate ? `<span style="font-size:12px;color:${overdue ? 'var(--urgent)' : 'var(--text2)'};${overdue ? 'font-weight:600;' : ''}">${formatDate(t.dueDate)}</span>` : ''}
     <span class="status-chip ${t.status}">${STATUS_LABELS[t.status] || t.status}</span>
+    <div class="task-actions">
+      <button class="task-action-btn task-sun-btn ${t.myDay ? 'active' : ''}" data-id="${t.id}" title="${t.myDay ? 'Remove from My Day' : 'Add to My Day'}" onclick="event.stopPropagation();toggleMyDay('${t.id}')">&#9728;</button>
+      <button class="task-action-btn task-tag-btn" data-id="${t.id}" title="Tag" onclick="event.stopPropagation();openTagPopover('${t.id}',this)">&#127991;</button>
+      <button class="task-action-btn task-delete-btn" data-id="${t.id}" title="Delete task" onclick="event.stopPropagation();deleteTaskById('${t.id}')">&#128465;</button>
+    </div>
   `;
   row.onclick = () => openDetail(t.id);
   return row;
@@ -1906,6 +2283,98 @@ function toggleDone(id) {
   saveTasks();
   pushTask(taskToD1(t));
   renderCurrentView();
+}
+
+// ========== MY DAY TOGGLE ==========
+function toggleMyDay(id) {
+  const t = getTask(id);
+  if (!t) return;
+  t.myDay = !t.myDay;
+  t.myDayDate = t.myDay ? todayStr() : '';
+  t.updated_at = new Date().toISOString();
+  saveTasks();
+  pushTask(taskToD1(t));
+  renderCurrentView();
+}
+
+// ========== DELETE TASK BY ID ==========
+function deleteTaskById(id) {
+  const t = getTask(id);
+  if (!t) return;
+  if (!window.confirm(`Delete "${t.title}"?`)) return;
+  tasks = tasks.filter(task => task.id !== id);
+  saveTasks();
+  deleteTaskRemote(id);
+  renderCurrentView();
+}
+
+// ========== DATE NAVIGATION ==========
+function navigateDay(dir) {
+  if (dir === 0) {
+    selectedDate = new Date();
+  } else {
+    selectedDate = new Date(selectedDate);
+    selectedDate.setDate(selectedDate.getDate() + dir);
+  }
+  selectedDate.setHours(0,0,0,0);
+  sessionStorage.setItem('dp_selected_date', selectedDate.toISOString().split('T')[0]);
+  renderMyDay();
+}
+
+// ========== TAG POPOVER ==========
+function getAllTags() {
+  const tagSet = new Set();
+  tasks.forEach(t => (t.tags || []).forEach(tag => tagSet.add(tag)));
+  const stored = JSON.parse(localStorage.getItem('dp_tags') || '[]');
+  stored.forEach(tag => tagSet.add(tag));
+  return [...tagSet].sort();
+}
+
+function openTagPopover(taskId, btn) {
+  closeTagPopover();
+  const t = getTask(taskId);
+  if (!t) return;
+  const popover = document.createElement('div');
+  popover.className = 'tag-popover';
+  const tags = getAllTags();
+  if (tags.length === 0) {
+    popover.innerHTML = '<span style="font-size:.7rem;color:var(--text-muted);">No tags yet. Add tags in task detail.</span>';
+  } else {
+    tags.forEach(tag => {
+      const pill = document.createElement('div');
+      pill.className = 'tag-popover-pill' + ((t.tags || []).includes(tag) ? ' applied' : '');
+      pill.textContent = tag;
+      pill.onclick = e => {
+        e.stopPropagation();
+        const task = getTask(taskId);
+        if (!task) return;
+        if (!task.tags) task.tags = [];
+        const idx = task.tags.indexOf(tag);
+        if (idx >= 0) task.tags.splice(idx, 1);
+        else task.tags.push(tag);
+        task.updated_at = new Date().toISOString();
+        saveTasks();
+        pushTask(taskToD1(task));
+        pill.classList.toggle('applied', task.tags.includes(tag));
+      };
+      popover.appendChild(pill);
+    });
+  }
+  const rect = btn.getBoundingClientRect();
+  popover.style.top = (rect.bottom + 4) + 'px';
+  popover.style.left = Math.min(rect.left, window.innerWidth - 260) + 'px';
+  document.body.appendChild(popover);
+  activeTagPopover = popover;
+  setTimeout(() => {
+    document.addEventListener('click', closeTagPopover, { once: true });
+  }, 0);
+}
+
+function closeTagPopover() {
+  if (activeTagPopover) {
+    activeTagPopover.remove();
+    activeTagPopover = null;
+  }
 }
 
 // ========== TASK PICKER ==========

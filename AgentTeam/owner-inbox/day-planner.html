@@ -85,6 +85,8 @@ body {
 .tabs button.active { background: var(--accent); color: #fff; font-weight: 600; }
 .tabs button:hover:not(.active) { background: var(--card-header-bg); color: var(--text); }
 .gear-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 8px; color: var(--text2); }
+.header-btn { background: none; border: none; cursor: pointer; padding: 4px 6px; color: var(--text2); line-height: 1; }
+.print-btn { font-size: 1rem; }
 
 /* MAIN */
 .main { max-width: 1280px; margin: 0 auto; padding: 20px; }
@@ -915,6 +917,145 @@ textarea { resize: vertical; min-height: 80px; }
 @media (max-width: 768px) {
   .week-col { min-width: 90px; }
 }
+
+/* ========== PRINT STYLES ========== */
+#print-sheet { display: none; }
+@media print {
+  @page { size: landscape; margin: 0.5in 0.4in; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+  body { background: #fff; color: #000; font-size: 9pt; }
+  .print-btn { display: none; }
+  body > *:not(#print-sheet) { display: none !important; }
+  #print-sheet {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    color: #1a1a1a;
+  }
+  /* Header */
+  .ps-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6pt;
+    margin-bottom: 6pt;
+    border-bottom: 1.5pt solid #1a1a1a;
+  }
+  .ps-header-left { display: flex; flex-direction: column; gap: 1pt; }
+  .ps-date {
+    font-family: 'Lora', 'Georgia', serif;
+    font-size: 18pt;
+    font-weight: 600;
+    color: #1a1a1a;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .ps-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 8pt;
+    color: #888;
+    margin-top: 2pt;
+  }
+  .ps-header-center {
+    display: flex;
+    align-items: center;
+    gap: 6pt;
+    background: #1a2f4a;
+    color: #fff;
+    padding: 6pt 14pt;
+    border-radius: 6pt;
+  }
+  .ps-weather-icon { font-size: 16pt; line-height: 1; }
+  .ps-weather-temp {
+    font-family: 'DM Mono', monospace;
+    font-size: 16pt;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .ps-weather-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9pt;
+    color: rgba(255,255,255,0.75);
+  }
+  .ps-header-right { display: flex; align-items: center; }
+  .ps-pyramid svg { display: block; }
+  /* Body grid */
+  .ps-body {
+    display: grid;
+    grid-template-columns: 2.4fr 1.8fr 2fr;
+    gap: 0;
+    flex: 1;
+    border: 1pt solid #ccc;
+    border-radius: 4pt;
+    overflow: hidden;
+  }
+  .ps-col { padding: 8pt 10pt; border-right: 1pt solid #ddd; }
+  .ps-col:last-child { border-right: none; }
+  .ps-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 6pt;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #999;
+    margin-bottom: 4pt;
+    margin-top: 8pt;
+    padding-bottom: 2pt;
+    border-bottom: 0.5pt solid #e0e0e0;
+  }
+  .ps-label:first-child { margin-top: 0; }
+  /* Intention */
+  .ps-intention {
+    font-family: 'Lora', 'Georgia', serif;
+    font-style: italic;
+    font-size: 10pt;
+    color: #1a1a1a;
+    min-height: 14pt;
+    line-height: 1.4;
+  }
+  .ps-intention-line { border-bottom: 0.75pt solid #ccc; margin-top: 2pt; height: 0; }
+  /* Gratitude */
+  .ps-gratitude-list { display: flex; flex-direction: column; gap: 3pt; }
+  .ps-gratitude-row { display: flex; align-items: baseline; gap: 4pt; }
+  .ps-gnum { font-family: 'DM Mono', monospace; font-size: 7pt; color: #999; flex-shrink: 0; width: 10pt; }
+  .ps-gtext { font-family: 'DM Sans', sans-serif; font-size: 9pt; color: #1a1a1a; min-width: 20pt; }
+  .ps-gline { flex: 1; border-bottom: 0.75pt solid #ccc; margin-bottom: 1pt; }
+  /* Agenda */
+  .ps-agenda-list { display: flex; flex-direction: column; gap: 3pt; }
+  .ps-agenda-row { display: flex; gap: 6pt; align-items: baseline; }
+  .ps-atime { font-family: 'DM Mono', monospace; font-size: 7.5pt; color: #666; width: 44pt; flex-shrink: 0; }
+  .ps-atitle { font-family: 'DM Sans', sans-serif; font-size: 9pt; color: #1a1a1a; flex: 1; border-bottom: 0.5pt solid #e8e8e8; padding-bottom: 1pt; }
+  /* Tasks */
+  .ps-task-list { display: flex; flex-direction: column; gap: 3pt; }
+  .ps-task-row { display: flex; gap: 6pt; align-items: baseline; }
+  .ps-checkbox { font-size: 9pt; color: #bbb; flex-shrink: 0; width: 10pt; }
+  .ps-task-title { font-family: 'DM Sans', sans-serif; font-size: 9pt; color: #1a1a1a; flex: 1; border-bottom: 0.5pt solid #e8e8e8; padding-bottom: 1pt; min-height: 11pt; }
+  .ps-task-row.done .ps-task-title { text-decoration: line-through; color: #aaa; }
+  .ps-task-row.done .ps-checkbox { color: #D97757; }
+  /* Quote */
+  .ps-quote-block { margin-top: 8pt; padding: 5pt 8pt; border-left: 2pt solid #D97757; background: #fdf6f2; }
+  .ps-quote-text { font-family: 'Lora', 'Georgia', serif; font-style: italic; font-size: 8pt; color: #5a3020; line-height: 1.5; }
+  .ps-quote-author { font-family: 'DM Mono', monospace; font-size: 6.5pt; color: #999; margin-top: 2pt; }
+  /* Schedule */
+  .ps-schedule-grid { display: flex; flex-direction: column; gap: 0; }
+  .ps-slot { display: flex; align-items: baseline; gap: 4pt; border-bottom: 0.5pt solid #ececec; padding: 1.5pt 0; }
+  .ps-slot.hour { border-bottom-color: #ccc; }
+  .ps-slot-time { font-family: 'DM Mono', monospace; font-size: 6.5pt; color: #999; width: 32pt; flex-shrink: 0; line-height: 1.4; }
+  .ps-slot.half-hour .ps-slot-time { color: #ccc; font-size: 6pt; }
+  .ps-slot-content { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 8pt; color: #1a1a1a; min-height: 9pt; line-height: 1.3; }
+  .ps-slot-content.has-event { color: #1a3a5c; font-weight: 500; }
+  .ps-all-day { display: flex; gap: 4pt; align-items: baseline; padding: 2pt 0 4pt; border-bottom: 1pt solid #ccc; margin-bottom: 3pt; }
+  .ps-all-day-label { font-family: 'DM Mono', monospace; font-size: 6pt; color: #999; text-transform: uppercase; letter-spacing: 0.08em; width: 32pt; flex-shrink: 0; }
+  .ps-all-day-title { font-family: 'DM Sans', sans-serif; font-size: 8pt; color: #1a1a1a; font-weight: 500; }
+  /* Notes */
+  .ps-col-right { background: #fdfcfa; }
+  .ps-lined-notes { display: flex; flex-direction: column; gap: 0; margin-top: 2pt; height: calc(100% - 20pt); }
+  .ps-line { flex: 1; border-bottom: 0.75pt solid #ddd; min-height: 14pt; }
+  .ps-line:nth-child(5n) { border-bottom-color: #bbb; }
+}
 </style>
 </head>
 <body>
@@ -927,6 +1068,7 @@ textarea { resize: vertical; min-height: 80px; }
     <button data-view="week">Week</button>
     <button data-view="all">All Tasks</button>
   </div>
+  <button class="header-btn print-btn" onclick="printDaySheet()" title="Print today's sheet">🖨</button>
   <button class="gear-btn" onclick="openSettings()" title="Settings">&#9881;</button>
 </nav>
 
@@ -3002,6 +3144,164 @@ function init() {
 
 init();
 
+// ── Print Sheet ──────────────────────────────────────────────────────────────
+// Inject 22 ruled note lines once at load
+(function() {
+  const linesContainer = document.getElementById('ps-lined-notes');
+  if (linesContainer && linesContainer.children.length === 0) {
+    for (let i = 0; i < 22; i++) {
+      const line = document.createElement('div');
+      line.className = 'ps-line';
+      linesContainer.appendChild(line);
+    }
+  }
+})();
+
+function getSelectedDateStr() {
+  return selectedDate.toISOString().split('T')[0];
+}
+
+function getDailyQuote() {
+  return QUOTES[Math.floor(Date.now() / 86400000) % QUOTES.length];
+}
+
+function getAgendaEventsForDate(dateStr) {
+  if (dateStr === todayStr()) return calendarEvents;
+  return [];
+}
+
+function getMyDayTasksForDate(dateStr) {
+  if (dateStr === todayStr()) return tasks.filter(t => t.myDay);
+  return tasks.filter(t => t.dueDate === dateStr);
+}
+
+function formatSlotTime(h, m) {
+  const period = h < 12 ? 'AM' : 'PM';
+  const displayH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+  const displayM = m === 0 ? '00' : '30';
+  return `${displayH}:${displayM} ${period}`;
+}
+
+function getEventStartMinutes(ev) {
+  if (!ev.start_time) return -1;
+  const d = new Date(ev.start_time);
+  return d.getHours() * 60 + d.getMinutes();
+}
+
+function formatEventTime(ev) {
+  if (ev.all_day) return 'All day';
+  if (!ev.start_time) return '';
+  const d = new Date(ev.start_time);
+  const h = d.getHours();
+  const m = d.getMinutes();
+  const period = h < 12 ? 'AM' : 'PM';
+  const displayH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+  const displayM = m === 0 ? '' : `:${String(m).padStart(2,'0')}`;
+  return `${displayH}${displayM} ${period}`;
+}
+
+function buildPrintSheet() {
+  const dateStr = getSelectedDateStr();
+  const dateObj = new Date(dateStr + 'T12:00:00');
+  const dailyData = loadDailyData(dateStr);
+
+  // Header — date & time
+  document.getElementById('ps-date').textContent = dateObj.toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+  });
+  document.getElementById('ps-time').textContent = new Date().toLocaleTimeString('en-US', {
+    hour: 'numeric', minute: '2-digit'
+  });
+
+  // Header — weather from cached open-meteo data
+  const weatherCache = JSON.parse(localStorage.getItem('dp_weather_cache') || 'null');
+  if (weatherCache && weatherCache.data && weatherCache.data.current) {
+    const w = weatherCache.data.current;
+    document.getElementById('ps-weather-icon').textContent = WMO_EMOJI(w.weather_code);
+    document.getElementById('ps-weather-temp').textContent = `${Math.round(w.temperature_2m)}\u00B0F`;
+    document.getElementById('ps-weather-desc').textContent = WMO_TEXT(w.weather_code);
+  }
+
+  // Left column — intention
+  const leftCol = document.getElementById('ps-col-left');
+  const intentionEl = leftCol.querySelector('.ps-intention');
+  if (intentionEl) intentionEl.textContent = dailyData.intention || '';
+
+  // Left column — gratitude
+  const gTexts = leftCol.querySelectorAll('.ps-gtext');
+  (dailyData.gratitude || ['', '', '']).forEach((g, i) => {
+    if (gTexts[i]) gTexts[i].textContent = g;
+  });
+
+  // Left column — agenda
+  const agendaList = document.getElementById('ps-agenda-list');
+  const events = getAgendaEventsForDate(dateStr);
+  agendaList.innerHTML = '';
+  const agendaItems = events.length > 0 ? events : [null, null, null];
+  agendaItems.slice(0, 8).forEach(ev => {
+    const row = document.createElement('div');
+    row.className = 'ps-agenda-row';
+    row.innerHTML = `<span class="ps-atime">${ev ? formatEventTime(ev) : ''}</span><span class="ps-atitle">${ev ? ev.title : ''}</span>`;
+    agendaList.appendChild(row);
+  });
+
+  // Left column — My Day tasks
+  const taskList = document.getElementById('ps-task-list');
+  const myDayTasks = getMyDayTasksForDate(dateStr);
+  taskList.innerHTML = '';
+  const paddedTasks = [...myDayTasks.slice(0, 8)];
+  while (paddedTasks.length < 8) paddedTasks.push(null);
+  paddedTasks.forEach(task => {
+    const row = document.createElement('div');
+    row.className = `ps-task-row${task && task.done ? ' done' : ''}`;
+    row.innerHTML = `<span class="ps-checkbox">${task && task.done ? '\u2713' : '\u25CB'}</span><span class="ps-task-title">${task ? task.title : ''}</span>`;
+    taskList.appendChild(row);
+  });
+
+  // Left column — quote
+  const quote = getDailyQuote();
+  const quoteBlock = leftCol.querySelector('.ps-quote-block');
+  if (quoteBlock && quote) {
+    quoteBlock.querySelector('.ps-quote-text').textContent = `\u201C${quote.text}\u201D`;
+    quoteBlock.querySelector('.ps-quote-author').textContent = `\u2014 ${quote.author || 'Unknown'}`;
+  }
+
+  // Center column — schedule grid
+  const scheduleGrid = document.getElementById('ps-schedule-grid');
+  scheduleGrid.innerHTML = '';
+
+  const allDayEvents = events.filter(e => e.all_day);
+  allDayEvents.forEach(ev => {
+    const row = document.createElement('div');
+    row.className = 'ps-all-day';
+    row.innerHTML = `<span class="ps-all-day-label">All day</span><span class="ps-all-day-title">${ev.title}</span>`;
+    scheduleGrid.appendChild(row);
+  });
+
+  const timedEvents = events.filter(e => !e.all_day);
+  for (let h = 7; h <= 20; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      if (h === 20 && m === 30) break;
+      const slotMinutes = h * 60 + m;
+      const isHour = m === 0;
+      const matchedEvent = timedEvents.find(ev => {
+        const evMin = getEventStartMinutes(ev);
+        return evMin >= slotMinutes && evMin < slotMinutes + 30;
+      });
+      const timeLabel = formatSlotTime(h, m);
+      const slot = document.createElement('div');
+      slot.className = `ps-slot ${isHour ? 'hour' : 'half-hour'}`;
+      slot.innerHTML = `<span class="ps-slot-time">${isHour ? timeLabel : timeLabel.replace(/^\d+/, '')}</span><span class="ps-slot-content${matchedEvent ? ' has-event' : ''}">${matchedEvent ? matchedEvent.title : ''}</span>`;
+      scheduleGrid.appendChild(slot);
+    }
+  }
+}
+
+function printDaySheet() {
+  buildPrintSheet();
+  window.print();
+}
+
 // ── Sync lifecycle ───────────────────────────────────────────────────────────
 pullTasks();
 setInterval(pullTasks, 60_000);
@@ -3031,5 +3331,94 @@ if ('serviceWorker' in navigator) {
     .catch(e => console.warn('SW registration failed:', e));
 }
 </script>
+
+<!-- ========== PRINT SHEET ========== -->
+<div id="print-sheet" aria-hidden="true">
+
+  <!-- HEADER -->
+  <div class="ps-header">
+    <div class="ps-header-left">
+      <div class="ps-date" id="ps-date"></div>
+      <div class="ps-time" id="ps-time"></div>
+    </div>
+    <div class="ps-header-center">
+      <span class="ps-weather-icon" id="ps-weather-icon"></span>
+      <span class="ps-weather-temp" id="ps-weather-temp"></span>
+      <span class="ps-weather-desc" id="ps-weather-desc"></span>
+    </div>
+    <div class="ps-header-right">
+      <div class="ps-pyramid">
+        <svg width="72" height="48" viewBox="0 0 72 48" xmlns="http://www.w3.org/2000/svg">
+          <text x="36" y="6" text-anchor="middle"
+            style="font-family:'DM Mono',monospace;font-size:4.5px;fill:#C8430A;letter-spacing:0.05em;font-weight:600">
+            PYRAMID OF RELATIONSHIPS
+          </text>
+          <text x="36" y="10.5" text-anchor="middle"
+            style="font-family:'DM Mono',monospace;font-size:3.5px;fill:#999;font-style:italic">
+            by Phil Stutz
+          </text>
+          <polygon points="10,44 62,44 54,34 18,34" fill="#C8430A"/>
+          <text x="36" y="41" text-anchor="middle"
+            style="font-family:'DM Sans',sans-serif;font-size:5px;fill:#fff;font-weight:600;letter-spacing:0.08em">
+            BODY
+          </text>
+          <polygon points="18,34 54,34 47,24 25,24" fill="#D97757"/>
+          <text x="36" y="31" text-anchor="middle"
+            style="font-family:'DM Sans',sans-serif;font-size:5px;fill:#fff;font-weight:600;letter-spacing:0.08em">
+            PEOPLE
+          </text>
+          <polygon points="25,24 47,24 36,14" fill="#E8A87C"/>
+          <text x="36" y="22" text-anchor="middle"
+            style="font-family:'DM Sans',sans-serif;font-size:4.5px;fill:#fff;font-weight:600;letter-spacing:0.08em">
+            SELF
+          </text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="ps-body">
+
+    <!-- LEFT COLUMN -->
+    <div class="ps-col ps-col-left" id="ps-col-left">
+      <div class="ps-label">Today's Intention</div>
+      <div class="ps-intention"></div>
+      <div class="ps-intention-line"></div>
+
+      <div class="ps-label">I'm Grateful For</div>
+      <div class="ps-gratitude-list">
+        <div class="ps-gratitude-row"><span class="ps-gnum">1.</span><span class="ps-gtext"></span><span class="ps-gline"></span></div>
+        <div class="ps-gratitude-row"><span class="ps-gnum">2.</span><span class="ps-gtext"></span><span class="ps-gline"></span></div>
+        <div class="ps-gratitude-row"><span class="ps-gnum">3.</span><span class="ps-gtext"></span><span class="ps-gline"></span></div>
+      </div>
+
+      <div class="ps-label">Agenda</div>
+      <div class="ps-agenda-list" id="ps-agenda-list"></div>
+
+      <div class="ps-label">My Day</div>
+      <div class="ps-task-list" id="ps-task-list"></div>
+
+      <div class="ps-quote-block">
+        <div class="ps-quote-text"></div>
+        <div class="ps-quote-author"></div>
+      </div>
+    </div>
+
+    <!-- CENTER COLUMN -->
+    <div class="ps-col ps-col-center" id="ps-col-center">
+      <div class="ps-label">Schedule</div>
+      <div class="ps-schedule-grid" id="ps-schedule-grid"></div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="ps-col ps-col-right" id="ps-col-right">
+      <div class="ps-label">Notes</div>
+      <div class="ps-lined-notes" id="ps-lined-notes"></div>
+    </div>
+
+  </div>
+</div>
+
 </body>
 </html>

@@ -497,6 +497,195 @@ textarea { resize: vertical; min-height: 80px; }
   .schedule-col { max-height: none; }
   .quick-add-box { width: calc(100vw - 24px); margin: 0 12px 80px 0; }
   .fab { bottom: 16px; right: 16px; width: 50px; height: 50px; font-size: 24px; }
+  .intention-input { font-size: 1rem; }
+  .gratitude-input { font-size: 1rem; }
+  .notes-textarea  { font-size: 1rem; min-height: 100px; }
+}
+
+/* MORNING RITUAL */
+.morning-ritual {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.intention-wrap {
+  margin-bottom: 16px;
+}
+
+.intention-label {
+  font-family: 'DM Mono', monospace;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.intention-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.intention-input {
+  width: 100%;
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 4px 2px;
+  outline: none;
+  transition: border-color 0.2s;
+  caret-color: var(--accent);
+}
+
+.intention-input::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.intention-input:focus {
+  border-bottom-color: var(--accent);
+}
+
+.gratitude-wrap {
+  margin-bottom: 16px;
+}
+
+.gratitude-label {
+  font-family: 'DM Mono', monospace;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gratitude-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.gratitude-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gratitude-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gratitude-num {
+  font-family: 'DM Mono', monospace;
+  font-size: .72rem;
+  color: var(--text-muted);
+  width: 14px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.gratitude-input {
+  flex: 1;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  padding: 3px 2px;
+  outline: none;
+  transition: border-color 0.2s;
+  caret-color: var(--accent);
+}
+
+.gratitude-input::placeholder {
+  color: var(--border);
+}
+
+.gratitude-input:focus {
+  border-bottom-color: var(--accent);
+}
+
+.notes-wrap {
+  margin-top: 20px;
+}
+
+.notes-label {
+  font-family: 'DM Mono', monospace;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notes-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.notes-container {
+  position: relative;
+}
+
+.notes-textarea {
+  width: 100%;
+  min-height: 100px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--card-header-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px 24px 14px;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  caret-color: var(--accent);
+  box-sizing: border-box;
+}
+
+.notes-textarea::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.notes-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.1);
+}
+
+.notes-charcount {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: .62rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  display: none;
 }
 
 /* SCROLLBAR */
@@ -776,6 +965,45 @@ textarea { resize: vertical; min-height: 80px; }
           </div>
           <button class="btn btn-primary" onclick="openTaskPicker()">+ Add to My Day</button>
         </div>
+        <!-- Morning Ritual Block -->
+        <div class="morning-ritual">
+
+          <!-- Intention -->
+          <div class="intention-wrap">
+            <div class="intention-label">Today's Intention</div>
+            <input
+              type="text"
+              id="intention-input"
+              class="intention-input"
+              placeholder="What will you bring to this day?"
+              maxlength="140"
+              autocomplete="off"
+              spellcheck="true"
+            />
+          </div>
+
+          <!-- Gratitude -->
+          <div class="gratitude-wrap">
+            <div class="gratitude-label">I'm Grateful For</div>
+            <div class="gratitude-list">
+              <div class="gratitude-row">
+                <span class="gratitude-num">1.</span>
+                <input type="text" class="gratitude-input" placeholder="..." maxlength="100" autocomplete="off" />
+              </div>
+              <div class="gratitude-row">
+                <span class="gratitude-num">2.</span>
+                <input type="text" class="gratitude-input" placeholder="..." maxlength="100" autocomplete="off" />
+              </div>
+              <div class="gratitude-row">
+                <span class="gratitude-num">3.</span>
+                <input type="text" class="gratitude-input" placeholder="..." maxlength="100" autocomplete="off" />
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- End Morning Ritual Block -->
+
         <div id="weather-widget" class="card weather-widget" style="margin-bottom:16px;">
           <div class="weather-current">
             <span class="icon" id="w-icon"></span>
@@ -786,6 +1014,19 @@ textarea { resize: vertical; min-height: 80px; }
         </div>
         <div class="myday-tasks" id="myday-tasks"></div>
         <div class="quote-box" id="quote-box"></div>
+        <!-- Daily Notes -->
+        <div class="notes-wrap">
+          <div class="notes-label">Notes</div>
+          <div class="notes-container">
+            <textarea
+              id="notes-textarea"
+              class="notes-textarea"
+              placeholder="Capture anything from today..."
+              spellcheck="true"
+            ></textarea>
+            <span id="notes-charcount" class="notes-charcount"></span>
+          </div>
+        </div>
       </div>
       <div class="schedule-col">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -971,6 +1212,10 @@ textarea { resize: vertical; min-height: 80px; }
         <input type="text" id="set-lat" placeholder="Latitude">
         <input type="text" id="set-lon" placeholder="Longitude">
       </div>
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label style="display:block;font-size:12px;color:var(--text2);margin-bottom:4px;font-weight:600;">DAILY DATA</label>
+      <button class="btn btn-secondary" onclick="exportJournalData()">Export Journal Data</button>
     </div>
     <div style="text-align:right;">
       <button class="btn btn-primary" onclick="saveSettings()">Save & Close</button>
@@ -1441,6 +1686,108 @@ function renderCurrentView() {
   else if (currentView === 'all') renderAllTasks();
 }
 
+// ========== DAILY DATA (Morning Ritual + Notes) ==========
+function getDailyKey(dateStr) {
+  return `dp_daily_${dateStr}`;
+}
+
+function loadDailyData(dateStr) {
+  const raw = localStorage.getItem(getDailyKey(dateStr));
+  if (raw) return JSON.parse(raw);
+  return { date: dateStr, intention: '', gratitude: ['', '', ''], notes: '' };
+}
+
+function saveDailyData(dateStr, data) {
+  localStorage.setItem(getDailyKey(dateStr), JSON.stringify({ ...data, date: dateStr }));
+}
+
+function renderIntention(dateStr) {
+  const data = loadDailyData(dateStr);
+  const old = document.getElementById('intention-input');
+  if (!old) return;
+  const input = old.cloneNode(true);
+  old.replaceWith(input);
+  input.value = data.intention || '';
+  input.addEventListener('blur', () => {
+    const d = loadDailyData(dateStr);
+    d.intention = input.value.trim();
+    saveDailyData(dateStr, d);
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') input.blur();
+  });
+}
+
+function renderGratitude(dateStr) {
+  const data = loadDailyData(dateStr);
+  document.querySelectorAll('.gratitude-input').forEach((old, i) => {
+    const input = old.cloneNode(true);
+    old.replaceWith(input);
+    input.value = data.gratitude[i] || '';
+    input.addEventListener('blur', () => {
+      const d = loadDailyData(dateStr);
+      d.gratitude[i] = input.value.trim();
+      saveDailyData(dateStr, d);
+    });
+  });
+}
+
+let notesDebounceTimer = null;
+
+function renderNotes(dateStr) {
+  clearTimeout(notesDebounceTimer);
+  const data = loadDailyData(dateStr);
+  const oldArea = document.getElementById('notes-textarea');
+  if (!oldArea) return;
+  const textarea = oldArea.cloneNode(true);
+  oldArea.replaceWith(textarea);
+  const charcount = document.getElementById('notes-charcount');
+
+  textarea.value = data.notes || '';
+  updateNotesCharcount(textarea, charcount);
+
+  textarea.addEventListener('input', () => {
+    updateNotesCharcount(textarea, charcount);
+    clearTimeout(notesDebounceTimer);
+    notesDebounceTimer = setTimeout(() => {
+      const d = loadDailyData(dateStr);
+      d.notes = textarea.value;
+      saveDailyData(dateStr, d);
+    }, 2000);
+  });
+
+  textarea.addEventListener('blur', () => {
+    clearTimeout(notesDebounceTimer);
+    const d = loadDailyData(dateStr);
+    d.notes = textarea.value;
+    saveDailyData(dateStr, d);
+  });
+}
+
+function updateNotesCharcount(textarea, charcount) {
+  if (!charcount) return;
+  const len = textarea.value.length;
+  if (len > 0) {
+    charcount.textContent = `${len}`;
+    charcount.style.display = 'block';
+  } else {
+    charcount.style.display = 'none';
+  }
+}
+
+function exportJournalData() {
+  const keys = Object.keys(localStorage)
+    .filter(k => k.startsWith('dp_daily_'))
+    .sort()
+    .reverse();
+  const entries = keys.map(k => JSON.parse(localStorage.getItem(k)));
+  const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `day-planner-journal-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+}
+
 // ========== MY DAY ==========
 function renderMyDay() {
   // Date nav state
@@ -1562,6 +1909,11 @@ function renderMyDay() {
   renderSchedule();
   fetchWeather();
   fetchCalendarEvents();
+
+  // Morning ritual + notes
+  renderIntention(selDateStr);
+  renderGratitude(selDateStr);
+  renderNotes(selDateStr);
 }
 
 function updateClock() {

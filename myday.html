@@ -906,6 +906,97 @@
     }
     .bg-remove-btn.visible { display: block; }
     .bg-remove-btn:active { opacity: .6; }
+
+    /* ── Print ── */
+    @media print {
+      /* Hide all interactive / chrome elements */
+      #addBar, #bulbBtn, #styleBtn, #printBtn,
+      .sheet-backdrop, .sheet, .style-sheet,
+      .edit-modal-backdrop, .edit-modal,
+      #toast, .drag-handle, .swipe-reveal,
+      .hdr-back { display: none !important; }
+
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        font-size: 11pt;
+        filter: saturate(0.25);
+      }
+
+      header {
+        position: static;
+        border-bottom: 1.5pt solid #888;
+        padding: 8pt 12pt;
+        background: #fff !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+
+      .hdr-title { font-size: 16pt; color: #000; }
+      .hdr-date  { font-size: 10pt; color: #444; }
+      .sync-dot  { display: none; }
+
+      main {
+        max-width: 100%;
+        padding: 8pt 12pt;
+      }
+
+      .count-bar { margin-bottom: 10pt; }
+      .count-num { font-size: 14pt; }
+
+      .task-list { gap: 6pt; }
+
+      .swipe-wrap { overflow: visible; }
+      .swipe-card { transform: none !important; }
+
+      .task-row {
+        background: #fff !important;
+        border-left: 3pt solid #888;
+        border-radius: 4pt;
+        padding: 7pt 10pt;
+        page-break-inside: avoid;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+
+      .task-row.priority-urgent,
+      .task-row.priority-high { border-left-color: #555; }
+      .task-row.priority-urgent .task-label,
+      .task-row.priority-high .task-label { color: #000; }
+
+      .status-btn {
+        border-color: #888 !important;
+        background: #fff !important;
+      }
+      .status-btn.done-status { background: #ccc !important; }
+
+      .priority-icon, .due-chip {
+        background: #eee !important;
+        color: #333 !important;
+        border: none !important;
+      }
+
+      .done-toggle {
+        color: #444;
+        border-top: 1pt solid #ccc;
+        margin-top: 14pt;
+        padding-top: 6pt;
+      }
+      #doneList { display: flex !important; flex-direction: column; gap: 6pt; }
+      #doneList .task-label { text-decoration: line-through; color: #666; }
+
+      .quote-block {
+        border-left: 3pt solid #888;
+        background: #f5f5f5 !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+
+      body.has-bg-image {
+        background-image: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -917,6 +1008,7 @@
     <div class="hdr-date" id="hdrDate"></div>
   </div>
   <div class="hdr-right">
+    <button class="bulb-btn" id="printBtn" title="Print" onclick="window.print()">🖨️</button>
     <button class="bulb-btn" id="styleBtn" title="Style">🎨</button>
     <button class="bulb-btn" id="bulbBtn" title="Suggestions">💡</button>
     <div class="sync-dot" id="dot" title="Sync status"></div>
@@ -1937,6 +2029,9 @@ fbReady = true;
 
 if (syncKey) {
   setDot('yellow');
+  /* Show cached data immediately while Firebase loads */
+  loadLS();
+  render();
   dbRef = firebase.database().ref('dashboards/' + syncKey + '/v3');
 
   firebase.database().ref('.info/connected').on('value', function(s) {

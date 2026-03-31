@@ -795,6 +795,7 @@ textarea { resize: vertical; min-height: 80px; }
             <button class="schedule-toggle-btn" id="sched-week-btn" onclick="setScheduleMode('week')">Week</button>
           </div>
         </div>
+        <div id="schedule-allday-bar"></div>
         <div id="schedule-slots"></div>
         <div class="unscheduled-pile" id="unscheduled-pile">
           <h4>Unscheduled</h4>
@@ -1164,6 +1165,28 @@ function calEventToTimeSlot(isoStr) {
 }
 
 function renderCalendarInSchedule() {
+  // All-day events bar at top of schedule
+  const alldayBar = document.getElementById('schedule-allday-bar');
+  if (alldayBar) {
+    alldayBar.innerHTML = '';
+    const allDay = calendarEvents.filter(ev => ev.all_day);
+    if (allDay.length > 0) {
+      const label = document.createElement('div');
+      label.style.cssText = 'font-family:"DM Mono",monospace;font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;';
+      label.textContent = 'All Day';
+      alldayBar.appendChild(label);
+      allDay.forEach(ev => {
+        const isOutlook = ev.calendar_id === 'outlook';
+        const el = document.createElement('div');
+        el.className = 'cal-event all-day' + (isOutlook ? ' outlook' : '');
+        el.style.marginBottom = '4px';
+        el.innerHTML = `<span class="cal-icon">${isOutlook ? '&#128188;' : '&#128197;'}</span><span class="cal-title">${esc(ev.title)}</span><span class="cal-source">${isOutlook ? 'Work' : 'Personal'}</span>`;
+        alldayBar.appendChild(el);
+      });
+    }
+  }
+
+  // Timed events in time slots
   calendarEvents.forEach(ev => {
     if (ev.all_day) return;
     const slot = calEventToTimeSlot(ev.start_time);

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stephen's AI Command Center · v3</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0a0a0f;
+  color: #e8e8f0;
+  min-height: 100vh;
+  padding: 1.5rem 2rem 3rem;
+}
+.wrap { max-width: 1200px; margin: 0 auto; }
+
+/* Header */
+.cc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 0.5px solid #2a2a3a; }
+.cc-title { font-size: 11px; font-weight: 500; color: #6b6b8a; letter-spacing: 0.12em; text-transform: uppercase; }
+.cc-subtitle { font-size: 20px; font-weight: 500; color: #e8e8f0; margin-top: 4px; }
+.header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.cc-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #3fb97a; }
+.cc-status-dot { width: 7px; height: 7px; border-radius: 50%; background: #3fb97a; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.refresh-info { font-size: 10px; color: #44445a; }
+
+/* Inbox Bar */
+.inbox-bar {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  background: #0e0e1a; border: 0.5px solid #1e1e2e; border-radius: 10px;
+  padding: 12px 18px; margin-bottom: 2rem;
+}
+.inbox-label { font-size: 10px; color: #44445a; letter-spacing: 0.1em; text-transform: uppercase; }
+.inbox-items { display: flex; align-items: center; gap: 16px; }
+.inbox-item { display: flex; align-items: baseline; gap: 7px; }
+.inbox-count { font-size: 24px; font-weight: 600; color: #e8e8f0; line-height: 1; }
+.inbox-count.has-items { color: #1D9E75; }
+.inbox-name { font-size: 11px; color: #6b6b8a; }
+.inbox-divider { width: 1px; height: 28px; background: #1e1e2e; }
+.inbox-actions { margin-left: auto; display: flex; gap: 8px; }
+.btn {
+  font-size: 11px; padding: 5px 14px; border-radius: 6px; border: 0.5px solid #2a2a3a;
+  background: #12121e; color: #8888a8; cursor: pointer; transition: all 0.15s; font-family: inherit;
+}
+.btn:hover { background: #1e1e2e; color: #e8e8f0; border-color: #3a3a5a; }
+.btn.connected { border-color: #0F6E56; color: #1D9E75; background: #0d1f18; }
+
+/* Section headers */
+.section { margin-bottom: 2.5rem; }
+.section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+.section-title { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #6b6b8a; }
+.section-line { flex: 1; height: 0.5px; background: #1e1e2e; }
+.section-sub { font-size: 10px; color: #44445a; }
+
+/* Tier sections */
+.tier-section { margin-bottom: 1.75rem; }
+.tier-label { font-size: 11px; font-weight: 500; margin-bottom: 12px; padding-left: 2px; display: flex; align-items: center; gap: 10px; }
+.tier-line { flex: 1; height: 0.5px; background: #1e1e2e; }
+.tier-sub { font-size: 10px; color: #44445a; }
+.tier-opus  .tier-label { color: #7F77DD; }
+.tier-sonnet .tier-label { color: #1D9E75; }
+.tier-rr    .tier-label { color: #BA7517; }
+.tier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 10px; }
+.tier-empty { font-size: 11px; color: #44445a; padding: 14px; font-style: italic; }
+
+/* Agent cards */
+.agent-card {
+  background: #12121e; border: 0.5px solid #1e1e2e; border-radius: 12px;
+  padding: 14px; cursor: pointer; transition: border-color 0.15s, background 0.15s;
+  position: relative; overflow: hidden;
+}
+.agent-card:hover { border-color: #2e2e4e; background: #14141f; }
+.agent-card.orchestrator { border-color: #534AB7; border-width: 1.5px; }
+.agent-card.selected { border-color: #378ADD; }
+.card-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 12px 12px 0 0; }
+.agent-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.agent-meta { flex: 1; min-width: 0; }
+.agent-name { font-size: 14px; font-weight: 500; color: #e8e8f0; margin: 0 0 2px; }
+.agent-role { font-size: 10px; color: #6b6b8a; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #3fb97a; flex-shrink: 0; }
+.skill-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.skill-label { font-size: 9px; color: #44445a; width: 30px; flex-shrink: 0; letter-spacing: 0.05em; }
+.skill-dots { display: flex; gap: 3px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #1e1e2e; }
+.dot.p { background: #7F77DD; }
+.dot.t { background: #1D9E75; }
+.dot.a { background: #BA7517; }
+.model-badge { display: inline-block; font-size: 9px; padding: 2px 8px; border-radius: 20px; margin-top: 8px; font-weight: 500; letter-spacing: 0.03em; }
+.badge-opus    { background: #1a1830; color: #7F77DD; border: 0.5px solid #3C3489; }
+.badge-sonnet  { background: #0d1f18; color: #1D9E75; border: 0.5px solid #0F6E56; }
+.badge-rr      { background: #1f1508; color: #EF9F27; border: 0.5px solid #854F0B; }
+.conn-line { display: flex; justify-content: center; margin: 0.2rem 0 0.6rem; }
+.conn-line-inner { width: 1px; height: 22px; background: #1e1e2e; }
+.detail-panel {
+  background: #0e0e1a; border: 0.5px solid #1e1e2e; border-radius: 12px;
+  padding: 1.5rem; margin-top: 1.25rem; display: none;
+}
+.detail-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.detail-avatar { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.detail-name { font-size: 18px; font-weight: 500; color: #e8e8f0; margin: 0 0 3px; }
+.detail-role { font-size: 12px; color: #6b6b8a; }
+.detail-badges { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.domain-pill { font-size: 10px; padding: 2px 9px; border-radius: 20px; font-weight: 500; }
+.detail-desc { font-size: 13px; color: #8888a8; line-height: 1.7; margin-bottom: 14px; }
+.detail-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #12121e; border: 0.5px solid #2a2a3a; color: #6b6b8a; }
+
+/* Task Board */
+.task-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.task-col { background: #0e0e1a; border: 0.5px solid #1e1e2e; border-radius: 10px; padding: 12px; min-height: 180px; }
+.task-col-head { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 0.5px solid #1e1e2e; display: flex; align-items: center; justify-content: space-between; }
+.task-count-badge { font-size: 10px; color: #44445a; background: #12121e; border-radius: 10px; padding: 1px 7px; border: 0.5px solid #1e1e2e; }
+.col-open    .task-col-head { color: #6b6b8a; }
+.col-inprog  .task-col-head { color: #1D9E75; }
+.col-review  .task-col-head { color: #7F77DD; }
+.col-planned .task-col-head { color: #BA7517; }
+.col-done    .task-col-head { color: #3a3a5a; }
+.task-card { background: #12121e; border: 0.5px solid #1e1e2e; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+.task-card:last-child { margin-bottom: 0; }
+.task-name { font-size: 12px; color: #e8e8f0; margin-bottom: 7px; line-height: 1.4; }
+.task-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.task-agent { font-size: 10px; color: #6b6b8a; }
+.task-due { font-size: 10px; color: #44445a; margin-left: auto; }
+.domain-badge { font-size: 9px; padding: 1px 7px; border-radius: 20px; font-weight: 500; }
+.d-yourstory  { background: #0d1f18; color: #1D9E75; border: 0.5px solid #0F6E56; }
+.d-woodwork   { background: #1f1508; color: #BA7517; border: 0.5px solid #854F0B; }
+.d-personal   { background: #1a1830; color: #7F77DD; border: 0.5px solid #3C3489; }
+.d-retooling  { background: #1a1a1f; color: #888; border: 0.5px solid #333; }
+.task-empty { font-size: 11px; color: #2e2e4e; text-align: center; padding: 24px 8px; font-style: italic; }
+.board-offline { font-size: 12px; color: #44445a; text-align: center; padding: 44px 20px; grid-column: 1/-1; line-height: 1.8; }
+.board-offline .big { font-size: 28px; display: block; margin-bottom: 8px; }
+
+/* Journal & Activity */
+.ja-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.ja-panel { background: #0e0e1a; border: 0.5px solid #1e1e2e; border-radius: 10px; padding: 16px; }
+.ja-panel-title { font-size: 10px; font-weight: 500; color: #6b6b8a; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; padding-bottom: 9px; border-bottom: 0.5px solid #1e1e2e; }
+.journal-row { padding: 10px 0; border-bottom: 0.5px solid #16162a; }
+.journal-row:last-child { border-bottom: none; padding-bottom: 0; }
+.journal-date { font-size: 10px; color: #44445a; margin-bottom: 3px; }
+.journal-text { font-size: 12px; color: #8888a8; line-height: 1.5; }
+.activity-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 0.5px solid #16162a; }
+.activity-row:last-child { border-bottom: none; padding-bottom: 0; }
+.act-dot { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; flex-shrink: 0; }
+.act-text { font-size: 12px; color: #8888a8; flex: 1; }
+.act-text strong { color: #aaaacc; font-weight: 500; }
+.act-time { font-size: 10px; color: #44445a; white-space: nowrap; }
+.ja-empty { font-size: 11px; color: #44445a; padding: 24px 10px; text-align: center; font-style: italic; }
+
+@media (max-width: 960px) {
+  .task-board { grid-template-columns: 1fr 1fr 1fr; }
+  .ja-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .task-board { grid-template-columns: 1fr; }
+  body { padding: 1rem 1rem 2rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="cc-header">
+    <div>
+      <div class="cc-title">AI Command Center · v3</div>
+      <div class="cc-subtitle">Stephen's Agent Team</div>
+    </div>
+    <div class="header-right">
+      <div class="cc-status"><div class="cc-status-dot" id="srv-dot"></div><span id="srv-text">Connecting…</span></div>
+      <div class="refresh-info" id="refresh-label">Auto-refresh every 60s</div>
+    </div>
+  </div>
+
+  <!-- ═══ INBOX STATUS BAR ═══ -->
+  <div class="inbox-bar">
+    <span class="inbox-label">Inboxes</span>
+    <div class="inbox-items">
+      <div class="inbox-item">
+        <span class="inbox-count" id="owner-count">—</span>
+        <span class="inbox-name">Owner Inbox</span>
+      </div>
+      <div class="inbox-divider"></div>
+      <div class="inbox-item">
+        <span class="inbox-count" id="team-count">—</span>
+        <span class="inbox-name">Team Inbox</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AGENT ROSTER ═══ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">Agent Roster</span>
+      <div class="section-line"></div>
+      <span class="section-sub" id="agent-count-label"></span>
+    </div>
+
+    <div class="tier-section tier-opus">
+      <div class="tier-label">
+        <span>Opus</span><span class="tier-line"></span>
+        <span class="tier-sub">orchestration · deep reasoning</span>
+      </div>
+      <div class="tier-grid" id="opus-grid"></div>
+    </div>
+
+    <div class="conn-line"><div class="conn-line-inner"></div></div>
+
+    <div class="tier-section tier-sonnet">
+      <div class="tier-label">
+        <span>Sonnet</span><span class="tier-line"></span>
+        <span class="tier-sub">YourStory · woodworking · personal · system</span>
+      </div>
+      <div class="tier-grid" id="sonnet-grid"></div>
+    </div>
+
+    <div class="conn-line"><div class="conn-line-inner"></div></div>
+
+    <div class="tier-section tier-rr">
+      <div class="tier-label">
+        <span>Retooling Retirement</span><span class="tier-line"></span>
+        <span class="tier-sub">channel · content · silver economy</span>
+      </div>
+      <div class="tier-grid" id="rr-grid"></div>
+    </div>
+
+    <div id="detail-panel" class="detail-panel">
+      <div class="detail-top">
+        <div id="d-avatar" class="detail-avatar"></div>
+        <div>
+          <div id="d-name" class="detail-name"></div>
+          <div id="d-role" class="detail-role"></div>
+        </div>
+        <div class="detail-badges">
+          <span id="d-badge" class="model-badge"></span>
+          <span id="d-domain" class="domain-pill" style="display:none"></span>
+        </div>
+      </div>
+      <div id="d-desc" class="detail-desc"></div>
+      <div id="d-tags" class="detail-tags"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TASK BOARD ═══ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">Task Board</span>
+      <div class="section-line"></div>
+      <span class="section-sub" id="db-status-label">Load database to view tasks</span>
+    </div>
+    <div class="task-board" id="task-board">
+      <div class="board-offline">
+        <span class="big">🗄️</span>
+        Connecting to <code>db/max.db</code>… run <strong>start_team.bat</strong> if this persists.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ JOURNAL & ACTIVITY ═══ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">Journal &amp; Activity</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="ja-grid">
+      <div class="ja-panel">
+        <div class="ja-panel-title">Recent Journal</div>
+        <div id="journal-list">
+          <div class="ja-empty">Load database to view journal entries</div>
+        </div>
+      </div>
+      <div class="ja-panel">
+        <div class="ja-panel-title">Recent Activity</div>
+        <div id="activity-list">
+          <div class="ja-empty">Load database to view recent activity</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ═══════════════════════════════════════════════
+// AGENT DATA
+// Source of truth: .claude/agents/*.md
+// Update this array when Nolan hires or changes team
+// ═══════════════════════════════════════════════
+const AGENTS = [
+  {
+    name: "Max", role: "Personal AI Orchestrator", emoji: "🧠",
+    tier: "opus", accent: "#7F77DD", domain: "System", orchestrator: true,
+    desc: "Central orchestrator. Never does the work directly — always delegates to the right team member. Routes tasks, manages workflows, maintains team roster and database.",
+    tags: ["delegation", "task routing", "workflow management", "team memory"]
+  },
+  {
+    name: "Pax", role: "Senior Researcher", emoji: "🔍",
+    tier: "sonnet", accent: "#1D9E75", domain: "System",
+    desc: "Deep expertise research, supplier lookups, market research, techniques, and materials. First stop for any unknown — Nolan uses Pax before defining new roles.",
+    tags: ["market research", "supplier lookup", "materials science", "competitor analysis"]
+  },
+  {
+    name: "Nolan", role: "HR Director", emoji: "📋",
+    tier: "sonnet", accent: "#BA7517", domain: "System",
+    desc: "Hires new AI team members when a skill gap is identified. Works with Pax to define the role, then creates the agent definition. Keeps the team roster current.",
+    tags: ["hiring", "agent creation", "team roster", "role definition"]
+  },
+  {
+    name: "Reed", role: "YourStory Business Specialist", emoji: "🪑",
+    tier: "sonnet", accent: "#D85A30", domain: "YourStory",
+    desc: "Venue-specific business tasks for YourStory Home Design — customer communications, antique malls, galleries, Broad Ripple Art Show coordination, and sales channel management.",
+    tags: ["customer comms", "sales channels", "venue coordination", "business ops"]
+  },
+  {
+    name: "Chip", role: "Woodworking Specialist", emoji: "🪵",
+    tier: "sonnet", accent: "#639922", domain: "Woodworking",
+    desc: "Project planning, joinery specs, material selection, jig design, finishing, and shop layout. Deep knowledge of wood species, tools, and studio workflow optimization.",
+    tags: ["joinery", "material specs", "jig design", "finishing", "shop layout"]
+  },
+  {
+    name: "Marco", role: "Marketing Specialist", emoji: "📣",
+    tier: "sonnet", accent: "#D85A30", domain: "YourStory",
+    desc: "Brand-level campaign strategy, content marketing, analytics, and cross-channel marketing. Owns brand voice and cross-platform content calendars.",
+    tags: ["campaigns", "content strategy", "analytics", "brand voice", "SEO"]
+  },
+  {
+    name: "June", role: "Personal Assistant", emoji: "🌿",
+    tier: "sonnet", accent: "#D4537E", domain: "Personal",
+    desc: "Daily journaling, personal productivity, life planning, and general personal tasks. Maintains context across personal projects and keeps the day organized.",
+    tags: ["journaling", "daily planning", "personal tasks", "life admin"]
+  },
+  {
+    name: "Brooks", role: "Finance Manager", emoji: "💰",
+    tier: "sonnet", accent: "#1D9E75", domain: "YourStory",
+    desc: "Revenue tracking, expense management, COGS per piece, pricing analysis, cash flow planning, and tax preparation. Keeps the business financially healthy.",
+    tags: ["revenue", "expenses", "COGS", "pricing", "cash flow", "taxes"]
+  },
+  {
+    name: "Pixel", role: "Digital & Web Specialist", emoji: "🌐",
+    tier: "sonnet", accent: "#1D9E75", domain: "YourStory",
+    desc: "Website management, Etsy and online shop, product listing optimization, SEO execution, and digital storefront operations. Owns the public online presence.",
+    tags: ["website", "Etsy", "product listings", "SEO", "digital storefronts"]
+  },
+  {
+    name: "Scout", role: "Operations & Events Manager", emoji: "📦",
+    tier: "sonnet", accent: "#BA7517", domain: "YourStory",
+    desc: "Show booth logistics, raw material and finished goods inventory, custom order pipeline, and production scheduling. Keeps operations running on time.",
+    tags: ["show logistics", "inventory", "order pipeline", "production scheduling"]
+  },
+  {
+    name: "Iris", role: "Visual & Creative Director", emoji: "📸",
+    tier: "sonnet", accent: "#7F77DD", domain: "YourStory",
+    desc: "Product photography direction, styling, visual brand standards, and creative asset management. Ensures every piece looks its best across all platforms.",
+    tags: ["photography", "styling", "brand visuals", "asset management"]
+  },
+  {
+    name: "Vera", role: "Legal & Contracts Advisor", emoji: "⚖️",
+    tier: "sonnet", accent: "#7F77DD", domain: "YourStory",
+    desc: "Consignment agreements, art show contracts, custom commission terms, brand protection, and compliance. Guards the business's legal interests.",
+    tags: ["consignment", "contracts", "IP", "brand protection", "compliance"]
+  },
+  {
+    name: "Dash", role: "Frontend Dashboard Specialist", emoji: "🖥️",
+    tier: "sonnet", accent: "#1D9E75", domain: "System",
+    desc: "Builds single-file HTML/CSS/JS dashboards with SQLite visualization via sql.js. Specializes in dark-themed internal data tools and auto-refreshing live dashboards.",
+    tags: ["dashboards", "sql.js", "data visualization", "HTML/CSS/JS", "dark UI"]
+  },
+  {
+    name: "Finn", role: "Personal Finance Specialist", emoji: "💰",
+    tier: "sonnet", accent: "#2ECC71", domain: "Personal",
+    desc: "Supports Stephen through his corporate-to-retirement transition. Day-to-day budgeting, retirement timeline planning, expense tracking, spending decisions, and financial stress reduction.",
+    tags: ["budgeting", "retirement planning", "expense tracking", "cash flow", "financial decisions"]
+  },
+  {
+    name: "Bay", role: "eBay Sales Specialist", emoji: "📦",
+    tier: "sonnet", accent: "#E67E22", domain: "Personal",
+    desc: "Manages the full eBay sales pipeline: listing creation, pricing research, shipping logistics, buyer communications, and sales process optimization for selling excess items.",
+    tags: ["eBay listings", "pricing research", "shipping", "buyer comms", "resale"]
+  }
+];
+
+// ═══════════════════════════════════════════════
+// AGENT CARD RENDERING
+// ═══════════════════════════════════════════════
+const DC = { opus: 'p', sonnet: 't', rr: 'a' };
+
+function makeDots(filled, total, dc) {
+  let h = '';
+  for (let i = 0; i < total; i++) h += `<div class="dot${i < filled ? ' '+dc : ''}"></div>`;
+  return h;
+}
+function badgeClass(t) { return t === 'opus' ? 'badge-opus' : t === 'rr' ? 'badge-rr' : 'badge-sonnet'; }
+function badgeText(t)  { return t === 'opus' ? 'claude-opus-4-6' : 'claude-sonnet-4-6'; }
+function domainPillStyle(domain) {
+  const map = {
+    'YourStory':  'background:#0d1f18;color:#1D9E75;border:0.5px solid #0F6E56',
+    'Woodworking':'background:#1f1508;color:#BA7517;border:0.5px solid #854F0B',
+    'Personal':   'background:#1a1830;color:#7F77DD;border:0.5px solid #3C3489',
+    'System':     'background:#12121e;color:#6b6b8a;border:0.5px solid #2a2a3a'
+  };
+  return map[domain] || 'background:#12121e;color:#6b6b8a;border:0.5px solid #2a2a3a';
+}
+
+function renderCard(a) {
+  const dc = DC[a.tier] || 't';
+  const specFill = a.orchestrator ? 5 : 4;
+  const opsFill  = a.orchestrator ? 5 : 3;
+  return `<div class="agent-card${a.orchestrator ? ' orchestrator' : ''}" onclick="showDetail('${a.name}',this)">
+    <div class="card-accent" style="background:${a.accent}"></div>
+    <div class="agent-top">
+      <div class="avatar" style="background:${a.accent}22">${a.emoji}</div>
+      <div class="agent-meta">
+        <div class="agent-name">${a.name}</div>
+        <div class="agent-role">${a.role}</div>
+      </div>
+      <div class="status-dot"></div>
+    </div>
+    <div class="skill-row"><span class="skill-label">SPEC</span><div class="skill-dots">${makeDots(specFill,5,dc)}</div></div>
+    <div class="skill-row"><span class="skill-label">OPS</span><div class="skill-dots">${makeDots(opsFill,5,dc)}</div></div>
+    <div class="skill-row"><span class="skill-label">MOD</span><div class="skill-dots">${makeDots(3,5,dc)}</div></div>
+    <span class="model-badge ${badgeClass(a.tier)}">${badgeText(a.tier)}</span>
+  </div>`;
+}
+
+let selectedAgent = null;
+function showDetail(name, el) {
+  const a = AGENTS.find(x => x.name === name);
+  if (!a) return;
+  if (selectedAgent === name) {
+    selectedAgent = null;
+    document.getElementById('detail-panel').style.display = 'none';
+    document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('selected'));
+    return;
+  }
+  selectedAgent = name;
+  document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('d-avatar').textContent = a.emoji;
+  document.getElementById('d-avatar').style.background = a.accent + '22';
+  document.getElementById('d-name').textContent  = a.name;
+  document.getElementById('d-role').textContent  = a.role;
+  document.getElementById('d-desc').textContent  = a.desc;
+  const badge = document.getElementById('d-badge');
+  badge.textContent = badgeText(a.tier);
+  badge.className   = 'model-badge ' + badgeClass(a.tier);
+  const dp = document.getElementById('d-domain');
+  if (a.domain) { dp.textContent = a.domain; dp.style.cssText = domainPillStyle(a.domain) + ';display:inline-block'; }
+  else { dp.style.display = 'none'; }
+  document.getElementById('d-tags').innerHTML = a.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('');
+  document.getElementById('detail-panel').style.display = 'block';
+  document.getElementById('detail-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Populate grids
+const grids = {
+  opus:   document.getElementById('opus-grid'),
+  sonnet: document.getElementById('sonnet-grid'),
+  rr:     document.getElementById('rr-grid')
+};
+AGENTS.forEach(a => {
+  const el = document.createElement('div');
+  el.innerHTML = renderCard(a);
+  grids[a.tier].appendChild(el.firstElementChild);
+});
+['opus','sonnet','rr'].forEach(t => {
+  if (!grids[t].firstChild)
+    grids[t].innerHTML = '<div class="tier-empty">No agents assigned</div>';
+});
+document.getElementById('agent-count-label').textContent = AGENTS.length + ' agents';
+
+// ═══════════════════════════════════════════════
+// SERVER + DATABASE (fetch from localhost:8765)
+// ═══════════════════════════════════════════════
+let SQL = null;
+const DB_URL     = '/db/max.db';
+const INBOX_URL  = '/api/inbox';
+const STATUS_URL = '/api/status';
+
+initSqlJs({
+  locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}`
+}).then(async sql => {
+  SQL = sql;
+  await checkServerStatus();
+  await loadDB();
+  await loadInboxCounts();
+}).catch(e => console.error('[sql.js] load error:', e));
+
+async function checkServerStatus() {
+  const dot  = document.getElementById('srv-dot');
+  const text = document.getElementById('srv-text');
+  try {
+    const resp = await fetch(STATUS_URL + '?_=' + Date.now(),
+      { signal: AbortSignal.timeout(3000) });
+    if (resp.ok) {
+      dot.style.background = '#3fb97a';
+      text.style.color     = '#3fb97a';
+      text.textContent     = '● localhost:8765';
+      return true;
+    }
+  } catch(e) {}
+  dot.style.background = '#e74c3c';
+  text.style.color     = '#e74c3c';
+  text.textContent     = '● Server offline — run start_team.bat';
+  return false;
+}
+
+async function loadDB() {
+  if (!SQL) return;
+  try {
+    const resp = await fetch(DB_URL + '?_=' + Date.now());
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const buf = await resp.arrayBuffer();
+    const db  = new SQL.Database(new Uint8Array(buf));
+    renderTaskBoard(db);
+    renderJournalActivity(db);
+    db.close();
+    document.getElementById('db-status-label').textContent = 'Live · max.db';
+    updateRefreshLabel();
+  } catch(e) {
+    console.error('[db] load error:', e);
+    document.getElementById('db-status-label').textContent = 'Cannot reach db — is start_team.bat running?';
+  }
+}
+
+async function loadInboxCounts() {
+  try {
+    const resp = await fetch(INBOX_URL + '?_=' + Date.now());
+    if (!resp.ok) return;
+    const data = await resp.json();
+    setCount('owner', data.owner || 0);
+    setCount('team',  data.team  || 0);
+  } catch(e) { /* server not running */ }
+}
+
+function setCount(type, n) {
+  const el = document.getElementById(type + '-count');
+  if (!el) return;
+  el.textContent = n;
+  el.className = 'inbox-count' + (n > 0 ? ' has-items' : '');
+}
+
+// ═══════════════════════════════════════════════
+// TASK BOARD
+// ═══════════════════════════════════════════════
+const STATUSES = [
+  { key:'not_started', label:'Not Started', cls:'col-open'    },
+  { key:'in_progress', label:'In Progress', cls:'col-inprog'  },
+  { key:'blocked',     label:'Blocked',     cls:'col-review'  },
+  { key:'planned',     label:'Planned',     cls:'col-planned' },
+  { key:'done',        label:'Done',        cls:'col-done'    }
+];
+
+function domainClass(d) {
+  if (!d) return '';
+  const c = d.toLowerCase();
+  if (c.includes('yourstory'))              return 'domain-badge d-yourstory';
+  if (c.includes('wood') || c.includes('shop')) return 'domain-badge d-woodwork';
+  if (c.includes('retool') || c.includes('retirement')) return 'domain-badge d-retooling';
+  if (c.includes('personal'))               return 'domain-badge d-personal';
+  return 'domain-badge d-personal';
+}
+
+function renderTaskBoard(db) {
+  let tasks = [];
+  try {
+    const res = db.exec(
+      'SELECT title, domain, status, agent, due_date, priority FROM tasks WHERE deleted=0 ORDER BY updated_at DESC LIMIT 200'
+    );
+    if (res.length) {
+      const cols = res[0].columns;
+      tasks = res[0].values.map(row => Object.fromEntries(cols.map((c,i) => [c, row[i]])));
+    }
+  } catch(e) { /* tasks table not yet populated */ }
+
+  const board = document.getElementById('task-board');
+  board.innerHTML = STATUSES.map(s => {
+    const bucket = tasks.filter(t => (t.status || 'not_started') === s.key);
+    return `<div class="task-col ${s.cls}">
+      <div class="task-col-head">
+        <span>${s.label}</span>
+        <span class="task-count-badge">${bucket.length}</span>
+      </div>
+      ${bucket.length === 0
+        ? `<div class="task-empty">—</div>`
+        : bucket.map(t => `<div class="task-card">
+            <div class="task-name">${esc(t.title || 'Untitled')}</div>
+            <div class="task-footer">
+              ${t.agent    ? `<span class="task-agent">${esc(t.agent)}</span>` : ''}
+              ${t.domain   ? `<span class="${domainClass(t.domain)}">${esc(t.domain)}</span>` : ''}
+              ${t.due_date ? `<span class="task-due">${esc(t.due_date)}</span>` : ''}
+            </div>
+          </div>`).join('')
+      }
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+// JOURNAL & ACTIVITY
+// ═══════════════════════════════════════════════
+function renderJournalActivity(db) {
+  let journals = [];
+  try {
+    const res = db.exec('SELECT date, entry FROM journal_entries ORDER BY created_at DESC LIMIT 5');
+    if (res.length) journals = res[0].values.map(r => ({ date: r[0], entry: r[1] }));
+  } catch(e) {}
+
+  document.getElementById('journal-list').innerHTML = journals.length === 0
+    ? '<div class="ja-empty">No journal entries yet</div>'
+    : journals.map(j => `<div class="journal-row">
+        <div class="journal-date">${esc(j.date || '')}</div>
+        <div class="journal-text">${esc(firstLine(j.entry))}</div>
+      </div>`).join('');
+
+  const tables = ['tasks','journal_entries','woodworking_projects','contacts','projects'];
+  let activity = [];
+  tables.forEach(tbl => {
+    try {
+      const res = db.exec(`SELECT '${tbl}' AS tbl, updated_at AS t FROM ${tbl} ORDER BY t DESC LIMIT 2`);
+      if (res.length) res[0].values.forEach(r => activity.push({ tbl: r[0], time: r[1] }));
+    } catch(e) {}
+  });
+  activity.sort((a, b) => String(b.time).localeCompare(String(a.time)));
+  activity = activity.slice(0, 5);
+
+  document.getElementById('activity-list').innerHTML = activity.length === 0
+    ? '<div class="ja-empty">No database activity yet</div>'
+    : activity.map(a => `<div class="activity-row">
+        <div class="act-dot"></div>
+        <div class="act-text">Updated in <strong>${esc(a.tbl.replace(/_/g,' '))}</strong></div>
+        <div class="act-time">${esc(fmtDate(a.time))}</div>
+      </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function firstLine(s) { return String(s || '').split('\n')[0].slice(0, 140); }
+function fmtDate(ts) {
+  if (!ts) return '';
+  try { return new Date(ts).toLocaleDateString('en-US', { month:'short', day:'numeric' }); }
+  catch(e) { return String(ts).slice(0,10); }
+}
+function updateRefreshLabel() {
+  const t = new Date().toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+  document.getElementById('refresh-label').textContent = 'Refreshed ' + t;
+}
+
+// ═══════════════════════════════════════════════
+// AUTO-REFRESH (60 seconds)
+// ═══════════════════════════════════════════════
+setInterval(async () => {
+  await checkServerStatus();
+  await loadDB();
+  await loadInboxCounts();
+}, 60_000);
+</script>
+</body>
+</html>

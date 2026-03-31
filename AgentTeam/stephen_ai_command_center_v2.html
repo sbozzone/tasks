@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stephen's AI Command Center</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0f;
+    color: #e8e8f0;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  .cc-wrap { max-width: 1100px; margin: 0 auto; }
+  .cc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2.5rem; padding-bottom: 1rem; border-bottom: 0.5px solid #2a2a3a; }
+  .cc-title { font-size: 11px; font-weight: 500; color: #6b6b8a; letter-spacing: 0.12em; text-transform: uppercase; }
+  .cc-subtitle { font-size: 20px; font-weight: 500; color: #e8e8f0; margin-top: 4px; }
+  .cc-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #3fb97a; }
+  .cc-status-dot { width: 7px; height: 7px; border-radius: 50%; background: #3fb97a; }
+
+  .tier-section { margin-bottom: 2rem; }
+  .tier-label { font-size: 11px; font-weight: 500; color: #6b6b8a; margin-bottom: 12px; padding-left: 2px; display: flex; align-items: center; gap: 10px; }
+  .tier-line { flex: 1; height: 0.5px; background: #1e1e2e; }
+  .tier-sub { font-size: 10px; color: #44445a; }
+  .tier-opus .tier-label { color: #7F77DD; }
+  .tier-sonnet .tier-label { color: #1D9E75; }
+  .tier-rr .tier-label { color: #BA7517; }
+
+  .tier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 10px; }
+
+  .agent-card {
+    background: #12121e;
+    border: 0.5px solid #1e1e2e;
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .agent-card:hover { border-color: #2e2e4e; background: #14141f; }
+  .agent-card.orchestrator { border-color: #534AB7; border-width: 1.5px; }
+  .agent-card.selected { border-color: #378ADD; border-width: 1px; }
+
+  .card-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 12px 12px 0 0; }
+
+  .agent-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .agent-meta { flex: 1; min-width: 0; }
+  .agent-name { font-size: 14px; font-weight: 500; color: #e8e8f0; margin: 0 0 2px; }
+  .agent-role { font-size: 10px; color: #6b6b8a; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #3fb97a; flex-shrink: 0; }
+
+  .skill-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+  .skill-label { font-size: 9px; color: #44445a; width: 26px; flex-shrink: 0; letter-spacing: 0.05em; }
+  .skill-dots { display: flex; gap: 3px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #1e1e2e; }
+  .dot.p { background: #7F77DD; }
+  .dot.t { background: #1D9E75; }
+  .dot.a { background: #BA7517; }
+
+  .model-badge { display: inline-block; font-size: 9px; padding: 2px 8px; border-radius: 20px; margin-top: 8px; font-weight: 500; letter-spacing: 0.04em; }
+  .badge-opus { background: #1a1830; color: #7F77DD; border: 0.5px solid #3C3489; }
+  .badge-sonnet { background: #0d1f18; color: #1D9E75; border: 0.5px solid #0F6E56; }
+  .badge-rr { background: #1f1508; color: #EF9F27; border: 0.5px solid #854F0B; }
+
+  .conn-line { display: flex; justify-content: center; margin: 0.25rem 0 0.75rem; }
+  .conn-line-inner { width: 1px; height: 24px; background: #1e1e2e; }
+
+  .detail-panel {
+    background: #0e0e1a;
+    border: 0.5px solid #1e1e2e;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1.25rem;
+    display: none;
+  }
+  .detail-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .detail-avatar { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+  .detail-name { font-size: 18px; font-weight: 500; color: #e8e8f0; margin: 0 0 3px; }
+  .detail-role { font-size: 12px; color: #6b6b8a; margin: 0; }
+  .detail-badges { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+  .domain-pill { font-size: 10px; padding: 2px 9px; border-radius: 20px; background: #1f1508; color: #EF9F27; border: 0.5px solid #854F0B; font-weight: 500; }
+  .detail-desc { font-size: 13px; color: #8888a8; line-height: 1.7; margin-bottom: 14px; }
+  .detail-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #12121e; border: 0.5px solid #2a2a3a; color: #6b6b8a; }
+</style>
+</head>
+<body>
+<div class="cc-wrap">
+  <div class="cc-header">
+    <div>
+      <div class="cc-title">AI Command Center</div>
+      <div class="cc-subtitle">Stephen's Agent Team</div>
+    </div>
+    <div class="cc-status"><div class="cc-status-dot"></div>All agents online</div>
+  </div>
+
+  <div class="tier-section tier-opus">
+    <div class="tier-label"><span>Opus</span><span class="tier-line"></span><span class="tier-sub">orchestration · deep reasoning</span></div>
+    <div class="tier-grid" id="opus-grid"></div>
+  </div>
+
+  <div class="conn-line"><div class="conn-line-inner"></div></div>
+
+  <div class="tier-section tier-sonnet">
+    <div class="tier-label"><span>Sonnet</span><span class="tier-line"></span><span class="tier-sub">YourStory · woodworking · personal</span></div>
+    <div class="tier-grid" id="sonnet-grid"></div>
+  </div>
+
+  <div class="conn-line"><div class="conn-line-inner"></div></div>
+
+  <div class="tier-section tier-rr">
+    <div class="tier-label"><span>Retooling Retirement</span><span class="tier-line"></span><span class="tier-sub">channel · content · silver economy</span></div>
+    <div class="tier-grid" id="rr-grid"></div>
+  </div>
+
+  <div id="detail-panel" class="detail-panel">
+    <div class="detail-top">
+      <div id="d-avatar" class="detail-avatar"></div>
+      <div>
+        <div id="d-name" class="detail-name"></div>
+        <div id="d-role" class="detail-role"></div>
+      </div>
+      <div class="detail-badges">
+        <span id="d-badge" class="model-badge"></span>
+        <span id="d-domain" class="domain-pill" style="display:none;"></span>
+      </div>
+    </div>
+    <div id="d-desc" class="detail-desc"></div>
+    <div id="d-tags" class="detail-tags"></div>
+  </div>
+</div>
+
+<script>
+const agents = [
+  { name:"Max", role:"Orchestrator", emoji:"🦊", tier:"opus", accent:"#7F77DD", intel:5, rel:5, model:3, dc:"p", desc:"Single point of contact. Delegates every task to the right specialist. Never does the work himself. Maintains full team awareness and project context across all domains.", tags:["delegation","task routing","project oversight","team memory"], orchestrator:true },
+  { name:"Pax", role:"Senior Researcher", emoji:"🦅", tier:"sonnet", accent:"#1D9E75", intel:5, rel:3, model:3, dc:"t", desc:"Deep expertise research. Looks up suppliers, materials, market data, techniques, and competitive intel. Delivers structured research briefs to owner-inbox.", tags:["market research","supplier lookup","materials","competitor analysis"] },
+  { name:"Nolan", role:"HR Director", emoji:"🦁", tier:"sonnet", accent:"#BA7517", intel:4, rel:4, model:3, dc:"t", desc:"Hires new AI team members when a skill gap is identified. Works with Pax to define the role, then creates the agent definition. Keeps the team roster current.", tags:["hiring","agent creation","team roster","role definition"] },
+  { name:"Reed", role:"YourStory Ops", emoji:"🐺", tier:"sonnet", accent:"#D85A30", intel:4, rel:3, model:3, dc:"t", desc:"Handles all business tasks for YourStory Home Design. Pricing, customer comms, sales channel strategy — antique malls, galleries, Broad Ripple Art Show — and marketing.", tags:["pricing","customer comms","sales channels","marketing","business strategy"] },
+  { name:"Chip", role:"Woodworking Specialist", emoji:"🦫", tier:"sonnet", accent:"#639922", intel:5, rel:3, model:3, dc:"t", desc:"Project planning, joinery specs, material selection, jig design, finishing, and shop layout. Deep knowledge of wood species, tools, and studio workflow optimization.", tags:["joinery","material specs","jig design","finishing","shop layout"] },
+  { name:"Juno", role:"Personal Assistant", emoji:"🦋", tier:"sonnet", accent:"#D4537E", intel:4, rel:5, model:3, dc:"t", desc:"Daily journaling, personal productivity, life planning, and general personal tasks. Maintains context across your personal projects and keeps your day organized.", tags:["journaling","daily planning","personal tasks","life admin"] },
+  { name:"Vera", role:"Content Strategist", emoji:"🎙️", tier:"rr", accent:"#BA7517", intel:4, rel:4, model:3, dc:"a", desc:"Develops content strategy for Retooling Retirement. Plans video topics, series arcs, and editorial calendars targeting the silver economy demographic around hybrid craftsmanship and digital fabrication.", tags:["content strategy","editorial calendar","series planning","silver economy"], domain:"Retooling Retirement" },
+  { name:"Scout", role:"Audience Researcher", emoji:"🔭", tier:"rr", accent:"#EF9F27", intel:5, rel:3, model:3, dc:"a", desc:"Researches the silver economy audience — demographics, pain points, YouTube trends, competitor channels, and sponsorship opportunities. Feeds insights to Vera and Rex.", tags:["audience research","YouTube trends","demographics","sponsorship intel"], domain:"Retooling Retirement" },
+  { name:"Rex", role:"Script & Story Writer", emoji:"✍️", tier:"rr", accent:"#D85A30", intel:4, rel:5, model:3, dc:"a", desc:"Writes scripts, hooks, and narratives for Retooling Retirement videos. Translates your maker expertise and personal story into engaging TED-style content for a non-technical audience.", tags:["scriptwriting","storytelling","hooks","TED-style narrative","maker content"], domain:"Retooling Retirement" },
+  { name:"Pip", role:"Sponsorship & Brand", emoji:"🤝", tier:"rr", accent:"#639922", intel:3, rel:5, model:3, dc:"a", desc:"Manages sponsor outreach strategy, pitch deck content, and partnership tracking. Knows your Bambu Lab pitch history and focuses on brands aligned with the craftsmanship and retirement lifestyle niche.", tags:["sponsorship pitches","brand outreach","partnership tracking","Bambu Lab"], domain:"Retooling Retirement" }
+];
+
+function dots(filled, total, dc) {
+  let h = '';
+  for (let i = 0; i < total; i++) h += `<div class="dot${i < filled ? ' '+dc : ''}"></div>`;
+  return h;
+}
+function badgeClass(t) { return t==='opus'?'badge-opus':t==='rr'?'badge-rr':'badge-sonnet'; }
+function badgeText(t) { return t==='opus'?'Opus':t==='rr'?'Sonnet · RR':'Sonnet'; }
+
+function renderCard(a) {
+  return `<div class="agent-card${a.orchestrator?' orchestrator':''}" onclick="showDetail('${a.name}',this)">
+    <div class="card-accent" style="background:${a.accent}"></div>
+    <div class="agent-top">
+      <div class="avatar" style="background:${a.accent}22">${a.emoji}</div>
+      <div class="agent-meta"><div class="agent-name">${a.name}</div><div class="agent-role">${a.role}</div></div>
+      <div class="status-dot"></div>
+    </div>
+    <div class="skill-row"><span class="skill-label">INT</span><div class="skill-dots">${dots(a.intel,5,a.dc)}</div></div>
+    <div class="skill-row"><span class="skill-label">REL</span><div class="skill-dots">${dots(a.rel,5,a.dc)}</div></div>
+    <div class="skill-row"><span class="skill-label">MOD</span><div class="skill-dots">${dots(a.model,5,a.dc)}</div></div>
+    <span class="model-badge ${badgeClass(a.tier)}">${badgeText(a.tier)}</span>
+  </div>`;
+}
+
+let selected = null;
+function showDetail(name, el) {
+  const a = agents.find(x => x.name===name);
+  if (!a) return;
+  if (selected===name) { selected=null; document.getElementById('detail-panel').style.display='none'; document.querySelectorAll('.agent-card').forEach(c=>c.classList.remove('selected')); return; }
+  selected=name;
+  document.querySelectorAll('.agent-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('d-avatar').textContent=a.emoji;
+  document.getElementById('d-avatar').style.background=a.accent+'22';
+  document.getElementById('d-name').textContent=a.name;
+  document.getElementById('d-role').textContent=a.role;
+  document.getElementById('d-desc').textContent=a.desc;
+  const b=document.getElementById('d-badge'); b.textContent=badgeText(a.tier); b.className='model-badge '+badgeClass(a.tier);
+  const d=document.getElementById('d-domain'); if(a.domain){d.textContent=a.domain;d.style.display='inline-block';}else{d.style.display='none';}
+  document.getElementById('d-tags').innerHTML=a.tags.map(t=>`<span class="tag">${t}</span>`).join('');
+  document.getElementById('detail-panel').style.display='block';
+}
+
+const grids = { opus: document.getElementById('opus-grid'), sonnet: document.getElementById('sonnet-grid'), rr: document.getElementById('rr-grid') };
+agents.forEach(a => { const el=document.createElement('div'); el.innerHTML=renderCard(a); grids[a.tier].appendChild(el.firstElementChild); });
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+name = "tasks-worker"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tasks-db"
+database_id = "cf34433e-ab6c-42c3-af2e-8642e270d526"

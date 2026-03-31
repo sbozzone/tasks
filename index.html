@@ -3145,8 +3145,8 @@ function init() {
 init();
 
 // ── Print Sheet ──────────────────────────────────────────────────────────────
-// Inject 22 ruled note lines once at load
-(function() {
+// Inject 22 ruled note lines once after DOM is fully parsed
+document.addEventListener('DOMContentLoaded', function() {
   const linesContainer = document.getElementById('ps-lined-notes');
   if (linesContainer && linesContainer.children.length === 0) {
     for (let i = 0; i < 22; i++) {
@@ -3155,7 +3155,7 @@ init();
       linesContainer.appendChild(line);
     }
   }
-})();
+});
 
 function getSelectedDateStr() {
   return selectedDate.toISOString().split('T')[0];

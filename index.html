@@ -1763,7 +1763,12 @@ function getSettings() { return JSON.parse(localStorage.getItem('dp_settings') |
 function getTask(id) { return tasks.find(t => t.id === id); }
 function getSection(id) { return sections.find(s => s.id === id); }
 function getProjectName(pid) { return PROJECT_MAP[pid] || pid || 'No Project'; }
-function todayStr() { return new Date().toISOString().split('T')[0]; }
+function localDateStr(d) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+function todayStr() { return localDateStr(new Date()); }
 
 function updateTask(id, changes) {
   const t = getTask(id);
@@ -1957,7 +1962,7 @@ function exportJournalData() {
 // ========== MY DAY ==========
 function renderMyDay() {
   // Date nav state
-  const selDateStr = selectedDate.toISOString().split('T')[0];
+  const selDateStr = localDateStr(selectedDate);
   const todayDateStr = todayStr();
   const isToday = selDateStr === todayDateStr;
 
@@ -2090,7 +2095,7 @@ function updateClock() {
 setInterval(updateClock, 30000);
 
 function checkYesterday() {
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  const yesterday = localDateStr(new Date(Date.now() - 86400000));
   const unfinished = tasks.filter(t => t.myDayDate === yesterday && !t.done && !t.myDay);
   const banner = document.getElementById('yesterday-banner');
   if (unfinished.length > 0) {
@@ -2140,7 +2145,7 @@ function renderScheduleWeek() {
   for (let i = 0; i < 7; i++) {
     const day = new Date(startOfWeek);
     day.setDate(startOfWeek.getDate() + i);
-    const ds = day.toISOString().split('T')[0];
+    const ds = localDateStr(day);
     const isToday = ds === todayDateStr;
 
     const col = document.createElement('div');
@@ -2480,7 +2485,7 @@ function renderWeek() {
   for (let i = 0; i < 7; i++) {
     const d = new Date(startOfWeek);
     d.setDate(startOfWeek.getDate() + i);
-    const ds = d.toISOString().split('T')[0];
+    const ds = localDateStr(d);
     const isToday = ds === todayStr();
     const dayTasks = tasks.filter(t => t.dueDate === ds && !t.done);
     const heavy = dayTasks.length > 3;
@@ -2858,7 +2863,7 @@ function navigateDay(dir) {
     selectedDate.setDate(selectedDate.getDate() + dir);
   }
   selectedDate.setHours(0,0,0,0);
-  sessionStorage.setItem('dp_selected_date', selectedDate.toISOString().split('T')[0]);
+  sessionStorage.setItem('dp_selected_date', localDateStr(selectedDate));
   renderMyDay();
 }
 

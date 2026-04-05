@@ -19,3 +19,6 @@ Finances/.~lock.Financial_Plan_Stephen.xlsx#
 Finances/Financial_Plan_Stephen.xlsx
 Shop/MSS_Garage_Studio_Budget.xlsx
 PA/mobile-dashboard/Git_tasks
+
+# vault-setup is its own standalone git repo
+vault-setup/

@@ -1,3 +1,23 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# Debug
+npm-debug.log*
+
 # Claude Code — local only
 .claude/worktrees/
 AgentTeam/.claude/
